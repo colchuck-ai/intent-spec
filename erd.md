@@ -241,10 +241,14 @@ erDiagram
   RELATIONSHIP }o--o| SYSTEM: enters
   RELATIONSHIP }o--o| CONTAINER: enters
   RELATIONSHIP }o--o| COMPONENT: enters
+  RELATIONSHIP }o--o| INFRASTRUCTURE_NODE: leaves
+  RELATIONSHIP }o--o| INFRASTRUCTURE_NODE: enters
   %% a relationship is unidirectional and points from the requester to the responder
-  %% rule: a relationship leaves exactly one and enters exactly one person, system, container or component
+  %% rule: a relationship leaves exactly one and enters exactly one person, system, container, component or infrastructure node
+  %% rule: a relationship with an infrastructure-node end appears only in deployment diagrams
   %% rule: the two ends of a relationship are distinct and neither contains the other
   %% derived: a relationship implies one between each enclosing container or system of its source and of its destination, where neither contains the other, unless one is stored
+  %% derived: an implied relationship's description and technology are those of the relationships that imply it; store one at the higher level to give it a curated label
 
   %% derived: the document has one system landscape: every system and person, and the relationships between them
   %% derived: each internal system has a system context diagram: the system plus every person and system joined to it
@@ -260,7 +264,7 @@ erDiagram
     string description "optional; overrides the relationship's description"
   }
   DYNAMIC_STEP }o--|| RELATIONSHIP: follows
-  %% rule: a step follows a relationship that joins systems, containers or components
+  %% rule: a step follows a relationship that joins people, systems, containers or components
 
   DEPLOYMENT_DIAGRAM
   DEPLOYMENT_DIAGRAM }o--|{ SYSTEM: depicts
