@@ -1,0 +1,573 @@
+# OpenEMR: open-source electronic health records and practice management,
+# certified under the ONC Health IT Certification Program, plus a packaged
+# cloud deployment on AWS. Stage: mature, regulated.
+# Illustrative only, written from public information. Owners, targets and the
+# MFA exception are invented and say nothing about OpenEMR's actual posture.
+intentSpec: "0.1"
+
+products:
+  openemr:
+    stage: ratified
+    name: OpenEMR
+    description: Certified EHR and practice management software that clinics install and run.
+    targets: [run-patient-care, get-paid, access-my-care]
+  openemr-cloud:
+    stage: ratified
+    name: OpenEMR Cloud
+    description: OpenEMR packaged for one-click deployment on AWS.
+    targets: [run-patient-care, get-paid, access-my-care]
+
+jobExecutors:
+  clinician:
+    stage: ratified
+    description: Clinician seeing a patient during a visit
+  biller:
+    stage: ratified
+    description: Billing staff member turning visits into paid claims
+  patient:
+    stage: ratified
+    description: Patient managing their own care between visits
+
+jobs:
+  run-patient-care:
+    stage: ratified
+    statement: Record and act on everything needed to care for a patient during a visit
+    motivates: clinician
+    outcomes:
+      chart-in-visit:
+        stage: ratified
+        statement: Minimize the time spent documenting during a visit
+      complete-history:
+        stage: ratified
+        statement: Minimize the likelihood of missing relevant history, medications or allergies
+      send-prescriptions:
+        stage: ratified
+        statement: Minimize the time it takes to get a prescription to the pharmacy
+      lab-results-back:
+        stage: ratified
+        statement: Minimize the time between a lab result being ready and seeing it
+  get-paid:
+    stage: ratified
+    statement: Get paid for the care the practice delivers
+    motivates: biller
+    outcomes:
+      clean-claims:
+        stage: ratified
+        statement: Minimize the number of claims rejected for errors
+      days-to-payment:
+        stage: ratified
+        statement: Minimize the time between a visit and payment
+  access-my-care:
+    stage: ratified
+    statement: See my health information and stay in touch with my clinic
+    motivates: patient
+    outcomes:
+      see-records:
+        stage: ratified
+        statement: Minimize the effort to see my records and results
+      use-my-apps:
+        stage: ratified
+        statement: Minimize the effort to use my own health apps with my records
+      message-clinic:
+        stage: ratified
+        statement: Minimize the time to get an answer from my clinic
+      telehealth:
+        stage: ratified
+        statement: Minimize the effort to see my clinician without travelling
+        disposition: deferred
+        rationale: Provided through third-party modules for now
+
+requirements:
+  encounter-forms:
+    stage: ratified
+    statement: Clinicians document encounters with configurable forms, problem lists, medications and allergies
+    verification: ONC certification test procedures for clinical criteria
+    serves: [chart-in-visit, complete-history]
+  e-prescribing:
+    stage: ratified
+    statement: Prescriptions are sent electronically through an e-prescribing network
+    verification: Certification test of electronic prescribing
+    serves: [send-prescriptions]
+  lab-interface:
+    stage: ratified
+    statement: Lab orders and results are exchanged over HL7 v2
+    verification: Interface test with a lab sandbox
+    serves: [lab-results-back]
+  claims-export:
+    stage: ratified
+    statement: Claims are generated as X12 837 and sent to a clearinghouse, with scrubbing before submission
+    verification: Clearinghouse test submissions
+    serves: [clean-claims, days-to-payment]
+  patient-portal:
+    stage: ratified
+    statement: Patients view records, results and appointments, and message their clinic through a portal
+    verification: Portal test plan
+    serves: [see-records, message-clinic]
+  fhir-patient-access:
+    stage: ratified
+    statement: A FHIR R4 API with SMART on FHIR authorization lets patients connect apps of their choice
+    verification: ONC (g)(10) standardized API test with Inferno
+    serves: [use-my-apps]
+  role-based-access:
+    stage: ratified
+    statement: Access to every function is controlled by role-based access control lists
+    verification: ACL test suite
+    implements: [adopt-rbac-emr]
+  multi-factor-login:
+    stage: ratified
+    statement: Staff can log in with TOTP or U2F as a second factor
+    verification: Login tests for each factor
+    implements: [adopt-mfa-emr]
+  tamper-evident-audit:
+    stage: ratified
+    statement: Every access to and change of patient data is logged with a checksum, and the log can be checked for tampering
+    verification: Certification test of audit log integrity
+    implements: [adopt-audit-emr]
+  document-encryption:
+    stage: ratified
+    statement: Patient documents can be encrypted at rest
+    verification: Inspect stored documents with encryption enabled
+    implements: [adopt-doc-encryption-emr]
+  cloud-tls:
+    stage: ratified
+    statement: OpenEMR Cloud terminates TLS at the load balancer with a managed certificate
+    verification: Deployment template review
+    implements: [adopt-tls-cloud]
+  portal-lockout:
+    stage: ratified
+    statement: Portal accounts lock after repeated failed logins
+    verification: Login test
+    executes: [reduce-portal-takeover]
+
+metrics:
+  audit-integrity:
+    stage: ratified
+    target: 100% of weekly audit log integrity checks pass
+    frequency: Weekly
+    measures: [audit-logging]
+  claim-rejection-rate:
+    stage: ratified
+    target: Under 5% of claims rejected on first submission
+    frequency: Monthly
+    measures: [clean-claims]
+
+risks:
+  portal-takeover:
+    stage: ratified
+    description: An attacker takes over a patient's portal account with a reused password
+    endangers: [see-records, message-clinic]
+  acl-misconfiguration:
+    stage: ratified
+    description: A clinic misconfigures ACLs and staff see records they shouldn't
+    endangers: [complete-history]
+  unpatched-installs:
+    stage: ratified
+    description: Clinics run old versions with known vulnerabilities
+    endangers: []
+  partner-compromise:
+    stage: ratified
+    description: An e-prescribing, lab or clearinghouse partner is compromised and sends bad data
+    endangers: [send-prescriptions, lab-results-back, clean-claims]
+  mfa-not-enforced-cloud:
+    stage: ratified
+    description: OpenEMR Cloud deployments run without enforced MFA for staff
+    endangers: [complete-history]
+
+treatments:
+  reduce-portal-takeover:
+    stage: ratified
+    strategy: reduce
+    owner: Security lead
+    reviewBy: 2027-02-01
+    treats: [portal-takeover]
+    scopes: [openemr, openemr-cloud]
+  reduce-acl-misconfiguration:
+    stage: ratified
+    strategy: reduce
+    owner: Security lead
+    reviewBy: 2027-02-01
+    treats: [acl-misconfiguration]
+    scopes: [openemr, openemr-cloud]
+  transfer-patching:
+    stage: ratified
+    strategy: transfer
+    owner: Project lead
+    rationale: Deploying practices are responsible for patching under the installation guide and their HIPAA obligations
+    treats: [unpatched-installs]
+    scopes: [openemr]
+  reduce-partner-compromise:
+    stage: ratified
+    strategy: reduce
+    owner: Security lead
+    reviewBy: 2027-02-01
+    treats: [partner-compromise]
+    scopes: [openemr, openemr-cloud]
+  accept-cloud-mfa-gap:
+    stage: ratified
+    strategy: accept
+    owner: Project lead
+    reviewBy: 2026-12-31
+    rationale: Illustrative. Enforcing MFA would break existing cloud customers' integrations; we accept this until the next major release
+    treats: [mfa-not-enforced-cloud]
+    scopes: [openemr-cloud]
+    waives: [std-mfa]
+
+externalReferences:
+  onc-cert: {stage: ratified, title: "45 CFR 170.315 ONC Health IT certification criteria", url: "https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-D/part-170/subpart-C/section-170.315", party: ONC}
+  hipaa-security: {stage: ratified, title: "45 CFR Part 164 Subpart C (HIPAA Security Rule)", url: "https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C", party: HHS}
+  deploying-practice: {stage: ratified, title: Deploying practice's own safeguards, party: Deploying practice}
+  aws-physical: {stage: ratified, title: AWS SOC 2 Type II report, party: AWS}
+  cis-amazon-linux: {stage: ratified, title: CIS Amazon Linux 2023 Benchmark, party: Center for Internet Security}
+
+influencers:
+  inf-onc:
+    stage: ratified
+    kinds: [regulatory]
+    scopeRationale: OpenEMR is certified health IT, and clinics rely on that for federal programs
+    cites: onc-cert
+  inf-hipaa:
+    stage: ratified
+    kinds: [statutory]
+    scopeRationale: Deploying practices are covered entities and must protect ePHI that OpenEMR stores
+    cites: hipaa-security
+
+policies:
+  pol-security:
+    stage: ratified
+    name: Information security policy
+    approver: OpenEMR Foundation board
+    satisfies: [inf-onc, inf-hipaa]
+
+controlObjectives:
+  co-access-control: {stage: ratified, supports: [pol-security], cites: [inf-hipaa, inf-onc]}
+  co-audit: {stage: ratified, supports: [pol-security], cites: [inf-hipaa, inf-onc]}
+  co-transmission: {stage: ratified, supports: [pol-security], cites: [inf-hipaa]}
+  co-data-at-rest: {stage: ratified, supports: [pol-security], cites: [inf-onc]}
+  co-vulnerabilities: {stage: ratified, supports: [pol-security]}
+  co-physical: {stage: ratified, supports: [pol-security], cites: [inf-hipaa]}
+
+standards:
+  std-unique-users: {stage: ratified, description: Every user has a unique login and least-privilege role, addresses: [co-access-control]}
+  std-mfa: {stage: ratified, description: Staff accounts use multi-factor authentication, addresses: [co-access-control]}
+  std-audit-log: {stage: ratified, description: Actions on ePHI are logged and the log is tamper-evident, addresses: [co-audit]}
+  std-tls: {stage: ratified, description: ePHI is encrypted in transit with TLS 1.2 or later, addresses: [co-transmission]}
+  std-encrypt-at-rest: {stage: ratified, description: Stored patient documents are encrypted, addresses: [co-data-at-rest]}
+  std-disclosure: {stage: ratified, description: Security reports are triaged within 7 days and fixed in a patch release, addresses: [co-vulnerabilities]}
+  std-physical: {stage: ratified, description: Servers are in physically secured facilities, addresses: [co-physical]}
+  std-host-baseline: {stage: ratified, description: Hosts are hardened to the secure baseline, addresses: [co-access-control]}
+
+guidelines:
+  gl-acl-setup: {stage: ratified, description: Wiki guidance on setting up ACL roles for a clinic, augments: [std-unique-users]}
+
+controls:
+  access-control: {stage: ratified, owner: Security lead, safeguard: technical, enforces: [std-unique-users], achieves: [co-access-control]}
+  mfa: {stage: ratified, owner: Security lead, safeguard: technical, enforces: [std-mfa], achieves: [co-access-control]}
+  audit-logging: {stage: ratified, owner: Security lead, safeguard: technical, enforces: [std-audit-log], achieves: [co-audit]}
+  transport-encryption: {stage: ratified, owner: Infrastructure lead, safeguard: technical, enforces: [std-tls], achieves: [co-transmission]}
+  document-encryption-control: {stage: ratified, owner: Security lead, safeguard: technical, enforces: [std-encrypt-at-rest], achieves: [co-data-at-rest]}
+  vulnerability-management: {stage: ratified, owner: Security lead, safeguard: administrative, enforces: [std-disclosure], achieves: [co-vulnerabilities]}
+  physical-security: {stage: ratified, owner: Infrastructure lead, safeguard: physical, enforces: [std-physical], achieves: [co-physical]}
+  partner-validation:
+    stage: ratified
+    owner: Security lead
+    safeguard: technical
+    enforces: [std-unique-users]
+    achieves: [co-access-control]
+    executes: [reduce-partner-compromise, reduce-acl-misconfiguration]
+
+procedures:
+  proc-vuln-triage:
+    stage: ratified
+    owner: Security lead
+    overseer: Project lead
+    operationalizes: vulnerability-management
+    implements: [adopt-vuln-emr]
+  proc-patch-release:
+    stage: ratified
+    owner: Release manager
+    overseer: Project lead
+    operationalizes: vulnerability-management
+    implements: [adopt-vuln-emr]
+
+assessmentObjectives:
+  ao-access: {stage: ratified, assesses: access-control, verifies: [std-unique-users]}
+  ao-mfa: {stage: ratified, assesses: mfa, verifies: [std-mfa]}
+  ao-audit: {stage: ratified, assesses: audit-logging, verifies: [std-audit-log]}
+  ao-tls: {stage: ratified, assesses: transport-encryption, verifies: [std-tls]}
+  ao-doc-encryption: {stage: ratified, assesses: document-encryption-control, verifies: [std-encrypt-at-rest]}
+  ao-vuln: {stage: ratified, assesses: vulnerability-management, verifies: [std-disclosure], examines: [proc-vuln-triage, proc-patch-release]}
+  ao-physical: {stage: ratified, assesses: physical-security, verifies: [std-physical]}
+  ao-partner: {stage: ratified, assesses: partner-validation, verifies: [std-unique-users]}
+
+adoptions:
+  # OpenEMR (self-installed)
+  adopt-rbac-emr: {stage: ratified, mode: system, adopts: access-control, governs: openemr}
+  adopt-mfa-emr: {stage: ratified, mode: system, adopts: mfa, governs: openemr}
+  adopt-audit-emr: {stage: ratified, mode: system, adopts: audit-logging, governs: openemr}
+  adopt-tls-emr: {stage: ratified, mode: inherited, adopts: transport-encryption, governs: openemr, inherits: deploying-practice}
+  adopt-doc-encryption-emr: {stage: ratified, mode: system, adopts: document-encryption-control, governs: openemr}
+  adopt-vuln-emr: {stage: ratified, mode: procedure, adopts: vulnerability-management, governs: openemr}
+  adopt-physical-emr: {stage: ratified, mode: inherited, adopts: physical-security, governs: openemr, inherits: deploying-practice}
+  adopt-partner-emr: {stage: ratified, mode: system, adopts: partner-validation, governs: openemr}
+  # OpenEMR Cloud
+  adopt-rbac-cloud: {stage: ratified, mode: inherited, adopts: access-control, governs: openemr-cloud, inherits: adopt-rbac-emr}
+  adopt-mfa-cloud: {stage: ratified, mode: excepted, adopts: mfa, governs: openemr-cloud}
+  adopt-audit-cloud: {stage: ratified, mode: inherited, adopts: audit-logging, governs: openemr-cloud, inherits: adopt-audit-emr}
+  adopt-tls-cloud: {stage: ratified, mode: system, adopts: transport-encryption, governs: openemr-cloud}
+  adopt-doc-encryption-cloud: {stage: ratified, mode: inherited, adopts: document-encryption-control, governs: openemr-cloud, inherits: adopt-doc-encryption-emr}
+  adopt-vuln-cloud: {stage: ratified, mode: inherited, adopts: vulnerability-management, governs: openemr-cloud, inherits: adopt-vuln-emr}
+  adopt-physical-cloud: {stage: ratified, mode: inherited, adopts: physical-security, governs: openemr-cloud, inherits: aws-physical}
+  adopt-partner-cloud: {stage: ratified, mode: inherited, adopts: partner-validation, governs: openemr-cloud, inherits: adopt-partner-emr}
+
+secureBaselines:
+  cloud-host-baseline:
+    stage: ratified
+    encodes: [std-host-baseline]
+    derives: cis-amazon-linux
+    hardens: [app-node]
+
+people:
+  clinician-person: {stage: ratified, name: Clinician, plays: [clinician]}
+  biller-person: {stage: ratified, name: Biller, plays: [biller]}
+  patient-person: {stage: ratified, name: Patient, plays: [patient]}
+
+systems:
+  openemr-system:
+    stage: ratified
+    name: OpenEMR
+    description: EHR and practice management web application
+    owner: OpenEMR project
+    external: false
+    realizes: [openemr, openemr-cloud]
+    satisfies: [cloud-tls]
+    containers:
+      web-app:
+        stage: ratified
+        name: Web application
+        description: PHP application serving clinical, billing, portal and API functions
+        kind: application
+        technology: PHP, Apache
+        satisfies: [role-based-access, multi-factor-login, tamper-evident-audit]
+        components:
+          clinical: {stage: ratified, name: Clinical, description: Encounters, problem lists, prescribing and lab orders, technology: PHP, satisfies: [encounter-forms, e-prescribing, lab-interface]}
+          billing: {stage: ratified, name: Billing, description: Fee sheets, claims and payments, technology: PHP, satisfies: [claims-export]}
+          portal: {stage: ratified, name: Patient portal, description: Patient-facing records and messaging, technology: PHP, satisfies: [patient-portal, portal-lockout]}
+          fhir-api: {stage: ratified, name: FHIR API, description: FHIR R4 with SMART on FHIR and OAuth 2, technology: PHP, satisfies: [fhir-patient-access]}
+      database:
+        stage: ratified
+        name: Database
+        description: Patient records, billing, users, ACLs and audit log
+        kind: data-store
+        technology: MySQL or MariaDB
+      documents:
+        stage: ratified
+        name: Document store
+        description: Scanned documents and images, optionally encrypted
+        kind: data-store
+        technology: File system
+        satisfies: [document-encryption]
+  erx-network: {stage: ratified, name: E-prescribing network, description: Routes prescriptions to pharmacies, owner: E-prescribing vendor, external: true}
+  lab: {stage: ratified, name: Lab, description: Reference lab receiving orders and returning results, owner: Lab, external: true}
+  clearinghouse: {stage: ratified, name: Clearinghouse, description: Validates and forwards claims to payers, owner: Clearinghouse, external: true}
+  smart-apps: {stage: ratified, name: Patient apps, description: Third-party SMART on FHIR apps chosen by patients, owner: App developers, external: true}
+
+relationships:
+  clinician-uses-clinical: {stage: ratified, leaves: clinician-person, enters: clinical, description: Documents visits and orders, technology: HTTPS}
+  biller-uses-billing: {stage: ratified, leaves: biller-person, enters: billing, description: Prepares and submits claims, technology: HTTPS}
+  patient-uses-portal: {stage: ratified, leaves: patient-person, enters: portal, description: Views records and sends messages, technology: HTTPS}
+  patient-uses-apps: {stage: ratified, leaves: patient-person, enters: smart-apps, description: Uses health apps}
+  apps-call-fhir: {stage: ratified, leaves: smart-apps, enters: fhir-api, description: Reads the patient's records, technology: HTTPS, FHIR R4, OAuth 2}
+  clinical-sends-erx: {stage: ratified, leaves: clinical, enters: erx-network, description: Sends prescriptions, technology: HTTPS, NCPDP SCRIPT}
+  clinical-exchanges-labs: {stage: ratified, leaves: clinical, enters: lab, description: Sends orders and receives results, technology: HL7 v2 over SFTP}
+  billing-sends-claims: {stage: ratified, leaves: billing, enters: clearinghouse, description: Submits claims and fetches remittances, technology: X12 over SFTP}
+  clinical-uses-db: {stage: ratified, leaves: clinical, enters: database, description: Reads and writes clinical data and audit entries, technology: SQL}
+  clinical-uses-docs: {stage: ratified, leaves: clinical, enters: documents, description: Stores and reads documents, technology: File I/O}
+  billing-uses-db: {stage: ratified, leaves: billing, enters: database, description: Reads and writes billing data and audit entries, technology: SQL}
+  portal-uses-db: {stage: ratified, leaves: portal, enters: database, description: Reads records and writes messages and audit entries, technology: SQL}
+  fhir-uses-db: {stage: ratified, leaves: fhir-api, enters: database, description: Reads records and writes audit entries, technology: SQL}
+
+dynamicDiagrams:
+  dyn-app-access:
+    stage: ratified
+    name: A patient connects a health app
+    depicts: fhir-patient-access
+    steps:
+      s1: {stage: ratified, order: 1, follows: patient-uses-apps, description: Patient chooses to connect the app}
+      s2: {stage: ratified, order: 2, follows: apps-call-fhir, description: App completes SMART authorization and requests records}
+      s3: {stage: ratified, order: 3, follows: fhir-uses-db, description: API reads the records and logs the access}
+
+environments:
+  cloud-production: {stage: ratified, name: OpenEMR Cloud on AWS}
+
+deploymentNodes:
+  aws-region:
+    stage: ratified
+    name: AWS region
+    technology: AWS
+    belongs: cloud-production
+    infrastructureNodes:
+      load-balancer: {stage: ratified, name: Application load balancer, technology: AWS ALB with ACM certificate}
+    deploymentNodes:
+      app-node:
+        stage: ratified
+        name: Application server
+        technology: EC2, Amazon Linux, Docker
+        containerInstances:
+          web-app-cloud: {stage: ratified, instantiates: web-app}
+          documents-cloud: {stage: ratified, instantiates: documents}
+      db-node:
+        stage: ratified
+        name: Managed database
+        technology: Amazon RDS for MySQL, encrypted
+        containerInstances:
+          database-cloud: {stage: ratified, instantiates: database}
+
+deploymentDiagrams:
+  deploy-cloud: {stage: ratified, depicts: [openemr-system, cloud-production]}
+
+externalEntities:
+  ee-clinician: {stage: ratified, label: Clinician, represents: clinician-person}
+  ee-biller: {stage: ratified, label: Biller, represents: biller-person}
+  ee-patient: {stage: ratified, label: Patient, represents: patient-person}
+  ee-smart-apps: {stage: ratified, label: Patient apps, represents: smart-apps}
+  ee-erx: {stage: ratified, label: E-prescribing network, represents: erx-network}
+  ee-lab: {stage: ratified, label: Lab, represents: lab}
+  ee-clearinghouse: {stage: ratified, label: Clearinghouse, represents: clearinghouse}
+
+processes:
+  p-clinical: {stage: ratified, label: Clinical, represents: clinical}
+  p-billing: {stage: ratified, label: Billing, represents: billing}
+  p-portal: {stage: ratified, label: Portal, represents: portal}
+  p-fhir: {stage: ratified, label: FHIR API, represents: fhir-api}
+
+dataStores:
+  ds-database: {stage: ratified, label: Database, represents: database, stores: [clinical-record, demographics, claim, credentials, audit-event, message]}
+  ds-documents: {stage: ratified, label: Documents, represents: documents, stores: [clinical-document]}
+
+dataElements:
+  clinical-record: {stage: ratified, classification: restricted, description: Encounters, problems, medications, allergies and results, triggers: [inf-hipaa]}
+  demographics: {stage: ratified, classification: restricted, description: Name, date of birth, address and insurance, triggers: [inf-hipaa]}
+  clinical-document: {stage: ratified, classification: restricted, description: Scanned documents and images, triggers: [inf-hipaa]}
+  prescription: {stage: ratified, classification: restricted, description: Medication order for a patient, triggers: [inf-hipaa]}
+  lab-message: {stage: ratified, classification: restricted, description: HL7 order or result, triggers: [inf-hipaa]}
+  claim: {stage: ratified, classification: restricted, description: X12 claim and remittance, triggers: [inf-hipaa]}
+  credentials: {stage: ratified, classification: confidential, description: Password hashes, MFA secrets and OAuth tokens}
+  audit-event: {stage: ratified, classification: confidential, description: Who accessed what and when, with a checksum, triggers: [inf-hipaa, inf-onc]}
+  message: {stage: ratified, classification: restricted, description: Portal message between patient and clinic, triggers: [inf-hipaa]}
+
+dataFlows:
+  df-clinician-clinical: {stage: ratified, label: Clinical UI, connects: [ee-clinician, p-clinical], leaves: ee-clinician, carries: [clinical-record, demographics, credentials], represents: [clinician-uses-clinical]}
+  df-biller-billing: {stage: ratified, label: Billing UI, connects: [ee-biller, p-billing], leaves: ee-biller, carries: [claim, demographics, credentials], represents: [biller-uses-billing]}
+  df-patient-portal: {stage: ratified, label: Portal, connects: [ee-patient, p-portal], leaves: ee-patient, carries: [clinical-record, message, credentials], represents: [patient-uses-portal]}
+  df-apps-fhir: {stage: ratified, label: FHIR, connects: [ee-smart-apps, p-fhir], leaves: ee-smart-apps, carries: [clinical-record, demographics, credentials], represents: [apps-call-fhir]}
+  df-clinical-erx: {stage: ratified, label: E-prescriptions, connects: [p-clinical, ee-erx], leaves: p-clinical, carries: [prescription], represents: [clinical-sends-erx]}
+  df-clinical-lab: {stage: ratified, label: HL7, connects: [p-clinical, ee-lab], leaves: p-clinical, carries: [lab-message], represents: [clinical-exchanges-labs]}
+  df-billing-clearinghouse: {stage: ratified, label: X12, connects: [p-billing, ee-clearinghouse], leaves: p-billing, carries: [claim], represents: [billing-sends-claims]}
+  df-clinical-db: {stage: ratified, label: SQL, connects: [p-clinical, ds-database], leaves: p-clinical, carries: [clinical-record, demographics, audit-event], represents: [clinical-uses-db]}
+  df-clinical-docs: {stage: ratified, label: Files, connects: [p-clinical, ds-documents], leaves: p-clinical, carries: [clinical-document], represents: [clinical-uses-docs]}
+  df-billing-db: {stage: ratified, label: SQL, connects: [p-billing, ds-database], leaves: p-billing, carries: [claim, demographics, audit-event], represents: [billing-uses-db]}
+  df-portal-db: {stage: ratified, label: SQL, connects: [p-portal, ds-database], leaves: p-portal, carries: [clinical-record, message, audit-event], represents: [portal-uses-db]}
+  df-fhir-db: {stage: ratified, label: SQL, connects: [p-fhir, ds-database], leaves: p-fhir, carries: [clinical-record, demographics, audit-event], represents: [fhir-uses-db]}
+
+trustBoundaries:
+  tb-server:
+    stage: ratified
+    label: OpenEMR server
+    crossing: Authenticated HTTPS from staff, patients and apps; SFTP and HTTPS to partners
+    encloses: [p-clinical, p-billing, p-portal, p-fhir]
+    relies: [access-control, transport-encryption]
+    trustBoundaries:
+      tb-data:
+        stage: ratified
+        label: Data tier
+        crossing: Only the web application's database account and file system user
+        encloses: [ds-database, ds-documents]
+        relies: [database, document-encryption-control]
+
+dataFlowDiagrams:
+  dfd-web-app:
+    stage: ratified
+    level: detail
+    depicts: web-app
+    includes: [ee-clinician, ee-biller, ee-patient, ee-smart-apps, ee-erx, ee-lab, ee-clearinghouse, p-clinical, p-billing, p-portal, p-fhir, ds-database, ds-documents]
+
+threats:
+  t-spoofing: {stage: ratified, category: spoofing, appliesTo: [external-entity], description: A user, app or partner is impersonated, threatens: [access-control, mfa]}
+  t-store-disclosure: {stage: ratified, category: information-disclosure, appliesTo: [data-store], description: ePHI is read from storage without authorization, threatens: [document-encryption-control, access-control]}
+  t-repudiation: {stage: ratified, category: repudiation, appliesTo: [process], description: A user denies an action on a patient record, threatens: [audit-logging]}
+  t-privilege: {stage: ratified, category: elevation-of-privilege, appliesTo: [process], description: A user reaches functions or records beyond their role, threatens: [access-control]}
+  t-flow-tampering: {stage: ratified, category: tampering, appliesTo: [data-flow], description: ePHI is modified in transit, threatens: [transport-encryption]}
+
+threatReviews:
+  r-spoof-clinician: {stage: ratified, reviews: t-spoofing, inspects: ee-clinician, disposition: covered, cites: [access-control]}
+  r-spoof-biller: {stage: ratified, reviews: t-spoofing, inspects: ee-biller, disposition: covered, cites: [access-control]}
+  r-spoof-patient: {stage: ratified, reviews: t-spoofing, inspects: ee-patient, disposition: risk, raises: portal-takeover}
+  r-spoof-apps: {stage: ratified, reviews: t-spoofing, inspects: ee-smart-apps, disposition: covered, cites: [fhir-patient-access]}
+  r-spoof-erx: {stage: ratified, reviews: t-spoofing, inspects: ee-erx, disposition: risk, raises: partner-compromise}
+  r-spoof-lab: {stage: ratified, reviews: t-spoofing, inspects: ee-lab, disposition: covered, cites: [partner-validation]}
+  r-spoof-clearinghouse: {stage: ratified, reviews: t-spoofing, inspects: ee-clearinghouse, disposition: covered, cites: [partner-validation]}
+  r-store-db: {stage: ratified, reviews: t-store-disclosure, inspects: ds-database, disposition: covered, cites: [access-control]}
+  r-store-docs: {stage: ratified, reviews: t-store-disclosure, inspects: ds-documents, disposition: covered, cites: [document-encryption-control]}
+  r-repudiate-clinical: {stage: ratified, reviews: t-repudiation, inspects: p-clinical, disposition: covered, cites: [audit-logging]}
+  r-repudiate-billing: {stage: ratified, reviews: t-repudiation, inspects: p-billing, disposition: covered, cites: [audit-logging]}
+  r-repudiate-portal: {stage: ratified, reviews: t-repudiation, inspects: p-portal, disposition: covered, cites: [audit-logging]}
+  r-repudiate-fhir: {stage: ratified, reviews: t-repudiation, inspects: p-fhir, disposition: covered, cites: [audit-logging]}
+  r-privilege-clinical: {stage: ratified, reviews: t-privilege, inspects: p-clinical, disposition: risk, raises: acl-misconfiguration}
+  r-privilege-billing: {stage: ratified, reviews: t-privilege, inspects: p-billing, disposition: covered, cites: [access-control]}
+  r-privilege-portal: {stage: ratified, reviews: t-privilege, inspects: p-portal, disposition: covered, cites: [access-control]}
+  r-privilege-fhir: {stage: ratified, reviews: t-privilege, inspects: p-fhir, disposition: covered, cites: [fhir-patient-access, access-control]}
+  r-tamper-clinician: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinician-clinical, disposition: covered, cites: [transport-encryption]}
+  r-tamper-biller: {stage: ratified, reviews: t-flow-tampering, inspects: df-biller-billing, disposition: covered, cites: [transport-encryption]}
+  r-tamper-patient: {stage: ratified, reviews: t-flow-tampering, inspects: df-patient-portal, disposition: covered, cites: [transport-encryption]}
+  r-tamper-apps: {stage: ratified, reviews: t-flow-tampering, inspects: df-apps-fhir, disposition: covered, cites: [transport-encryption]}
+  r-tamper-erx: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinical-erx, disposition: covered, cites: [transport-encryption]}
+  r-tamper-lab: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinical-lab, disposition: covered, cites: [transport-encryption]}
+  r-tamper-clearinghouse: {stage: ratified, reviews: t-flow-tampering, inspects: df-billing-clearinghouse, disposition: covered, cites: [transport-encryption]}
+  r-tamper-clinical-db: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinical-db, disposition: not-applicable, rationale: Same host or private network inside the data tier boundary}
+  r-tamper-clinical-docs: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinical-docs, disposition: not-applicable, rationale: Local file system}
+  r-tamper-billing-db: {stage: ratified, reviews: t-flow-tampering, inspects: df-billing-db, disposition: not-applicable, rationale: Same host or private network inside the data tier boundary}
+  r-tamper-portal-db: {stage: ratified, reviews: t-flow-tampering, inspects: df-portal-db, disposition: not-applicable, rationale: Same host or private network inside the data tier boundary}
+  r-tamper-fhir-db: {stage: ratified, reviews: t-flow-tampering, inspects: df-fhir-db, disposition: not-applicable, rationale: Same host or private network inside the data tier boundary}
+
+# Couldn't express
+# - HIPAA applies to the clinic, not to OpenEMR. The whole security program exists
+#   to let covered entities comply, but the influencer's scope rationale is the only
+#   place to say so. There's no way to express "we provide this control so that
+#   our customers can meet their obligation".
+# - Certification status. OpenEMR holds a specific ONC certification with a
+#   listing number and date, and certified criteria map to requirements. Neither
+#   the certification nor the criterion-to-requirement mapping fits.
+# - The deploying practice's shared responsibility. It's spread across inherited
+#   adoptions, a transfer treatment and free-text owners. A clinic reading this
+#   can't easily get "what you must do yourself" out of it.
+# - Business associate agreements. OpenEMR Cloud on AWS needs a BAA with AWS and
+#   with every partner that touches ePHI. External systems can't carry contractual
+#   obligations.
+# - Configuration that changes compliance. Document encryption is optional, and
+#   MFA is available but not enforced by default on self-installs. The system
+#   adoption claims the control, but whether a given clinic has it switched on is
+#   deployment state, which is out of scope.
+# - The spoofing reviews for clinicians and billers can't cite MFA. A review
+#   covers every product of its DFD at once, and MFA is excepted on OpenEMR Cloud,
+#   so citing it breaks the adoption rule. I can't say "covered by MFA on OpenEMR,
+#   by access control alone on Cloud".
+# - cloud-tls is satisfied by the AWS load balancer, an infrastructure node.
+#   Those can't satisfy requirements, so I attached it to the whole system.
+# - partner-validation is a control I invented to stand for "validate partner
+#   identity with credentials and TLS". It needed a standard to enforce, so it
+#   reuses std-unique-users, which doesn't really fit.
+# - The ACL-misconfiguration risk is caused by the clinic, not an attacker, but it
+#   could only be raised through an elevation-of-privilege review.
+# - The excepted MFA adoption needed an accept treatment that waives std-mfa. It
+#   works, but the risk "MFA isn't enforced" restates the exception rather than a
+#   real cause and consequence.
+# - The unpatched-installs risk endangers patients' safety and privacy, not an
+#   outcome of any job in this document.
+# - Clinical safety risks, such as a wrong medication from a data error, have no
+#   home. RISK only endangers outcomes, and patient harm isn't an outcome of
+#   these jobs.
+# - 29 threat reviews for a deliberately small DFD, 5 of them on local database
+#   flows that are obviously out of reach. A real deployment would need several
+#   hundred.
+# - The project's governance: OpenEMR Foundation, volunteer contributors and
+#   commercial support vendors who each deploy it differently.

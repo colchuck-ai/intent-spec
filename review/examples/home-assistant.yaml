@@ -1,0 +1,440 @@
+# Home Assistant: open-source home automation that runs locally and connects
+# thousands of device integrations. Stage: mature.
+# Illustrative only, written from public information; owners and targets are invented.
+intentSpec: "0.1"
+
+products:
+  home-assistant:
+    stage: ratified
+    name: Home Assistant
+    description: Local-first home automation platform with apps for every household member.
+    targets: [run-home-together, check-on-home]
+
+jobExecutors:
+  home-tinkerer:
+    stage: ratified
+    description: Household member who sets up and maintains the home's devices and automations
+  household-member:
+    stage: ratified
+    description: Anyone living in the home, at home or away, who isn't interested in how it works
+
+jobs:
+  run-home-together:
+    stage: ratified
+    statement: Make my home's devices work together automatically, without depending on any one vendor
+    motivates: home-tinkerer
+    outcomes:
+      one-place:
+        stage: ratified
+        statement: Minimize the number of devices I can't control from one place
+      works-offline:
+        stage: ratified
+        statement: Minimize the number of automations that stop when the internet is down
+      quick-device-setup:
+        stage: ratified
+        statement: Minimize the time it takes to add a new device
+      data-stays-home:
+        stage: ratified
+        statement: Minimize the amount of household data that leaves the home
+      safe-to-update:
+        stage: ratified
+        statement: Minimize the likelihood that an update breaks my home
+      multi-home:
+        stage: ratified
+        statement: Minimize the effort to manage several homes from one place
+        disposition: out-of-scope
+        rationale: One instance runs one home; people run several instances
+  check-on-home:
+    stage: ratified
+    statement: Know the home is okay and adjust it, wherever I am
+    motivates: household-member
+    outcomes:
+      no-learning-needed:
+        stage: ratified
+        statement: Minimize what I have to learn to turn on lights or change the heating
+      alerted-when-wrong:
+        stage: ratified
+        statement: Minimize the time before I learn something is wrong at home
+      control-when-away:
+        stage: ratified
+        statement: Minimize the effort to control the home when I'm away
+
+requirements:
+  local-automation:
+    stage: ratified
+    statement: Automations for local-capable devices run with the internet disconnected
+    verification: Test suite runs local automations with WAN blocked
+    serves: [works-offline, data-stays-home]
+  unified-entity-model:
+    stage: ratified
+    statement: Every integration exposes devices as entities with a common state model and services
+    verification: Integration quality scale review
+    serves: [one-place]
+  discovery-and-config-flows:
+    stage: ratified
+    statement: Supported devices are discovered on the network and set up through a guided UI flow
+    verification: Integration quality scale review
+    serves: [quick-device-setup]
+  local-history:
+    stage: ratified
+    statement: State history is recorded only in the local database
+    verification: Code review of the recorder
+    serves: [data-stays-home]
+  role-based-users:
+    stage: ratified
+    statement: Admins and non-admin users have separate permissions; non-admins can't change configuration
+    verification: Auth tests
+    serves: [no-learning-needed]
+  multi-factor-auth:
+    stage: ratified
+    statement: Users can enable TOTP or notification-based multi-factor login
+    verification: Auth tests
+    serves: [control-when-away]
+  companion-app:
+    stage: ratified
+    statement: iOS and Android apps give household members dashboards and push notifications
+    verification: App release testing
+    serves: [no-learning-needed, alerted-when-wrong, control-when-away]
+  remote-access-options:
+    stage: ratified
+    statement: Remote access works through Home Assistant Cloud or the user's own reverse proxy, never by default
+    verification: Fresh install exposes nothing to the internet
+    serves: [control-when-away]
+    executes: [reduce-exposed-instances]
+  signed-images:
+    stage: ratified
+    statement: The Supervisor installs only signed Home Assistant images
+    verification: Supervisor rejects an unsigned test image
+    serves: [safe-to-update]
+    executes: [reduce-update-supply-chain]
+  backups-before-update:
+    stage: ratified
+    statement: Updates offer a backup first, and backups can be restored from the onboarding screen
+    verification: Release checklist
+    serves: [safe-to-update]
+  custom-integration-warning:
+    stage: ratified
+    statement: Custom integrations are flagged in logs and repairs as untested by the project
+    verification: Load a custom integration and check the warning
+    executes: [reduce-custom-code]
+
+metrics:
+  local-integration-share:
+    stage: ratified
+    target: Over 60% of integrations are local push or local polling
+    frequency: Quarterly
+    measures: [works-offline]
+  update-rollback-rate:
+    stage: ratified
+    target: Under 1% of updates are rolled back by users
+    frequency: Every release
+    measures: [safe-to-update]
+
+risks:
+  exposed-instances:
+    stage: ratified
+    description: Users expose their instance to the internet with weak passwords and no TLS
+    endangers: [data-stays-home]
+  update-supply-chain:
+    stage: ratified
+    description: A compromised build or registry delivers a malicious update to many homes
+    endangers: [safe-to-update, data-stays-home]
+  custom-code:
+    stage: ratified
+    description: Custom integrations and add-ons run unsandboxed with full access to the instance
+    endangers: [data-stays-home, safe-to-update]
+  vendor-cloud-shutdown:
+    stage: ratified
+    description: A device vendor shuts down or locks its cloud API, and cloud-only devices stop working
+    endangers: [one-place, works-offline]
+
+treatments:
+  reduce-exposed-instances:
+    stage: ratified
+    strategy: reduce
+    owner: Core team
+    reviewBy: 2027-04-01
+    treats: [exposed-instances]
+    scopes: [home-assistant]
+  reduce-update-supply-chain:
+    stage: ratified
+    strategy: reduce
+    owner: Core team
+    reviewBy: 2027-04-01
+    treats: [update-supply-chain]
+    scopes: [home-assistant]
+  reduce-custom-code:
+    stage: ratified
+    strategy: reduce
+    owner: Core team
+    reviewBy: 2027-04-01
+    treats: [custom-code]
+    scopes: [home-assistant]
+  accept-vendor-shutdown:
+    stage: ratified
+    strategy: accept
+    owner: Core team
+    reviewBy: 2027-04-01
+    rationale: Outside our control; the integration quality scale shows users which devices are local
+    treats: [vendor-cloud-shutdown]
+    scopes: [home-assistant]
+
+people:
+  tinkerer: {stage: ratified, name: Home admin, description: Configures integrations and automations, plays: [home-tinkerer]}
+  member: {stage: ratified, name: Household member, description: Uses dashboards and the app, plays: [household-member]}
+
+systems:
+  ha-system:
+    stage: ratified
+    name: Home Assistant
+    description: Core, frontend, Supervisor and companion apps
+    owner: Home Assistant project
+    external: false
+    realizes: [home-assistant]
+    containers:
+      core:
+        stage: ratified
+        name: Core
+        description: Event bus, state machine, automations and integrations
+        kind: application
+        technology: Python, asyncio
+        satisfies: [local-automation, unified-entity-model, discovery-and-config-flows, role-based-users, multi-factor-auth, custom-integration-warning, remote-access-options]
+        components:
+          automation-engine: {stage: ratified, name: Automation engine, description: Runs triggers, conditions and actions, technology: Python}
+          integrations: {stage: ratified, name: Integrations, description: Device and service integrations, technology: Python}
+          recorder: {stage: ratified, name: Recorder, description: Writes state history, technology: SQLAlchemy, satisfies: [local-history]}
+          auth: {stage: ratified, name: Auth, description: Users, tokens and multi-factor modules, technology: Python}
+          websocket-api: {stage: ratified, name: WebSocket API, description: API for the frontend and apps, technology: aiohttp}
+      frontend:
+        stage: ratified
+        name: Frontend
+        description: Dashboards and settings UI, served by Core and run in the browser
+        kind: application
+        technology: TypeScript, Lit
+      companion:
+        stage: ratified
+        name: Companion apps
+        description: iOS and Android apps
+        kind: application
+        technology: Swift, Kotlin
+        satisfies: [companion-app]
+      supervisor:
+        stage: ratified
+        name: Supervisor
+        description: Manages updates, backups and add-ons on Home Assistant OS
+        kind: application
+        technology: Python, Docker
+        satisfies: [signed-images, backups-before-update]
+      recorder-db:
+        stage: ratified
+        name: Recorder database
+        description: State and event history
+        kind: data-store
+        technology: SQLite
+      config-store:
+        stage: ratified
+        name: Configuration store
+        description: YAML configuration and .storage files, including auth tokens and integration credentials
+        kind: data-store
+        technology: Files
+  devices: {stage: ratified, name: Local devices, description: Lights, sensors and hubs reached over Zigbee, Z-Wave, Matter, Wi-Fi or Bluetooth, owner: Device makers, external: true}
+  vendor-clouds: {stage: ratified, name: Vendor clouds, description: Cloud APIs for cloud-only devices, owner: Device vendors, external: true}
+  ha-cloud: {stage: ratified, name: Home Assistant Cloud, description: Paid remote access and voice assistant bridge, owner: Nabu Casa, external: true}
+  image-registry: {stage: ratified, name: Container registry, description: Hosts signed images, owner: GitHub, external: true}
+  version-service: {stage: ratified, name: Version service, description: Publishes which versions are current, owner: Home Assistant project, external: true}
+
+relationships:
+  tinkerer-configures: {stage: ratified, leaves: tinkerer, enters: frontend, description: Configures integrations and automations}
+  member-uses-app: {stage: ratified, leaves: member, enters: companion, description: Checks dashboards and receives alerts}
+  frontend-calls-core: {stage: ratified, leaves: frontend, enters: core, description: Reads state and calls services, technology: WebSocket}
+  companion-calls-core: {stage: ratified, leaves: companion, enters: core, description: Reads state, calls services and registers for notifications, technology: WebSocket, REST}
+  core-records: {stage: ratified, leaves: core, enters: recorder-db, description: Writes and queries history, technology: SQL}
+  core-reads-config: {stage: ratified, leaves: core, enters: config-store, description: Loads configuration and stores credentials, technology: File I/O}
+  core-controls-devices: {stage: ratified, leaves: core, enters: devices, description: Subscribes to events and sends commands, technology: Zigbee, Z-Wave, Matter, IP}
+  core-polls-clouds: {stage: ratified, leaves: core, enters: vendor-clouds, description: Polls state and sends commands, technology: HTTPS}
+  core-uses-ha-cloud: {stage: ratified, leaves: core, enters: ha-cloud, description: Opens the remote access tunnel and voice bridge, technology: TLS tunnel}
+  supervisor-manages-core: {stage: ratified, leaves: supervisor, enters: core, description: Starts, stops, updates and backs up Core, technology: Docker API, HTTP}
+  supervisor-pulls-images: {stage: ratified, leaves: supervisor, enters: image-registry, description: Pulls signed images, technology: HTTPS}
+  supervisor-checks-versions: {stage: ratified, leaves: supervisor, enters: version-service, description: Checks for updates, technology: HTTPS}
+
+dynamicDiagrams:
+  dyn-motion-light:
+    stage: ratified
+    name: Motion turns on a light with the internet down
+    depicts: local-automation
+    steps:
+      s1: {stage: ratified, order: 1, follows: core-controls-devices, description: Core receives a motion event from a Zigbee sensor}
+      s2: {stage: ratified, order: 2, follows: core-controls-devices, description: The automation engine sends a turn-on command to the light}
+      s3: {stage: ratified, order: 3, follows: core-records, description: The recorder stores both state changes}
+
+environments:
+  haos-install: {stage: ratified, name: Home Assistant OS install}
+  container-install: {stage: ratified, name: Container install (no Supervisor)}
+
+deploymentNodes:
+  ha-device:
+    stage: ratified
+    name: Home Assistant Green or Raspberry Pi
+    technology: Home Assistant OS
+    belongs: haos-install
+    deploymentNodes:
+      docker-engine:
+        stage: ratified
+        name: Docker engine
+        technology: Docker
+        containerInstances:
+          core-haos: {stage: ratified, instantiates: core}
+          supervisor-haos: {stage: ratified, instantiates: supervisor}
+          recorder-haos: {stage: ratified, instantiates: recorder-db}
+          config-haos: {stage: ratified, instantiates: config-store}
+  phone:
+    stage: ratified
+    name: Household member's phone
+    technology: iOS or Android
+    belongs: haos-install
+    containerInstances:
+      companion-haos: {stage: ratified, instantiates: companion}
+  browser:
+    stage: ratified
+    name: Web browser
+    technology: Any modern browser
+    belongs: haos-install
+    containerInstances:
+      frontend-haos: {stage: ratified, instantiates: frontend}
+  docker-host:
+    stage: ratified
+    name: User's Linux server
+    technology: Docker
+    belongs: container-install
+    containerInstances:
+      core-container: {stage: ratified, instantiates: core}
+      recorder-container: {stage: ratified, instantiates: recorder-db}
+      config-container: {stage: ratified, instantiates: config-store}
+
+deploymentDiagrams:
+  deploy-haos: {stage: ratified, depicts: [ha-system, haos-install]}
+  deploy-container: {stage: ratified, depicts: [ha-system, container-install]}
+
+externalEntities:
+  ee-tinkerer: {stage: ratified, label: Home admin, represents: tinkerer}
+  ee-member: {stage: ratified, label: Household member, represents: member}
+  ee-devices: {stage: ratified, label: Local devices, represents: devices}
+  ee-vendor-clouds: {stage: ratified, label: Vendor clouds, represents: vendor-clouds}
+  ee-ha-cloud: {stage: ratified, label: Home Assistant Cloud, represents: ha-cloud}
+  ee-registry: {stage: ratified, label: Container registry, represents: image-registry}
+  ee-version-service: {stage: ratified, label: Version service, represents: version-service}
+
+processes:
+  p-core: {stage: ratified, label: Core, represents: core}
+  p-frontend: {stage: ratified, label: Frontend, represents: frontend}
+  p-companion: {stage: ratified, label: Companion app, represents: companion}
+  p-supervisor: {stage: ratified, label: Supervisor, represents: supervisor}
+
+dataStores:
+  ds-recorder: {stage: ratified, label: Recorder database, represents: recorder-db, stores: [state-history]}
+  ds-config: {stage: ratified, label: Configuration store, represents: config-store, stores: [configuration, credentials]}
+
+dataElements:
+  state-history: {stage: ratified, classification: confidential, description: When people were home, which rooms were used, camera and lock events}
+  configuration: {stage: ratified, classification: internal, description: Automations, dashboards and integration settings}
+  credentials: {stage: ratified, classification: restricted, description: User password hashes, refresh tokens and vendor-cloud credentials}
+  device-command: {stage: ratified, classification: internal, description: Device states and commands}
+  image: {stage: ratified, classification: public, description: Signed container image and version metadata}
+
+dataFlows:
+  df-tinkerer-frontend: {stage: ratified, label: UI, connects: [ee-tinkerer, p-frontend], leaves: ee-tinkerer, carries: [configuration], represents: [tinkerer-configures]}
+  df-member-companion: {stage: ratified, label: App UI, connects: [ee-member, p-companion], leaves: ee-member, carries: [device-command], represents: [member-uses-app]}
+  df-frontend-core: {stage: ratified, label: WebSocket, connects: [p-frontend, p-core], leaves: p-frontend, carries: [device-command, configuration, state-history, credentials], represents: [frontend-calls-core]}
+  df-companion-core: {stage: ratified, label: WebSocket and REST, connects: [p-companion, p-core], leaves: p-companion, carries: [device-command, state-history, credentials], represents: [companion-calls-core]}
+  df-core-recorder: {stage: ratified, label: SQL, connects: [p-core, ds-recorder], leaves: p-core, carries: [state-history], represents: [core-records]}
+  df-core-config: {stage: ratified, label: File I/O, connects: [p-core, ds-config], leaves: p-core, carries: [configuration, credentials], represents: [core-reads-config]}
+  df-core-devices: {stage: ratified, label: Device protocols, connects: [p-core, ee-devices], carries: [device-command], represents: [core-controls-devices]}
+  df-core-clouds: {stage: ratified, label: Vendor APIs, connects: [p-core, ee-vendor-clouds], leaves: p-core, carries: [device-command, credentials], represents: [core-polls-clouds]}
+  df-core-ha-cloud: {stage: ratified, label: Remote tunnel, connects: [p-core, ee-ha-cloud], leaves: p-core, carries: [device-command, state-history], represents: [core-uses-ha-cloud]}
+  df-supervisor-core: {stage: ratified, label: Management, connects: [p-supervisor, p-core], leaves: p-supervisor, carries: [image], represents: [supervisor-manages-core]}
+  df-supervisor-registry: {stage: ratified, label: Image pull, connects: [p-supervisor, ee-registry], leaves: p-supervisor, carries: [image], represents: [supervisor-pulls-images]}
+  df-supervisor-versions: {stage: ratified, label: Version check, connects: [p-supervisor, ee-version-service], leaves: p-supervisor, carries: [image], represents: [supervisor-checks-versions]}
+
+trustBoundaries:
+  tb-home-network:
+    stage: ratified
+    label: Home network
+    crossing: Outbound HTTPS and tunnels only, unless the user exposes a port
+    encloses: [ee-devices]
+    relies: [core]
+    trustBoundaries:
+      tb-ha-host:
+        stage: ratified
+        label: Home Assistant host
+        crossing: Authenticated WebSocket and REST on port 8123; Supervisor API only from Core and add-ons
+        encloses: [p-core, p-supervisor, ds-recorder, ds-config]
+        relies: [core, supervisor]
+
+dataFlowDiagrams:
+  dfd-ha:
+    stage: ratified
+    level: detail
+    depicts: ha-system
+    includes: [ee-tinkerer, ee-member, ee-devices, ee-vendor-clouds, ee-ha-cloud, ee-registry, ee-version-service, p-core, p-frontend, p-companion, p-supervisor, ds-recorder, ds-config]
+
+threats:
+  t-spoofed-party:
+    stage: ratified
+    category: spoofing
+    appliesTo: [external-entity]
+    description: Someone or something impersonates a user, device or service
+  t-store-disclosure:
+    stage: ratified
+    category: information-disclosure
+    appliesTo: [data-store]
+    description: Household data or credentials are read by someone who shouldn't
+  t-process-tampering:
+    stage: ratified
+    category: tampering
+    appliesTo: [process]
+    description: Code running in a process is replaced or modified
+
+threatReviews:
+  r-spoof-tinkerer: {stage: ratified, reviews: t-spoofed-party, inspects: ee-tinkerer, disposition: risk, raises: exposed-instances}
+  r-spoof-member: {stage: ratified, reviews: t-spoofed-party, inspects: ee-member, disposition: covered, cites: [multi-factor-auth, role-based-users]}
+  r-spoof-devices: {stage: ratified, reviews: t-spoofed-party, inspects: ee-devices, disposition: not-applicable, rationale: Device pairing security is set by each protocol (Zigbee, Z-Wave, Matter) and outside our design}
+  r-spoof-clouds: {stage: ratified, reviews: t-spoofed-party, inspects: ee-vendor-clouds, disposition: not-applicable, rationale: Vendor APIs are reached over HTTPS with certificate validation}
+  r-spoof-ha-cloud: {stage: ratified, reviews: t-spoofed-party, inspects: ee-ha-cloud, disposition: covered, cites: [remote-access-options]}
+  r-spoof-registry: {stage: ratified, reviews: t-spoofed-party, inspects: ee-registry, disposition: covered, cites: [signed-images]}
+  r-spoof-versions: {stage: ratified, reviews: t-spoofed-party, inspects: ee-version-service, disposition: covered, cites: [signed-images]}
+  r-store-recorder: {stage: ratified, reviews: t-store-disclosure, inspects: ds-recorder, disposition: covered, cites: [local-history, role-based-users]}
+  r-store-config: {stage: ratified, reviews: t-store-disclosure, inspects: ds-config, disposition: risk, raises: custom-code}
+  r-tamper-core: {stage: ratified, reviews: t-process-tampering, inspects: p-core, disposition: covered, cites: [custom-integration-warning]}
+  r-tamper-supervisor: {stage: ratified, reviews: t-process-tampering, inspects: p-supervisor, disposition: risk, raises: update-supply-chain}
+  r-tamper-frontend: {stage: ratified, reviews: t-process-tampering, inspects: p-frontend, disposition: covered, cites: [signed-images]}
+  r-tamper-companion: {stage: ratified, reviews: t-process-tampering, inspects: p-companion, disposition: not-applicable, rationale: Distributed through the app stores, which sign and review builds}
+
+# Couldn't express
+# - Installation methods. Home Assistant OS, Container, Supervised and Core
+#   installs are really product variants with different capabilities: no
+#   Supervisor, no add-ons, no signed updates. I modelled two of them as
+#   environments, but they aren't environments in the dev/staging/prod sense, and
+#   requirements like signed-images can't say "only on HAOS".
+# - Add-ons and custom integrations. Third-party code runs inside our trust
+#   boundary. They're neither our containers nor an external system, and there are
+#   thousands of them.
+# - Integrations as a catalogue. There are over 2,000 integrations, each with a
+#   quality tier and IoT class (local push, cloud polling). They're the heart of
+#   the product but don't fit as components.
+# - Home Assistant Cloud is run by Nabu Casa, a separate company that funds the
+#   project. It's both an external system and a product we sell, and I couldn't
+#   say both.
+# - The household as a context. Who lives there, guests and kids all matter for
+#   permissions, but a person is just a role.
+# - The home network boundary encloses local devices, yet nothing we own enforces
+#   it. `relies` must name a container, infrastructure node or control, so I named
+#   Core, which is wrong. Really, the user's router enforces it.
+# - Voice assistant, energy dashboard and other major features are each big enough
+#   to be products or capabilities, but only requirements exist.
+# - remote-access-options is really satisfied by Home Assistant Cloud or the
+#   user's reverse proxy. Only an internal system can satisfy a requirement, so
+#   I attached it to Core.
+# - Release cadence (monthly releases) and the deprecation policy for integrations,
+#   which matter to anyone running it.
+# - No GRC chain. Home Assistant has no compliance obligations to speak of, and
+#   the threat reviews cite requirements instead of controls.

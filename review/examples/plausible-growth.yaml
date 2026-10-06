@@ -1,0 +1,428 @@
+# Plausible Analytics around 2022: a paid hosted service plus a self-hosted
+# Community Edition, with GDPR at the centre of the pitch. Stage: growth.
+# Illustrative only, written from public information; owners and targets are invented.
+intentSpec: "0.1"
+
+products:
+  plausible-cloud:
+    stage: ratified
+    name: Plausible Cloud
+    description: Hosted, paid analytics service run by the Plausible team in the EU.
+    targets: [understand-traffic, report-to-clients]
+  plausible-ce:
+    stage: ratified
+    name: Plausible Community Edition
+    description: Free self-hosted release of the same software, run by the operator.
+    targets: [understand-traffic]
+
+jobExecutors:
+  site-owner:
+    stage: ratified
+    description: Site owner or marketer checking how their site and campaigns are doing
+  agency:
+    stage: ratified
+    description: Agency that manages sites for clients and reports results to them
+
+jobs:
+  understand-traffic:
+    stage: ratified
+    statement: Understand how many people visit my site, where they come from and what they do
+    motivates: site-owner
+    outcomes:
+      traffic-at-a-glance:
+        stage: ratified
+        statement: Minimize the time it takes to see how traffic is trending
+      know-sources:
+        stage: ratified
+        statement: Minimize the effort to see which sources and campaigns send me visitors
+      no-consent-banner:
+        stage: ratified
+        statement: Minimize the need to ask visitors for consent before measuring traffic
+      fast-pages:
+        stage: ratified
+        statement: Minimize the page weight that analytics adds
+      campaign-conversions:
+        stage: ratified
+        statement: Minimize the time it takes to see which campaigns lead to sign-ups
+      individual-journeys:
+        stage: ratified
+        statement: Minimize the effort to follow one visitor's path through the site
+        disposition: out-of-scope
+        rationale: Tracking individuals conflicts with the product's privacy promise
+      data-stays-in-eu:
+        stage: ratified
+        statement: Minimize the likelihood that visitor data leaves the EU
+  report-to-clients:
+    stage: ratified
+    statement: Show clients how their sites are performing
+    motivates: agency
+    outcomes:
+      share-without-logins:
+        stage: ratified
+        statement: Minimize the effort to give a client access to their stats
+      many-sites:
+        stage: ratified
+        statement: Minimize the time spent switching between client sites
+      white-label:
+        stage: ratified
+        statement: Minimize the visibility of the analytics vendor in client reports
+        disposition: deferred
+        rationale: Not enough demand yet compared with other agency requests
+
+requirements:
+  one-page-dashboard:
+    stage: ratified
+    statement: Every metric for a site fits on one dashboard page with a date-range picker and filters
+    verification: Design review
+    serves: [traffic-at-a-glance]
+  referrer-list:
+    stage: deprecated
+    replacedBy: source-breakdown
+    statement: The dashboard lists top referrers by domain
+    verification: Integration test with known referrers
+    serves: [know-sources]
+  source-breakdown:
+    stage: ratified
+    statement: The dashboard breaks traffic down by referrer, UTM source, medium and campaign
+    verification: Integration test with tagged URLs
+    serves: [know-sources]
+  goals-and-funnels:
+    stage: ratified
+    statement: Site owners define goals (pageviews or custom events) and see conversion rates by source
+    verification: Integration test with custom events
+    serves: [campaign-conversions]
+  no-cookies:
+    stage: ratified
+    statement: The tracker sets no cookies and uses no persistent identifiers
+    verification: Browser test confirms no cookies or local storage are written
+    serves: [no-consent-banner]
+    implements: [adopt-hashing-cloud, adopt-hashing-ce]
+  daily-salted-visitor-hash:
+    stage: ratified
+    statement: Unique visitors are counted using a hash of IP, user agent and a salt that rotates and is deleted daily
+    verification: Code review and unit test of salt rotation
+    serves: [no-consent-banner]
+    implements: [adopt-hashing-cloud, adopt-hashing-ce]
+  small-script:
+    stage: ratified
+    statement: The tracking script stays under 1 KB gzipped
+    verification: Size check in CI
+    serves: [fast-pages]
+  host-in-eu:
+    stage: ratified
+    statement: Plausible Cloud runs only on servers owned by an EU company and located in the EU
+    verification: Hosting contract and infrastructure inventory
+    serves: [data-stays-in-eu]
+    implements: [adopt-eu-hosting-cloud]
+  shared-links:
+    stage: ratified
+    statement: A site's dashboard can be shared via a private link or made public
+    verification: Integration test of link access
+    serves: [share-without-logins]
+  site-switcher:
+    stage: ratified
+    statement: Users with many sites can switch sites from any dashboard in one click
+    verification: Usability check with an agency account of 50 sites
+    serves: [many-sites]
+  dashboard-speed:
+    stage: ratified
+    statement: Dashboards load in under 2 seconds for sites with up to 10 million monthly pageviews
+    verification: Load test against production-sized data
+    serves: [traffic-at-a-glance]
+
+metrics:
+  script-size:
+    stage: ratified
+    target: Under 1 KB gzipped
+    frequency: Every release
+    measures: [fast-pages]
+  dashboard-p95:
+    stage: ratified
+    target: p95 load under 2 seconds
+    frequency: Weekly
+    measures: [traffic-at-a-glance]
+  deletion-sla:
+    stage: ratified
+    target: 100% of account deletions completed within 30 days
+    frequency: Quarterly
+    measures: [account-deletion]
+
+externalReferences:
+  gdpr: {stage: ratified, title: "Regulation (EU) 2016/679 (GDPR)", url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj", party: European Union}
+  customer-dpa: {stage: ratified, title: Plausible data processing agreement, party: Plausible customers}
+  self-host-operator: {stage: ratified, title: Operator's own hosting and data-handling controls, party: Self-hosting operator}
+  cis-ubuntu: {stage: ratified, title: CIS Ubuntu Linux Benchmark, url: "https://www.cisecurity.org/benchmark/ubuntu_linux", party: Center for Internet Security}
+
+influencers:
+  inf-gdpr:
+    stage: ratified
+    kinds: [statutory]
+    scopeRationale: Plausible processes data about EU visitors and customers
+    cites: gdpr
+  inf-dpa:
+    stage: ratified
+    kinds: [contractual]
+    scopeRationale: Every Cloud customer signs the DPA, which commits Plausible to EU processing and deletion on request
+    cites: customer-dpa
+
+policies:
+  pol-privacy:
+    stage: ratified
+    name: Data protection policy
+    approver: Founders
+    satisfies: [inf-gdpr, inf-dpa]
+
+controlObjectives:
+  co-minimise-personal-data:
+    stage: ratified
+    supports: [pol-privacy]
+    cites: [inf-gdpr]
+  co-eu-residency:
+    stage: ratified
+    supports: [pol-privacy]
+    cites: [inf-dpa]
+  co-honour-deletion:
+    stage: ratified
+    supports: [pol-privacy]
+    cites: [inf-gdpr, inf-dpa]
+  co-hardened-hosts:
+    stage: ratified
+    supports: [pol-privacy]
+
+standards:
+  std-no-persistent-ids:
+    stage: ratified
+    description: No identifier that can follow a visitor across days or sites is stored or sent
+    addresses: [co-minimise-personal-data]
+  std-eu-processing:
+    stage: ratified
+    description: Personal data is processed and stored only in the EU, by EU-owned providers
+    addresses: [co-eu-residency]
+  std-deletion-30-days:
+    stage: ratified
+    description: Customer data is deleted within 30 days of account closure
+    addresses: [co-honour-deletion]
+  std-host-baseline:
+    stage: ratified
+    description: Servers follow the secure baseline before they enter production
+    addresses: [co-hardened-hosts]
+
+controls:
+  visitor-hashing:
+    stage: ratified
+    owner: Engineering lead
+    safeguard: technical
+    enforces: [std-no-persistent-ids]
+    achieves: [co-minimise-personal-data]
+  eu-hosting:
+    stage: ratified
+    owner: Operations lead
+    safeguard: administrative
+    enforces: [std-eu-processing]
+    achieves: [co-eu-residency]
+  account-deletion:
+    stage: ratified
+    owner: Support lead
+    safeguard: administrative
+    enforces: [std-deletion-30-days]
+    achieves: [co-honour-deletion]
+
+procedures:
+  proc-account-deletion:
+    stage: ratified
+    owner: Support lead
+    overseer: Founders
+    operationalizes: account-deletion
+    implements: [adopt-deletion-cloud]
+
+assessmentObjectives:
+  ao-hashing:
+    stage: ratified
+    assesses: visitor-hashing
+    verifies: [std-no-persistent-ids]
+  ao-eu-hosting:
+    stage: ratified
+    assesses: eu-hosting
+    verifies: [std-eu-processing]
+  ao-deletion:
+    stage: ratified
+    assesses: account-deletion
+    verifies: [std-deletion-30-days]
+    examines: [proc-account-deletion]
+
+adoptions:
+  adopt-hashing-cloud: {stage: ratified, mode: system, adopts: visitor-hashing, governs: plausible-cloud}
+  adopt-hashing-ce: {stage: ratified, mode: system, adopts: visitor-hashing, governs: plausible-ce}
+  adopt-eu-hosting-cloud: {stage: ratified, mode: system, adopts: eu-hosting, governs: plausible-cloud}
+  adopt-eu-hosting-ce: {stage: ratified, mode: inherited, adopts: eu-hosting, governs: plausible-ce, inherits: self-host-operator}
+  adopt-deletion-cloud: {stage: ratified, mode: procedure, adopts: account-deletion, governs: plausible-cloud}
+  adopt-deletion-ce: {stage: ratified, mode: inherited, adopts: account-deletion, governs: plausible-ce, inherits: self-host-operator}
+
+secureBaselines:
+  host-baseline:
+    stage: ratified
+    encodes: [std-host-baseline]
+    derives: cis-ubuntu
+    hardens: [eu-region]
+
+people:
+  site-owner-person: {stage: ratified, name: Site owner, description: Customer or teammate who reads the dashboard, plays: [site-owner]}
+  agency-person: {stage: ratified, name: Agency user, description: Manages many client sites, plays: [agency]}
+  visitor: {stage: ratified, name: Visitor, description: Someone browsing a customer's site}
+
+systems:
+  plausible-system:
+    stage: ratified
+    name: Plausible
+    description: Analytics service; the same code runs Cloud and Community Edition
+    owner: Plausible engineering
+    external: false
+    realizes: [plausible-cloud, plausible-ce]
+    satisfies: [host-in-eu]
+    containers:
+      tracker:
+        stage: ratified
+        name: Tracker script
+        description: JavaScript that runs on customers' sites and sends pageviews and custom events
+        kind: application
+        technology: JavaScript
+        satisfies: [no-cookies, small-script]
+      web-app:
+        stage: ratified
+        name: Web app
+        description: Ingests events, serves the dashboard and API, manages accounts and billing
+        kind: application
+        technology: Elixir, Phoenix
+        satisfies: [one-page-dashboard, source-breakdown, goals-and-funnels, daily-salted-visitor-hash, shared-links, site-switcher, referrer-list]
+      events-db:
+        stage: ratified
+        name: Events database
+        description: Pageview and custom events
+        kind: data-store
+        technology: ClickHouse
+        satisfies: [dashboard-speed]
+      app-db:
+        stage: ratified
+        name: Application database
+        description: Accounts, sites, goals and shared links
+        kind: data-store
+        technology: PostgreSQL
+  billing-provider: {stage: ratified, name: Paddle, description: Merchant of record for subscriptions, owner: Paddle, external: true}
+  email-provider: {stage: ratified, name: Transactional email provider, description: Sends reports and account email, owner: Vendor, external: true}
+
+relationships:
+  visitor-loads-tracker: {stage: ratified, leaves: visitor, enters: tracker, description: Loads the tracker while browsing a customer site, technology: HTTPS}
+  tracker-sends-events: {stage: ratified, leaves: tracker, enters: web-app, description: Sends pageview and custom events, technology: HTTPS}
+  owner-views-dashboard: {stage: ratified, leaves: site-owner-person, enters: web-app, description: Views dashboards and manages sites, technology: HTTPS}
+  agency-views-dashboard: {stage: ratified, leaves: agency-person, enters: web-app, description: Views client dashboards and shares links, technology: HTTPS}
+  web-app-writes-events: {stage: ratified, leaves: web-app, enters: events-db, description: Writes and queries events, technology: ClickHouse native protocol}
+  web-app-uses-app-db: {stage: ratified, leaves: web-app, enters: app-db, description: Reads and writes accounts and site settings, technology: Ecto/SQL}
+  web-app-to-billing: {stage: ratified, leaves: web-app, enters: billing-provider, description: Creates checkouts and reads subscription status, technology: HTTPS API}
+  billing-webhooks: {stage: ratified, leaves: billing-provider, enters: web-app, description: Notifies subscription changes, technology: HTTPS webhooks}
+  web-app-sends-email: {stage: ratified, leaves: web-app, enters: email-provider, description: Sends weekly reports and account email, technology: HTTPS API}
+
+externalEntities:
+  ee-visitor: {stage: ratified, label: Visitor, represents: visitor}
+  ee-site-owner: {stage: ratified, label: Site owner, represents: site-owner-person}
+  ee-agency: {stage: ratified, label: Agency user, represents: agency-person}
+  ee-billing: {stage: ratified, label: Paddle, represents: billing-provider}
+  ee-email: {stage: ratified, label: Email provider, represents: email-provider}
+
+processes:
+  p-tracker: {stage: ratified, label: Tracker, represents: tracker}
+  p-web-app: {stage: ratified, label: Web app, represents: web-app}
+
+dataStores:
+  ds-events: {stage: ratified, label: ClickHouse, represents: events-db, stores: [pageview-event]}
+  ds-app: {stage: ratified, label: PostgreSQL, represents: app-db, stores: [account, billing-status]}
+
+dataElements:
+  pageview-event: {stage: ratified, classification: internal, description: URL, referrer, UTM tags, country, device and the daily visitor hash, triggers: [inf-gdpr]}
+  account: {stage: ratified, classification: confidential, description: Customer email, password hash, sites and goals, triggers: [inf-gdpr, inf-dpa]}
+  billing-status: {stage: ratified, classification: confidential, description: Subscription plan and status, triggers: [inf-dpa]}
+
+dataFlows:
+  df-visitor-tracker: {stage: ratified, label: Page load, connects: [ee-visitor, p-tracker], leaves: ee-visitor, carries: [pageview-event], represents: [visitor-loads-tracker]}
+  df-tracker-web: {stage: ratified, label: Events, connects: [p-tracker, p-web-app], leaves: p-tracker, carries: [pageview-event], represents: [tracker-sends-events]}
+  df-owner-web: {stage: ratified, label: Dashboard, connects: [ee-site-owner, p-web-app], leaves: ee-site-owner, carries: [account, pageview-event], represents: [owner-views-dashboard]}
+  df-agency-web: {stage: ratified, label: Client dashboards, connects: [ee-agency, p-web-app], leaves: ee-agency, carries: [account, pageview-event], represents: [agency-views-dashboard]}
+  df-web-events: {stage: ratified, label: Event writes and queries, connects: [p-web-app, ds-events], leaves: p-web-app, carries: [pageview-event], represents: [web-app-writes-events]}
+  df-web-app-db: {stage: ratified, label: SQL, connects: [p-web-app, ds-app], leaves: p-web-app, carries: [account, billing-status], represents: [web-app-uses-app-db]}
+  df-web-billing: {stage: ratified, label: Billing API and webhooks, connects: [p-web-app, ee-billing], carries: [billing-status], represents: [web-app-to-billing, billing-webhooks]}
+  df-web-email: {stage: ratified, label: Email, connects: [p-web-app, ee-email], leaves: p-web-app, carries: [account, pageview-event], represents: [web-app-sends-email]}
+
+trustBoundaries:
+  tb-hosting:
+    stage: ratified
+    label: Plausible Cloud hosting
+    crossing: HTTPS to the public event endpoint, the logged-in dashboard, shared links and billing webhooks
+    encloses: [p-web-app, ds-events, ds-app]
+    relies: [load-balancer, eu-hosting]
+
+dataFlowDiagrams:
+  dfd-plausible:
+    stage: ratified
+    level: detail
+    depicts: plausible-system
+    includes: [ee-visitor, ee-site-owner, ee-agency, ee-billing, ee-email, p-tracker, p-web-app, ds-events, ds-app]
+
+environments:
+  production: {stage: ratified, name: Cloud production}
+
+deploymentNodes:
+  eu-region:
+    stage: ratified
+    name: Hosting provider, Germany
+    technology: Dedicated servers
+    belongs: production
+    infrastructureNodes:
+      load-balancer: {stage: ratified, name: Load balancer, technology: HAProxy}
+    deploymentNodes:
+      app-servers:
+        stage: ratified
+        name: App servers
+        technology: Ubuntu, Docker
+        containerInstances:
+          web-app-instance: {stage: ratified, instantiates: web-app}
+      db-servers:
+        stage: ratified
+        name: Database servers
+        technology: Ubuntu
+        containerInstances:
+          events-db-instance: {stage: ratified, instantiates: events-db}
+          app-db-instance: {stage: ratified, instantiates: app-db}
+
+deploymentDiagrams:
+  deploy-production:
+    stage: ratified
+    depicts: [plausible-system, production]
+
+# Couldn't express
+# - Which requirements belong to which product. Cloud has billing, shared links
+#   and EU hosting. CE has none of those, but requirements link only to outcomes,
+#   and both products target understand-traffic, so it looks as if CE serves
+#   data-stays-in-eu too.
+# - Plans and pricing tiers, and which features each plan includes.
+# - That Community Edition gets features later than Cloud, or is a release cut of
+#   the same code.
+# - Sub-processors. The DPA has to list Paddle, the email provider and the hosting
+#   provider, but I can't mark an external system as a sub-processor or link it to
+#   the DPA influencer.
+# - Data retention periods. Retention is a property of a data element or data
+#   store, and there's no field for it, so I made it a standard.
+# - The adoptions for Community Edition. GDPR applies to the operator, not to
+#   Plausible. "Not applicable" didn't fit because the influencer does apply, just
+#   to someone else, so I used "inherited" from an external reference.
+# - An uptime or availability target for Cloud. A metric must measure a control or
+#   outcome, and no outcome is about availability.
+# - How the product changed since the MVP. The deprecated requirement is the only
+#   trace; there's no change history or reason for the change.
+# - That the secure baseline also applies to the database servers. `hardens`
+#   targets a deployment node, so I pointed it at the region node and assumed it
+#   covers everything nested inside.
+# - The tracker running in the visitor's browser, outside our control. Its
+#   process sits outside the hosting boundary, but nothing says where it runs.
+# - host-in-eu is satisfied by where we deploy, not by any container. Deployment
+#   nodes can't satisfy requirements, so I attached it to the whole system.
+# - Self-hosting and the release pipeline (Docker images on a public registry).
+#   There's no environment for "operator-hosted".

@@ -1,0 +1,455 @@
+# Vaultwarden: an unofficial, lightweight server compatible with the Bitwarden
+# password manager clients, written in Rust and run by self-hosters.
+# Stage: growth. Illustrative only, written from public information; owners and
+# targets are invented.
+intentSpec: "0.1"
+
+products:
+  vaultwarden:
+    stage: ratified
+    name: Vaultwarden
+    description: Self-hosted Bitwarden-compatible server that runs on small hardware.
+    targets: [keep-passwords-in-sync]
+
+jobExecutors:
+  self-hoster:
+    stage: ratified
+    description: Technically capable person running services at home for themselves and their family
+
+jobs:
+  keep-passwords-in-sync:
+    stage: ratified
+    statement: Keep my household's passwords available on every device without handing them to a third party
+    motivates: self-hoster
+    outcomes:
+      low-resources:
+        stage: ratified
+        statement: Minimize the hardware needed to run the password server
+      works-with-clients:
+        stage: ratified
+        statement: Minimize the number of client features that don't work with my server
+      server-breach-safe:
+        stage: ratified
+        statement: Minimize the likelihood that a compromised server exposes readable passwords
+      always-available:
+        stage: ratified
+        statement: Minimize the time my family can't reach their passwords
+      easy-upgrades:
+        stage: ratified
+        statement: Minimize the effort to stay on a secure version
+      enterprise-sso:
+        stage: ratified
+        statement: Minimize the effort to sign in with my organisation's identity provider
+        disposition: out-of-scope
+        rationale: The project targets households and small groups
+
+requirements:
+  client-side-encryption:
+    stage: ratified
+    statement: The server stores and returns only vault data the clients encrypted; it never receives the master password or keys
+    verification: Protocol review against the Bitwarden client; database inspection shows only ciphertext
+    serves: [server-breach-safe]
+  bitwarden-api-compat:
+    stage: ratified
+    statement: Implement the Bitwarden client API so official desktop, mobile, browser and CLI clients work unmodified
+    verification: Manual test matrix against current official clients before each release
+    serves: [works-with-clients]
+  single-binary:
+    stage: ratified
+    statement: Ship as a single container image that runs with SQLite and under 100 MB of RAM
+    verification: Memory measured on a reference Raspberry Pi
+    serves: [low-resources, easy-upgrades]
+  push-and-websocket-sync:
+    stage: ratified
+    statement: Clients learn about vault changes in near real time via WebSocket and the Bitwarden push relay
+    verification: Two-client sync test
+    serves: [always-available]
+  login-rate-limit:
+    stage: ratified
+    statement: Login and admin endpoints are rate-limited per IP
+    verification: Integration test exceeding the limit
+    serves: [server-breach-safe]
+    implements: [adopt-rate-limit]
+  two-factor:
+    stage: ratified
+    statement: Users can require TOTP, WebAuthn or email two-factor login
+    verification: Login tests for each method
+    serves: [server-breach-safe]
+  hashed-admin-token:
+    stage: ratified
+    statement: The admin token can be stored as an Argon2 hash, and the admin page can be disabled
+    verification: Config test with hashed and absent tokens
+    executes: [reduce-admin-takeover]
+  icon-fetch-guard:
+    stage: ratified
+    statement: The icon service refuses to fetch from non-global IP addresses and can be disabled
+    verification: Unit test with private and loopback addresses
+    executes: [reduce-icon-ssrf]
+
+metrics:
+  idle-memory:
+    stage: ratified
+    target: Under 100 MB resident when idle
+    frequency: Every release
+    measures: [low-resources]
+  advisory-response:
+    stage: ratified
+    target: Every security report acknowledged within 7 days
+    frequency: Quarterly
+    measures: [vulnerability-disclosure]
+
+risks:
+  icon-ssrf:
+    stage: ratified
+    description: An attacker makes the icon service request internal addresses on the self-hoster's network
+    endangers: []
+  admin-takeover:
+    stage: ratified
+    description: Someone guesses or steals the admin token and deletes or disables users
+    endangers: [always-available]
+  client-api-drift:
+    stage: ratified
+    description: Official clients change their API and break compatibility until Vaultwarden catches up
+    endangers: [works-with-clients]
+  maintainer-capacity:
+    stage: ratified
+    description: The project depends on a few volunteer maintainers, so fixes can be slow
+    endangers: [easy-upgrades, works-with-clients]
+
+treatments:
+  reduce-icon-ssrf:
+    stage: ratified
+    strategy: reduce
+    owner: Maintainers
+    reviewBy: 2027-06-01
+    treats: [icon-ssrf]
+    scopes: [vaultwarden]
+  reduce-admin-takeover:
+    stage: ratified
+    strategy: reduce
+    owner: Maintainers
+    reviewBy: 2027-06-01
+    treats: [admin-takeover]
+    scopes: [vaultwarden]
+  accept-api-drift:
+    stage: ratified
+    strategy: accept
+    owner: Maintainers
+    reviewBy: 2027-01-01
+    rationale: Following upstream is the project's core work; compatibility gaps are fixed as releases appear
+    treats: [client-api-drift]
+    scopes: [vaultwarden]
+  accept-maintainer-capacity:
+    stage: ratified
+    strategy: accept
+    owner: Maintainers
+    reviewBy: 2027-01-01
+    rationale: A volunteer project; self-hosters accept this when they choose it
+    treats: [maintainer-capacity]
+    scopes: [vaultwarden]
+
+externalReferences:
+  agpl: {stage: ratified, title: GNU Affero General Public License v3, url: "https://www.gnu.org/licenses/agpl-3.0.html", party: Free Software Foundation}
+  self-hoster-proxy: {stage: ratified, title: Self-hoster's reverse proxy with TLS, party: Self-hoster}
+
+influencers:
+  inf-user-trust:
+    stage: ratified
+    kinds: [internal]
+    scopeRationale: People store every credential they have in it; a breach would be catastrophic for them
+  inf-agpl:
+    stage: ratified
+    kinds: [contractual]
+    scopeRationale: The project is licensed under AGPLv3
+    cites: agpl
+
+policies:
+  pol-security:
+    stage: ratified
+    name: Security policy (SECURITY.md)
+    approver: Maintainers
+    satisfies: [inf-user-trust]
+
+controlObjectives:
+  co-prevent-unauthorised-access:
+    stage: ratified
+    supports: [pol-security]
+  co-protect-in-transit:
+    stage: ratified
+    supports: [pol-security]
+  co-fix-vulnerabilities:
+    stage: ratified
+    supports: [pol-security]
+
+standards:
+  std-rate-limited-auth:
+    stage: ratified
+    description: Authentication endpoints are rate-limited
+    addresses: [co-prevent-unauthorised-access]
+  std-tls-only:
+    stage: ratified
+    description: Clients reach the server only over TLS
+    addresses: [co-protect-in-transit]
+  std-private-disclosure:
+    stage: ratified
+    description: Vulnerabilities can be reported privately and are acknowledged within 7 days
+    addresses: [co-fix-vulnerabilities]
+
+guidelines:
+  gl-reverse-proxy:
+    stage: ratified
+    description: Example reverse proxy configurations in the project wiki
+    augments: [std-tls-only]
+
+controls:
+  rate-limiting:
+    stage: ratified
+    owner: Maintainers
+    safeguard: technical
+    enforces: [std-rate-limited-auth]
+    achieves: [co-prevent-unauthorised-access]
+  tls-termination:
+    stage: ratified
+    owner: Self-hoster
+    safeguard: technical
+    enforces: [std-tls-only]
+    achieves: [co-protect-in-transit]
+  vulnerability-disclosure:
+    stage: ratified
+    owner: Maintainers
+    safeguard: administrative
+    enforces: [std-private-disclosure]
+    achieves: [co-fix-vulnerabilities]
+
+procedures:
+  proc-advisory-triage:
+    stage: ratified
+    owner: Maintainers
+    overseer: Maintainers
+    operationalizes: vulnerability-disclosure
+    implements: [adopt-disclosure]
+
+assessmentObjectives:
+  ao-rate-limit: {stage: ratified, assesses: rate-limiting, verifies: [std-rate-limited-auth]}
+  ao-tls: {stage: ratified, assesses: tls-termination, verifies: [std-tls-only]}
+  ao-disclosure: {stage: ratified, assesses: vulnerability-disclosure, verifies: [std-private-disclosure], examines: [proc-advisory-triage]}
+
+adoptions:
+  adopt-rate-limit: {stage: ratified, mode: system, adopts: rate-limiting, governs: vaultwarden}
+  adopt-tls: {stage: ratified, mode: inherited, adopts: tls-termination, governs: vaultwarden, inherits: self-hoster-proxy}
+  adopt-disclosure: {stage: ratified, mode: procedure, adopts: vulnerability-disclosure, governs: vaultwarden}
+
+people:
+  household-member: {stage: ratified, name: Household member, description: Uses the Bitwarden apps to store and fill passwords}
+  admin: {stage: ratified, name: Server admin, description: The self-hoster managing users and settings, plays: [self-hoster]}
+
+systems:
+  vaultwarden-system:
+    stage: ratified
+    name: Vaultwarden
+    description: Bitwarden-compatible server
+    owner: Vaultwarden maintainers
+    external: false
+    realizes: [vaultwarden]
+    containers:
+      api-server:
+        stage: ratified
+        name: API server
+        description: Implements the Bitwarden API, admin page, notifications and icon service
+        kind: application
+        technology: Rust
+        satisfies: [bitwarden-api-compat, single-binary, push-and-websocket-sync, login-rate-limit, two-factor, hashed-admin-token]
+        components:
+          identity: {stage: ratified, name: Identity, description: Login, two-factor and tokens, technology: Rust}
+          vault-api: {stage: ratified, name: Vault API, description: Sync and cipher endpoints, technology: Rust, satisfies: [client-side-encryption]}
+          admin-page: {stage: ratified, name: Admin page, description: User and settings management behind the admin token, technology: Rust}
+          icon-service: {stage: ratified, name: Icon service, description: Fetches and caches website icons, technology: Rust, satisfies: [icon-fetch-guard]}
+          notifications: {stage: ratified, name: Notifications, description: WebSocket hub and push relay client, technology: Rust}
+      web-vault:
+        stage: ratified
+        name: Web vault
+        description: Bitwarden web client build served by the API server, runs in the browser
+        kind: application
+        technology: Angular
+      database:
+        stage: ratified
+        name: Database
+        description: Users, organisations and encrypted vault items
+        kind: data-store
+        technology: SQLite, MySQL or PostgreSQL
+      attachments:
+        stage: ratified
+        name: Attachments and icon cache
+        description: Encrypted attachments, sends and cached icons on disk
+        kind: data-store
+        technology: File system
+  bitwarden-clients: {stage: ratified, name: Bitwarden clients, description: Official desktop, mobile, browser and CLI apps, owner: Bitwarden Inc., external: true}
+  push-relay: {stage: ratified, name: Bitwarden push relay, description: Forwards push notifications to mobile apps, owner: Bitwarden Inc., external: true}
+  smtp-server: {stage: ratified, name: SMTP server, description: Sends invitations and two-factor codes, owner: Self-hoster's provider, external: true}
+  websites: {stage: ratified, name: Websites, description: Sites whose icons are fetched, owner: Anyone, external: true}
+
+relationships:
+  member-uses-clients: {stage: ratified, leaves: household-member, enters: bitwarden-clients, description: Stores and fills passwords}
+  clients-sync: {stage: ratified, leaves: bitwarden-clients, enters: api-server, description: Logs in and syncs encrypted vault items, technology: HTTPS, WebSocket}
+  admin-manages: {stage: ratified, leaves: admin, enters: api-server, description: Manages users and settings on the admin page, technology: HTTPS}
+  member-uses-web-vault: {stage: ratified, leaves: household-member, enters: web-vault, description: Manages the vault in a browser}
+  web-vault-calls-api: {stage: ratified, leaves: web-vault, enters: api-server, description: Logs in and syncs encrypted vault items, technology: HTTPS}
+  api-uses-db: {stage: ratified, leaves: api-server, enters: database, description: Reads and writes users and ciphertext, technology: Diesel/SQL}
+  api-uses-files: {stage: ratified, leaves: api-server, enters: attachments, description: Reads and writes attachments and icons, technology: File I/O}
+  api-pushes: {stage: ratified, leaves: api-server, enters: push-relay, description: Sends sync notifications for mobile apps, technology: HTTPS}
+  api-sends-mail: {stage: ratified, leaves: api-server, enters: smtp-server, description: Sends invitations and two-factor codes, technology: SMTP}
+  api-fetches-icons: {stage: ratified, leaves: api-server, enters: websites, description: Fetches site icons, technology: HTTPS}
+
+dynamicDiagrams:
+  dyn-sync:
+    stage: ratified
+    name: Saving a new login on one device appears on another
+    depicts: push-and-websocket-sync
+    steps:
+      s1: {stage: ratified, order: 1, follows: clients-sync, description: Client uploads the encrypted item}
+      s2: {stage: ratified, order: 2, follows: api-uses-db, description: Server stores the ciphertext}
+      s3: {stage: ratified, order: 3, follows: api-pushes, description: Server notifies mobile clients via the push relay}
+      s4: {stage: ratified, order: 4, follows: clients-sync, description: Other clients fetch the change}
+
+environments:
+  home-install: {stage: ratified, name: Typical home install}
+
+deploymentNodes:
+  home-server:
+    stage: ratified
+    name: Home server
+    technology: Linux, Docker
+    belongs: home-install
+    infrastructureNodes:
+      reverse-proxy: {stage: ratified, name: Reverse proxy, technology: Caddy or nginx with TLS}
+    containerInstances:
+      api-server-instance: {stage: ratified, instantiates: api-server}
+      database-instance: {stage: ratified, instantiates: database}
+      attachments-instance: {stage: ratified, instantiates: attachments}
+
+deploymentDiagrams:
+  deploy-home:
+    stage: ratified
+    depicts: [vaultwarden-system, home-install]
+
+externalEntities:
+  ee-clients: {stage: ratified, label: Bitwarden clients, represents: bitwarden-clients}
+  ee-admin: {stage: ratified, label: Admin, represents: admin}
+  ee-member: {stage: ratified, label: Household member, represents: household-member}
+  ee-push-relay: {stage: ratified, label: Push relay, represents: push-relay}
+  ee-smtp: {stage: ratified, label: SMTP server, represents: smtp-server}
+  ee-websites: {stage: ratified, label: Websites, represents: websites}
+
+processes:
+  p-api: {stage: ratified, label: API server, represents: api-server}
+  p-web-vault: {stage: ratified, label: Web vault, represents: web-vault}
+
+dataStores:
+  ds-database: {stage: ratified, label: Database, represents: database, stores: [vault-ciphertext, user-account, admin-settings]}
+  ds-files: {stage: ratified, label: Attachments and icons, represents: attachments, stores: [vault-ciphertext, icon]}
+
+dataElements:
+  vault-ciphertext: {stage: ratified, classification: restricted, description: Encrypted vault items and attachments}
+  user-account: {stage: ratified, classification: confidential, description: Email, master password hash, two-factor secrets}
+  admin-settings: {stage: ratified, classification: confidential, description: Server configuration including SMTP credentials}
+  icon: {stage: ratified, classification: public, description: Cached website icon}
+  notification: {stage: ratified, classification: internal, description: Device token and "vault changed" signal}
+  email-message: {stage: ratified, classification: confidential, description: Invitation or two-factor code}
+
+dataFlows:
+  df-clients-api: {stage: ratified, label: Vault sync, connects: [ee-clients, p-api], leaves: ee-clients, carries: [vault-ciphertext, user-account], represents: [clients-sync]}
+  df-admin-api: {stage: ratified, label: Admin page, connects: [ee-admin, p-api], leaves: ee-admin, carries: [admin-settings, user-account], represents: [admin-manages]}
+  df-member-web-vault: {stage: ratified, label: Browser session, connects: [ee-member, p-web-vault], leaves: ee-member, carries: [vault-ciphertext], represents: [member-uses-web-vault]}
+  df-web-vault-api: {stage: ratified, label: Vault sync, connects: [p-web-vault, p-api], leaves: p-web-vault, carries: [vault-ciphertext, user-account], represents: [web-vault-calls-api]}
+  df-api-db: {stage: ratified, label: SQL, connects: [p-api, ds-database], leaves: p-api, carries: [vault-ciphertext, user-account, admin-settings], represents: [api-uses-db]}
+  df-api-files: {stage: ratified, label: File I/O, connects: [p-api, ds-files], leaves: p-api, carries: [vault-ciphertext, icon], represents: [api-uses-files]}
+  df-api-push: {stage: ratified, label: Push, connects: [p-api, ee-push-relay], leaves: p-api, carries: [notification], represents: [api-pushes]}
+  df-api-smtp: {stage: ratified, label: Mail, connects: [p-api, ee-smtp], leaves: p-api, carries: [email-message], represents: [api-sends-mail]}
+  df-api-websites: {stage: ratified, label: Icon fetch, connects: [p-api, ee-websites], leaves: p-api, carries: [icon], represents: [api-fetches-icons]}
+
+trustBoundaries:
+  tb-server:
+    stage: ratified
+    label: Home server
+    crossing: HTTPS through the reverse proxy; outbound HTTPS and SMTP from the API server
+    encloses: [p-api, ds-database, ds-files]
+    relies: [reverse-proxy, tls-termination]
+
+dataFlowDiagrams:
+  dfd-vaultwarden:
+    stage: ratified
+    level: detail
+    depicts: vaultwarden-system
+    includes: [ee-clients, ee-admin, ee-member, ee-push-relay, ee-smtp, ee-websites, p-api, p-web-vault, ds-database, ds-files]
+
+threats:
+  t-store-disclosure:
+    stage: ratified
+    category: information-disclosure
+    appliesTo: [data-store]
+    description: Someone with access to the server's disk or backups reads vault data
+  t-server-side-request:
+    stage: ratified
+    category: information-disclosure
+    appliesTo: [process]
+    description: A process is tricked into making requests that reveal internal resources
+  t-spoofed-party:
+    stage: ratified
+    category: spoofing
+    appliesTo: [external-entity]
+    description: Someone impersonates a user, admin or external service
+    threatens: [rate-limiting]
+  t-flow-tampering:
+    stage: ratified
+    category: tampering
+    appliesTo: [data-flow]
+    description: Data is modified in transit
+    threatens: [tls-termination]
+
+threatReviews:
+  r-store-db: {stage: ratified, reviews: t-store-disclosure, inspects: ds-database, disposition: covered, cites: [client-side-encryption]}
+  r-store-files: {stage: ratified, reviews: t-store-disclosure, inspects: ds-files, disposition: covered, cites: [client-side-encryption]}
+  r-ssrf-api: {stage: ratified, reviews: t-server-side-request, inspects: p-api, disposition: risk, raises: icon-ssrf}
+  r-ssrf-web-vault: {stage: ratified, reviews: t-server-side-request, inspects: p-web-vault, disposition: not-applicable, rationale: Runs in the user's browser and makes no server-side requests}
+  r-spoof-clients: {stage: ratified, reviews: t-spoofed-party, inspects: ee-clients, disposition: covered, cites: [rate-limiting, two-factor]}
+  r-spoof-admin: {stage: ratified, reviews: t-spoofed-party, inspects: ee-admin, disposition: risk, raises: admin-takeover}
+  r-spoof-member: {stage: ratified, reviews: t-spoofed-party, inspects: ee-member, disposition: covered, cites: [rate-limiting, two-factor]}
+  r-spoof-push: {stage: ratified, reviews: t-spoofed-party, inspects: ee-push-relay, disposition: not-applicable, rationale: The server only sends to the relay; a spoofed relay learns only that a vault changed}
+  r-spoof-smtp: {stage: ratified, reviews: t-spoofed-party, inspects: ee-smtp, disposition: not-applicable, rationale: The server only sends mail and accepts none}
+  r-spoof-websites: {stage: ratified, reviews: t-spoofed-party, inspects: ee-websites, disposition: not-applicable, rationale: Fetched icons are images shown to the user; they carry no authority}
+  r-tamper-clients: {stage: ratified, reviews: t-flow-tampering, inspects: df-clients-api, disposition: covered, cites: [tls-termination, client-side-encryption]}
+  r-tamper-admin: {stage: ratified, reviews: t-flow-tampering, inspects: df-admin-api, disposition: covered, cites: [tls-termination]}
+  r-tamper-member: {stage: ratified, reviews: t-flow-tampering, inspects: df-member-web-vault, disposition: not-applicable, rationale: Interaction inside the user's own browser}
+  r-tamper-web-vault: {stage: ratified, reviews: t-flow-tampering, inspects: df-web-vault-api, disposition: covered, cites: [tls-termination, client-side-encryption]}
+  r-tamper-db: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-db, disposition: not-applicable, rationale: Local socket or file on the same host}
+  r-tamper-files: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-files, disposition: not-applicable, rationale: Local file system on the same host}
+  r-tamper-push: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-push, disposition: covered, cites: [tls-termination]}
+  r-tamper-smtp: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-smtp, disposition: covered, cites: [tls-termination]}
+  r-tamper-websites: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-websites, disposition: covered, cites: [icon-fetch-guard]}
+
+# Couldn't express
+# - Who owns what between the project and the self-hoster. The project ships
+#   software; the self-hoster runs it, terminates TLS, takes backups and patches.
+#   I could only show this as an "inherited" adoption from an external reference,
+#   and the TLS control's owner is a free-text "Self-hoster".
+# - Backups. The biggest real availability risk is a self-hoster losing their
+#   database. That's entirely the operator's job, and there's no place to say "this
+#   product depends on the operator doing X".
+# - Configuration options that change the security posture: disabling the admin
+#   page, disabling the icon service, enabling sign-ups. Requirements mention
+#   them, but I can't model a deployment choice and its effect.
+# - That the client is the security boundary. client-side-encryption is the key
+#   requirement, yet it's satisfied by Bitwarden's clients, which are an external
+#   system. I attached it to the vault API component instead.
+# - The icon SSRF risk endangers the self-hoster's home network, not an outcome
+#   of the job, so `endangers` is empty.
+# - The policy approver must be "executive leadership". A volunteer project has
+#   maintainers.
+# - Risks of the project itself (bus factor, upstream API drift) sit alongside
+#   security risks with no way to tell them apart.
+# - Per-element threats are expensive: one spoofing threat across six external
+#   entities, plus one tampering threat across nine flows, needed 15 reviews, most
+#   of them obvious.
+# - No threat threatens client-side-encryption, because `threatens` targets
+#   controls only and this is a requirement.
+# - Likelihood or impact for any risk.

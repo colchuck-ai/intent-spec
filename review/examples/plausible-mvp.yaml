@@ -1,0 +1,178 @@
+# Plausible Analytics around its 2019 launch: a single hosted service for simple,
+# privacy-friendly website analytics. Stage: MVP.
+# Illustrative only, written from public information.
+intentSpec: "0.1"
+
+products:
+  plausible:
+    stage: ratified
+    name: Plausible Analytics
+    description: Simple, lightweight website analytics that needs no cookies.
+    targets: [understand-traffic]
+
+jobExecutors:
+  site-owner:
+    stage: ratified
+    description: Independent site owner (blogger, indie maker, small business) checking how their site is doing
+
+jobs:
+  understand-traffic:
+    stage: ratified
+    statement: Understand how many people visit my site and where they come from
+    motivates: site-owner
+    outcomes:
+      traffic-at-a-glance:
+        stage: ratified
+        statement: Minimize the time it takes to see how traffic is trending
+      know-sources:
+        stage: ratified
+        statement: Minimize the effort to see which sites send me visitors
+      no-consent-banner:
+        stage: ratified
+        statement: Minimize the need to ask visitors for consent before measuring traffic
+      fast-pages:
+        stage: ratified
+        statement: Minimize the page weight that analytics adds
+      campaign-conversions:
+        stage: ratified
+        statement: Minimize the time it takes to see which campaigns lead to sign-ups
+        disposition: deferred
+        rationale: Goals and conversions come after launch; we're validating the basic dashboard first
+      individual-journeys:
+        stage: ratified
+        statement: Minimize the effort to follow one visitor's path through the site
+        disposition: out-of-scope
+        rationale: Tracking individuals conflicts with the product's privacy promise
+
+requirements:
+  one-page-dashboard:
+    stage: ratified
+    statement: Every metric for a site fits on one dashboard page with a date-range picker
+    verification: Design review; no metric sits behind a second page
+    serves: [traffic-at-a-glance]
+  referrer-list:
+    stage: ratified
+    statement: The dashboard lists top referrers by domain
+    verification: Integration test with known referrers
+    serves: [know-sources]
+  no-cookies:
+    stage: ratified
+    statement: The tracker sets no cookies and uses no persistent identifiers
+    verification: Browser test confirms no cookies or local storage are written
+    serves: [no-consent-banner]
+  daily-salted-visitor-hash:
+    stage: ratified
+    statement: Unique visitors are counted using a hash of IP, user agent and a salt that rotates and is deleted daily
+    verification: Code review and unit test of salt rotation
+    serves: [no-consent-banner]
+  small-script:
+    stage: ratified
+    statement: The tracking script stays under 1 KB gzipped
+    verification: Size check in CI
+    serves: [fast-pages]
+
+metrics:
+  script-size:
+    stage: ratified
+    target: Under 1 KB gzipped
+    frequency: Every release
+    measures: [fast-pages]
+
+people:
+  site-owner-person:
+    stage: ratified
+    name: Site owner
+    description: Customer who reads the dashboard
+    plays: [site-owner]
+  visitor:
+    stage: ratified
+    name: Visitor
+    description: Someone browsing a customer's site
+
+systems:
+  plausible-system:
+    stage: ratified
+    name: Plausible
+    description: Hosted analytics service
+    owner: Founding team
+    external: false
+    realizes: [plausible]
+    satisfies: [one-page-dashboard]
+    containers:
+      tracker:
+        stage: ratified
+        name: Tracker script
+        description: JavaScript that runs on customers' sites and sends pageviews
+        kind: application
+        technology: JavaScript
+        satisfies: [no-cookies, small-script]
+      web-app:
+        stage: ratified
+        name: Web app
+        description: Receives events and serves the dashboard
+        kind: application
+        technology: Elixir, Phoenix
+        satisfies: [one-page-dashboard, referrer-list, daily-salted-visitor-hash]
+      database:
+        stage: ratified
+        name: Database
+        description: Accounts, sites and pageview events
+        kind: data-store
+        technology: PostgreSQL
+
+relationships:
+  visitor-loads-tracker: {stage: ratified, leaves: visitor, enters: tracker, description: Loads the tracker while browsing a customer site, technology: HTTPS}
+  tracker-sends-events: {stage: ratified, leaves: tracker, enters: web-app, description: Sends pageview events, technology: HTTPS}
+  owner-views-dashboard: {stage: ratified, leaves: site-owner-person, enters: web-app, description: Views the dashboard, technology: HTTPS}
+  web-app-stores: {stage: ratified, leaves: web-app, enters: database, description: Reads and writes accounts and events, technology: Ecto/SQL}
+
+# The rules below require a process for every application container and a data
+# flow for every relationship, so the MVP gets a minimal DFD layer.
+externalEntities:
+  ee-visitor: {stage: ratified, label: Visitor, represents: visitor}
+  ee-site-owner: {stage: ratified, label: Site owner, represents: site-owner-person}
+
+processes:
+  p-tracker: {stage: ratified, label: Tracker, represents: tracker}
+  p-web-app: {stage: ratified, label: Web app, represents: web-app}
+
+dataStores:
+  ds-database: {stage: ratified, label: PostgreSQL, represents: database, stores: [pageview-event, account]}
+
+dataElements:
+  pageview-event: {stage: ratified, classification: internal, description: URL, referrer, country, device and the daily visitor hash}
+  account: {stage: ratified, classification: confidential, description: Customer email, password hash and site list}
+
+dataFlows:
+  df-visitor-tracker: {stage: ratified, label: Page load, connects: [ee-visitor, p-tracker], leaves: ee-visitor, carries: [pageview-event], represents: [visitor-loads-tracker]}
+  df-tracker-web: {stage: ratified, label: Pageview events, connects: [p-tracker, p-web-app], leaves: p-tracker, carries: [pageview-event], represents: [tracker-sends-events]}
+  df-owner-web: {stage: ratified, label: Dashboard, connects: [ee-site-owner, p-web-app], leaves: ee-site-owner, carries: [account, pageview-event], represents: [owner-views-dashboard]}
+  df-web-db: {stage: ratified, label: SQL, connects: [p-web-app, ds-database], leaves: p-web-app, carries: [account, pageview-event], represents: [web-app-stores]}
+
+trustBoundaries:
+  tb-hosting:
+    stage: ratified
+    label: Plausible hosting
+    crossing: HTTPS requests to the public event endpoint and the logged-in dashboard
+    encloses: [p-web-app, ds-database]
+    relies: [web-app]
+
+# Couldn't express
+# - What the MVP is for: "get the first 100 paying customers and learn whether
+#   people pay for privacy-first analytics". There is no goal or hypothesis.
+# - The business model: a paid SaaS with a free trial and pricing by monthly
+#   pageviews.
+# - That people do this job today with Google Analytics, and that the product is
+#   positioned against it.
+# - That the hashing and no-cookies requirements exist because of GDPR and the
+#   ePrivacy rules. I could add an influencer for GDPR, but with no
+#   policy or control there is nothing to link these requirements to, so I left
+#   GDPR out entirely.
+# - The visitor, whose privacy the product is built around, appears only as a C4
+#   person and a DFD external entity. They aren't a job executor and have no
+#   outcomes.
+# - The DFD layer above was required by rules rather than wanted. At the MVP stage
+#   nobody threat-models this, but an application container must be represented
+#   by a process, and every relationship by a flow.
+# - The trust boundary must rely on something, and the web app container was the
+#   only reasonable choice. Really, the hosting provider's network enforces it.

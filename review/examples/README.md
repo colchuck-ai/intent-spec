@@ -1,0 +1,27 @@
+# Examples
+
+These documents describe six products, five real open-source ones and one made up, each at one stage of its life. Plausible appears twice. They are the evals for the model. Each ends with a "Couldn't express" comment listing what the author wanted to say and the model didn't allow.
+
+The documents were written by one neutral author from public information. They are simplified and illustrative, not authoritative, and not endorsed by the projects. Numbers, owners and targets are invented where the projects don't publish them.
+
+| File | Product | Stage |
+|---|---|---|
+| `shiftly.yaml` | Made-up volunteer shift scheduler | concept |
+| `plausible-mvp.yaml` | Plausible Analytics, around 2019 | MVP |
+| `plausible-growth.yaml` | Plausible Analytics, around 2022 | growth |
+| `vaultwarden.yaml` | Vaultwarden | growth |
+| `home-assistant.yaml` | Home Assistant | mature |
+| `mastodon.yaml` | Mastodon | mature |
+| `openemr.yaml` | OpenEMR | mature, regulated |
+
+## Shape
+
+There is no schema yet. These documents follow `erd.md` using the provisional conventions below, which are themselves under review.
+
+- Top-level keys are entity types, written in camelCase and plural (`jobs`, `controls`, `dataFlows`). Each one is a map keyed by item ID.
+- IDs are kebab-case and unique across the whole document.
+- Containment in the ERD (`contains`, `has`, `hosts`) is written by nesting. Outcomes nest under jobs, containers under systems, and so on. A nested item is still addressed only by its own ID.
+- Every other link is a field on the item it starts from, named after the ERD verb (`serves`, `enforces`, `inspects`). A to-one link holds one ID and a to-many link holds a list. Because IDs are unique across the document, a link that can target several entity types (such as `inspects` or `leaves`) still holds a plain ID.
+- Every item has a `stage`. A deprecated item names its replacement in `replacedBy`.
+- Any item may have `name` and `description`, even though the ERD doesn't list them.
+- A reference is a local ID, an `alias:id` from `imports`, or the ID of an item in `externalReferences`.
