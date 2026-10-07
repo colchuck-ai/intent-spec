@@ -180,7 +180,7 @@ erDiagram
 
   POLICY {
     string statement "management intent; required"
-    string approver "executive leadership; required"
+    string approver "the accountable authority that approves the policy, e.g. executive leadership, a board or maintainers; required"
   }
   POLICY }o--o{ INFLUENCER: satisfies
   %% rule GRC-2 (should): every policy satisfies at least one influencer

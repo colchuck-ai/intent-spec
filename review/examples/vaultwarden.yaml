@@ -450,8 +450,6 @@ threatReviews:
 #   system. I attached it to the vault API component instead.
 # - The icon SSRF risk endangers the self-hoster's home network, not an outcome
 #   of the job, so `endangers` is empty.
-# - The policy approver must be "executive leadership". A volunteer project has
-#   maintainers.
 # - Risks of the project itself (bus factor, upstream API drift) sit alongside
 #   security risks with no way to tell them apart.
 # - Per-element threats are expensive: one spoofing threat across six external
