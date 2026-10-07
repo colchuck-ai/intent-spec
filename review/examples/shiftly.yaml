@@ -9,7 +9,7 @@ products:
     stage: proposed
     name: Shiftly
     description: Helps small food banks fill volunteer shifts without a coordinator phoning people.
-    targets: [fill-shifts, sign-up-for-shift]
+    targets: [fill-shifts, sign-up-for-shift, choose-scheduling-tool]
 
 jobExecutors:
   volunteer-coordinator:
@@ -18,6 +18,9 @@ jobExecutors:
   volunteer:
     stage: proposed
     description: Community volunteer deciding when they can help this week
+  food-bank-director:
+    stage: proposed
+    description: Food bank director deciding whether to pay for a scheduling tool
 
 jobs:
   fill-shifts:
@@ -30,6 +33,11 @@ jobs:
     statement: Commit to helping at a time that fits my week
     motivates: volunteer
     cites: [coordinator-interviews]
+  choose-scheduling-tool:
+    stage: proposed
+    kind: purchase
+    statement: Decide whether Shiftly is worth paying for
+    motivates: food-bank-director
 
 outcomes:
   fewer-short-shifts:
@@ -62,6 +70,10 @@ outcomes:
     in: sign-up-for-shift
     statement: Minimize the likelihood of forgetting a shift I committed to
     cites: [coordinator-interviews]
+  low-cost:
+    stage: proposed
+    in: choose-scheduling-tool
+    statement: Minimize the monthly cost of Shiftly for the food bank
 
 requirements:
   open-shift-board:
@@ -154,8 +166,6 @@ treatments:
 #   test it, or what result would kill the idea.
 # - How important an outcome is or how badly it's served today. Every outcome
 #   looks equally important.
-# - Who pays. The food bank director pays and the coordinator uses it. There is
-#   no buyer or decision-maker, only job executors.
 # - What people use today (phone trees, SignUpGenius, spreadsheets) and why
 #   they would switch.
 # - Product-level non-goals, such as "not a general volunteer CRM". Outcome

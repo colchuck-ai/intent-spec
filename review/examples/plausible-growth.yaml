@@ -10,13 +10,13 @@ products:
     stage: ratified
     name: Plausible Cloud
     description: Hosted, paid analytics service run by the Plausible team in the EU.
-    targets: [understand-traffic, report-to-clients]
+    targets: [understand-traffic, report-to-clients, run-analytics-on-site, manage-client-sites]
     selects: [plausible-controls]
   plausible-ce:
     stage: ratified
     name: Plausible Community Edition
     description: Free self-hosted release of the same software, run by the operator.
-    targets: [understand-traffic]
+    targets: [understand-traffic, run-analytics-on-site]
     selects: [plausible-controls]
 
 jobExecutors:
@@ -36,6 +36,16 @@ jobs:
     stage: ratified
     statement: Show clients how their sites are performing
     motivates: agency
+  run-analytics-on-site:
+    stage: ratified
+    kind: consumption
+    statement: Run Plausible on my site without hurting it
+    motivates: site-owner
+  manage-client-sites:
+    stage: ratified
+    kind: consumption
+    statement: Manage all my clients' sites in Plausible
+    motivates: agency
 
 outcomes:
   traffic-at-a-glance:
@@ -52,7 +62,7 @@ outcomes:
     statement: Minimize the need to ask visitors for consent before measuring traffic
   fast-pages:
     stage: ratified
-    in: understand-traffic
+    in: run-analytics-on-site
     statement: Minimize the page weight that analytics adds
   campaign-conversions:
     stage: ratified
@@ -77,11 +87,11 @@ outcomes:
     statement: Minimize the effort to give a client access to their stats
   many-sites:
     stage: ratified
-    in: report-to-clients
+    in: manage-client-sites
     statement: Minimize the time spent switching between client sites
   white-label:
     stage: ratified
-    in: report-to-clients
+    in: manage-client-sites
     statement: Minimize the visibility of the analytics vendor in client reports
     disposition: deferred
     rationale: Not enough demand yet compared with other agency requests

@@ -66,14 +66,17 @@ erDiagram
   %% rule PRODUCT-3 (should): every job executor is motivated by at least one job
 
   JOB {
-    string statement "required; solution-free, from the executor's perspective"
+    string statement "required; from the executor's perspective"
+    enum kind "core | related | consumption | purchase; optional, default core"
   }
+  %% a core job is what the product is hired for; a related job is done alongside it; a consumption job is about living with the product (setting up, upgrading, running it); a purchase job is choosing and paying for it, and its executor is the buyer
+  %% guidance: the statement of a core or related job, and of its outcomes, is solution-free; a consumption or purchase job and its outcomes may name the product
   JOB }o--|| JOB_EXECUTOR: motivates
   JOB }o--o{ EXTERNAL_REFERENCE: cites
   JOB ||--o{ OUTCOME: has
 
   OUTCOME {
-    string statement "required; solution-free and measurable"
+    string statement "required; measurable"
     enum disposition "out-of-scope | overserved | deferred; optional"
     string rationale "required with a disposition"
   }

@@ -10,7 +10,7 @@ products:
     stage: ratified
     name: Mastodon
     description: Free software anyone can run to host a social network server that federates with others.
-    targets: [stay-connected, run-a-community]
+    targets: [stay-connected, run-a-community, keep-server-running]
     selects: [mastodon-controls]
   mastodon-social:
     stage: ratified
@@ -35,6 +35,11 @@ jobs:
   run-a-community:
     stage: ratified
     statement: Run an online space for my community with our own rules
+    motivates: community-admin
+  keep-server-running:
+    stage: ratified
+    kind: consumption
+    statement: Keep our Mastodon server running and up to date
     motivates: community-admin
 
 outcomes:
@@ -74,11 +79,11 @@ outcomes:
     statement: Minimize the effort to limit or block a misbehaving server
   affordable:
     stage: ratified
-    in: run-a-community
+    in: keep-server-running
     statement: Minimize the cost of hosting per active user
   easy-upgrades:
     stage: ratified
-    in: run-a-community
+    in: keep-server-running
     statement: Minimize the effort to upgrade to a new release
 
 requirements:
