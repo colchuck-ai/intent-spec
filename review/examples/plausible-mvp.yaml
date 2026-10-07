@@ -126,37 +126,6 @@ relationships:
   owner-views-dashboard: {stage: ratified, leaves: site-owner-person, enters: web-app, description: Views the dashboard, technology: HTTPS}
   web-app-stores: {stage: ratified, leaves: web-app, enters: database, description: Reads and writes accounts and events, technology: Ecto/SQL}
 
-# The rules below require a process for every application container and a data
-# flow for every relationship, so the MVP gets a minimal DFD layer.
-externalEntities:
-  ee-visitor: {stage: ratified, label: Visitor, represents: visitor}
-  ee-site-owner: {stage: ratified, label: Site owner, represents: site-owner-person}
-
-processes:
-  p-tracker: {stage: ratified, label: Tracker, represents: tracker}
-  p-web-app: {stage: ratified, label: Web app, represents: web-app}
-
-dataStores:
-  ds-database: {stage: ratified, label: PostgreSQL, represents: database, stores: [pageview-event, account]}
-
-dataElements:
-  pageview-event: {stage: ratified, classification: internal, description: URL, referrer, country, device and the daily visitor hash}
-  account: {stage: ratified, classification: confidential, description: Customer email, password hash and site list}
-
-dataFlows:
-  df-visitor-tracker: {stage: ratified, label: Page load, connects: [ee-visitor, p-tracker], leaves: ee-visitor, carries: [pageview-event], represents: [visitor-loads-tracker]}
-  df-tracker-web: {stage: ratified, label: Pageview events, connects: [p-tracker, p-web-app], leaves: p-tracker, carries: [pageview-event], represents: [tracker-sends-events]}
-  df-owner-web: {stage: ratified, label: Dashboard, connects: [ee-site-owner, p-web-app], leaves: ee-site-owner, carries: [account, pageview-event], represents: [owner-views-dashboard]}
-  df-web-db: {stage: ratified, label: SQL, connects: [p-web-app, ds-database], leaves: p-web-app, carries: [account, pageview-event], represents: [web-app-stores]}
-
-trustBoundaries:
-  tb-hosting:
-    stage: ratified
-    label: Plausible hosting
-    crossing: HTTPS requests to the public event endpoint and the logged-in dashboard
-    encloses: [p-web-app, ds-database]
-    relies: [web-app]
-
 # Couldn't express
 # - What the MVP is for: "get the first 100 paying customers and learn whether
 #   people pay for privacy-first analytics". There is no goal or hypothesis.
@@ -169,10 +138,4 @@ trustBoundaries:
 #   policy or control there is nothing to link these requirements to, so I left
 #   GDPR out entirely.
 # - The visitor, whose privacy the product is built around, appears only as a C4
-#   person and a DFD external entity. They aren't a job executor and have no
-#   outcomes.
-# - The DFD layer above was required by rules rather than wanted. At the MVP stage
-#   nobody threat-models this, but an application container must be represented
-#   by a process, and every relationship by a flow.
-# - The trust boundary must rely on something, and the web app container was the
-#   only reasonable choice. Really, the hosting provider's network enforces it.
+#   person. They aren't a job executor and have no outcomes.

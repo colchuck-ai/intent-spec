@@ -296,6 +296,7 @@ erDiagram
 
   %% DFD (DFD3, https://github.com/adamshostack/DFD3)
   %% Five element types only: no multi-process or complex-process element.
+  %% DFD elements are optional: model them only where someone threat-models. No C4 element needs a DFD counterpart.
   %% rule (should): every external entity, process, data store, data flow and trust boundary has a label
 
   EXTERNAL_ENTITY {
@@ -315,7 +316,6 @@ erDiagram
   PROCESS }o--o| COMPONENT: represents
   %% any running code under your control
   %% rule: a process represents at most one internal system, application container or component
-  %% rule: every application container of an internal system is represented by a process, or contains a component that is
 
   DATA_STORE {
     string label
@@ -324,7 +324,6 @@ erDiagram
   DATA_STORE }o--|{ DATA_ELEMENT: stores
   %% anywhere data is stored, including files, shared memory and cookies
   %% rule: a data store represents at most one container, and that container's kind is data-store
-  %% rule: every data-store container of an internal system is represented by at least one data store
 
   DATA_ELEMENT {
     enum classification "public | internal | confidential | restricted"
@@ -347,7 +346,6 @@ erDiagram
   %% rule: a data flow leaves at most one end, and that end is one it connects
   %% rule: each end of a data flow represents an end of every relationship the flow represents, or an element containing it
   %% rule: when a data flow leaves an end, every relationship it represents leaves the element that end represents, or one inside it
-  %% rule: for every process, every stored relationship with exactly one end in the element the process represents (or inside it) is represented by at least one data flow connecting that process
   %% rule (should): a data flow connecting an external entity and a process crosses at least one trust boundary
   %% derived: a data flow crosses a trust boundary when exactly one end is inside it
 

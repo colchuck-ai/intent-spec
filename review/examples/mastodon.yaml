@@ -416,61 +416,10 @@ deploymentNodes:
 deploymentDiagrams:
   deploy-social: {stage: ratified, depicts: [mastodon-system, social-production]}
 
-externalEntities:
-  ee-user: {stage: ratified, label: User, represents: user}
-  ee-moderator: {stage: ratified, label: Moderator, represents: moderator}
-  ee-fediverse: {stage: ratified, label: Other servers, represents: fediverse}
-  ee-apps: {stage: ratified, label: Third-party apps, represents: client-apps}
-  ee-storage: {stage: ratified, label: Object storage, represents: object-storage}
-  ee-smtp: {stage: ratified, label: Email provider, represents: smtp}
-
-processes:
-  p-web-ui: {stage: ratified, label: Web UI, represents: web-ui}
-  p-web: {stage: ratified, label: Web and API, represents: web}
-  p-sidekiq: {stage: ratified, label: Workers, represents: sidekiq}
-  p-streaming: {stage: ratified, label: Streaming, represents: streaming}
-
-dataStores:
-  ds-postgres: {stage: ratified, label: PostgreSQL, represents: postgres, stores: [account, post, report]}
-  ds-redis: {stage: ratified, label: Redis, represents: redis, stores: [post, job]}
-  ds-search: {stage: ratified, label: Search index, represents: search, stores: [post]}
-
 dataElements:
   account: {stage: ratified, classification: confidential, description: Email, password hash, IP addresses and settings, triggers: [inf-dsa]}
   post: {stage: ratified, classification: public, description: Posts and their visibility; direct messages are not end-to-end encrypted}
   report: {stage: ratified, classification: confidential, description: Report, reporter and moderation decision, triggers: [inf-dsa]}
-  job: {stage: ratified, classification: internal, description: Background job payloads}
-  media: {stage: ratified, classification: public, description: Uploaded images and video}
-  activity: {stage: ratified, classification: public, description: ActivityPub activities exchanged with other servers}
-
-dataFlows:
-  df-user-web-ui: {stage: ratified, label: UI, connects: [ee-user, p-web-ui], leaves: ee-user, carries: [post, report], represents: [user-uses-web-ui]}
-  df-moderator-web-ui: {stage: ratified, label: Admin UI, connects: [ee-moderator, p-web-ui], leaves: ee-moderator, carries: [report], represents: [moderator-uses-web-ui]}
-  df-web-ui-web: {stage: ratified, label: REST, connects: [p-web-ui, p-web], leaves: p-web-ui, carries: [account, post, report], represents: [web-ui-calls-api]}
-  df-web-ui-streaming: {stage: ratified, label: Live updates, connects: [p-web-ui, p-streaming], leaves: p-web-ui, carries: [post], represents: [web-ui-streams]}
-  df-apps-web: {stage: ratified, label: REST, connects: [ee-apps, p-web], leaves: ee-apps, carries: [account, post, report], represents: [apps-call-api]}
-  df-apps-streaming: {stage: ratified, label: Live updates, connects: [ee-apps, p-streaming], leaves: ee-apps, carries: [post], represents: [apps-stream]}
-  df-fediverse-web: {stage: ratified, label: Inbound activities, connects: [ee-fediverse, p-web], leaves: ee-fediverse, carries: [activity, report], represents: [fediverse-delivers]}
-  df-sidekiq-fediverse: {stage: ratified, label: Outbound activities, connects: [p-sidekiq, ee-fediverse], leaves: p-sidekiq, carries: [activity, report], represents: [sidekiq-delivers]}
-  df-web-postgres: {stage: ratified, label: SQL, connects: [p-web, ds-postgres], leaves: p-web, carries: [account, post, report], represents: [web-uses-postgres]}
-  df-web-redis: {stage: ratified, label: Redis, connects: [p-web, ds-redis], leaves: p-web, carries: [post, job], represents: [web-uses-redis]}
-  df-web-search: {stage: ratified, label: Search, connects: [p-web, ds-search], leaves: p-web, carries: [post], represents: [web-uses-search]}
-  df-web-storage: {stage: ratified, label: Media upload, connects: [p-web, ee-storage], leaves: p-web, carries: [media], represents: [web-uses-storage]}
-  df-sidekiq-postgres: {stage: ratified, label: SQL, connects: [p-sidekiq, ds-postgres], leaves: p-sidekiq, carries: [account, post, report], represents: [sidekiq-uses-postgres]}
-  df-sidekiq-redis: {stage: ratified, label: Jobs and feeds, connects: [p-sidekiq, ds-redis], leaves: p-sidekiq, carries: [post, job], represents: [sidekiq-uses-redis]}
-  df-sidekiq-search: {stage: ratified, label: Indexing, connects: [p-sidekiq, ds-search], leaves: p-sidekiq, carries: [post], represents: [sidekiq-indexes]}
-  df-sidekiq-storage: {stage: ratified, label: Media processing, connects: [p-sidekiq, ee-storage], leaves: p-sidekiq, carries: [media], represents: [sidekiq-uses-storage]}
-  df-sidekiq-smtp: {stage: ratified, label: Email, connects: [p-sidekiq, ee-smtp], leaves: p-sidekiq, carries: [account], represents: [sidekiq-sends-email]}
-  df-streaming-redis: {stage: ratified, label: Pub/sub, connects: [p-streaming, ds-redis], leaves: p-streaming, carries: [post], represents: [streaming-uses-redis]}
-  df-streaming-postgres: {stage: ratified, label: SQL, connects: [p-streaming, ds-postgres], leaves: p-streaming, carries: [account], represents: [streaming-uses-postgres]}
-
-trustBoundaries:
-  tb-cluster:
-    stage: ratified
-    label: mastodon.social cluster
-    crossing: HTTPS through the ingress to the web and streaming services; outbound HTTPS, S3 and SMTP from workers
-    encloses: [p-web, p-sidekiq, p-streaming, ds-postgres, ds-redis, ds-search]
-    relies: [ingress]
 
 # Couldn't express
 # - Software versus server. Most governance here belongs to the server operator,
@@ -490,9 +439,5 @@ trustBoundaries:
 #   project's biggest real risk, but it doesn't endanger any user outcome directly.
 # - Direct messages aren't end-to-end encrypted. It's a known, deliberate limit
 #   users should understand, and I could only say it in a data element description.
-# - The DFD is 19 flows that mirror the C4 relationships one for one. It was
-#   required, but it adds little for a document with no threat model.
-# - The ingress is the only real enforcer of the cluster boundary, yet I can't say
-#   that the managed database service enforces its own access controls.
 # - The software product's roadmap: features in progress for the next release,
 #   like quote posts.
