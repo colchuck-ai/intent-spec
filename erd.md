@@ -29,6 +29,16 @@ erDiagram
   %% ids inside a snapshot are read relative to its alias; rules that follow links into an import read the snapshot, never the fetched document
   %% rule DOC-1: removing or renaming an item id is a breaking change (major version)
 
+  %% Serialization
+  %% A document is one YAML or JSON object. Its top-level keys are the DOCUMENT fields, imports (a map from alias to {source, version}) and one key per entity type.
+  %% An entity type's key is its name in camelCase with the last word pluralised by adding s (JOB_EXECUTOR jobExecutors, DATA_FLOW_DIAGRAM dataFlowDiagrams), except:
+  %% PERSON people, POLICY policies, PROCESS processes, EXTERNAL_ENTITY externalEntities, TRUST_BOUNDARY trustBoundaries.
+  %% Each entity type's value is a map from item id to the item's fields; nothing nests, so an item's JSON pointer is /<key>/<id>.
+  %% An item id, the document id and an import alias match ^[a-z0-9]+(-[a-z0-9]+)*$, so a pointer needs no ~0 or ~1 escaping.
+  %% A reference is an id or alias:id; the colon tells them apart because no id contains one.
+  %% A link is a field on its source item named after its verb, containment included (in). A to-one link (|| or o| at the target) holds one reference; a to-many link (|{ or o{) holds a list.
+  %% An attribute marked "one or more" or "zero or more" is a list; any other attribute holds one value of its type.
+
   %% References
   %% Every link below is a reference. Its target is a local item id or an imported alias:id.
   %% Only a link drawn to EXTERNAL_REFERENCE may instead target the id of an external reference
