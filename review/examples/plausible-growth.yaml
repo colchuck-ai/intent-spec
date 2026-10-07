@@ -267,6 +267,7 @@ assessmentObjectives:
 profiles:
   plausible-controls:
     name: Plausible control profile
+    owner: Operations lead
 
 selections:
   sel-visitor-hashing: {in: plausible-controls, choice: include, names: visitor-hashing}

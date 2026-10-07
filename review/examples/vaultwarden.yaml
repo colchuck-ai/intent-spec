@@ -222,6 +222,7 @@ assessmentObjectives:
 profiles:
   vaultwarden-controls:
     name: Vaultwarden control profile
+    owner: Maintainers
 
 selections:
   sel-rate-limiting: {in: vaultwarden-controls, choice: include, names: rate-limiting}
@@ -230,7 +231,7 @@ selections:
 
 adoptions:
   adopt-rate-limit: {mode: system, adopts: rate-limiting, governs: vaultwarden, owner: Maintainers}
-  adopt-tls: {mode: delegated, adopts: tls-termination, governs: vaultwarden, delegatedTo: Self-hoster, rationale: The self-hoster terminates TLS at their own reverse proxy}
+  adopt-tls: {mode: delegated, adopts: tls-termination, governs: vaultwarden, delegatedTo: Self-hoster, decidedBy: Maintainers, rationale: The self-hoster terminates TLS at their own reverse proxy}
   adopt-disclosure: {mode: procedure, adopts: vulnerability-disclosure, governs: vaultwarden, follows: [proc-advisory-triage], owner: Maintainers}
 
 people:

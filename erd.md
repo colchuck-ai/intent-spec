@@ -236,7 +236,9 @@ erDiagram
   }
   PROCEDURE }o--|| CONTROL: operationalizes
 
-  PROFILE
+  PROFILE {
+    string owner "accountable authority for the profile's selections, who decides changes to the baseline; required"
+  }
   PROFILE ||--|{ SELECTION: has
   PRODUCT }o--o{ PROFILE: selects
   %% a profile is a company-level selection of controls (OSCAL profile); a product selects the profiles that apply to it
@@ -251,7 +253,7 @@ erDiagram
   ADOPTION {
     enum mode "system | procedure | inherited | delegated | excepted | not-applicable; required"
     string rationale "required when delegated or not-applicable"
-    string decidedBy "who made the governance decision; required when inherited, excepted or not-applicable"
+    string decidedBy "who made the governance decision; required when inherited, delegated, excepted or not-applicable"
     string delegatedTo "the downstream party that must implement the control, e.g. the deploying customer; required when delegated, otherwise none"
     string owner "who is accountable for the control in this product; the control's owner defines it"
   }

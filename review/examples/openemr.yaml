@@ -297,6 +297,7 @@ assessmentObjectives:
 profiles:
   openemr-controls:
     name: OpenEMR control profile
+    owner: Security lead
 
 selections:
   sel-access-control: {in: openemr-controls, choice: include, names: access-control}
@@ -314,12 +315,12 @@ adoptions:
   adopt-rbac-emr: {mode: system, adopts: access-control, governs: openemr, owner: Security lead}
   adopt-mfa-emr: {mode: system, adopts: mfa, governs: openemr, owner: Security lead}
   adopt-audit-emr: {mode: system, adopts: audit-logging, governs: openemr, owner: Security lead}
-  adopt-tls-emr: {mode: delegated, adopts: transport-encryption, governs: openemr, delegatedTo: Deploying practice, rationale: The practice terminates TLS on its own server or proxy}
+  adopt-tls-emr: {mode: delegated, adopts: transport-encryption, governs: openemr, delegatedTo: Deploying practice, decidedBy: Project lead, rationale: The practice terminates TLS on its own server or proxy}
   adopt-doc-encryption-emr: {mode: system, adopts: document-encryption-control, governs: openemr, owner: Security lead}
   adopt-vuln-emr: {mode: procedure, adopts: vulnerability-management, governs: openemr, follows: [proc-vuln-triage, proc-patch-release], owner: Security lead}
-  adopt-physical-emr: {mode: delegated, adopts: physical-security, governs: openemr, delegatedTo: Deploying practice, rationale: The practice hosts the server on its own premises or provider}
+  adopt-physical-emr: {mode: delegated, adopts: physical-security, governs: openemr, delegatedTo: Deploying practice, decidedBy: Project lead, rationale: The practice hosts the server on its own premises or provider}
   adopt-partner-emr: {mode: system, adopts: partner-validation, governs: openemr, owner: Security lead}
-  adopt-host-emr: {mode: delegated, adopts: host-hardening, governs: openemr, delegatedTo: Deploying practice, rationale: The practice builds and patches its own server}
+  adopt-host-emr: {mode: delegated, adopts: host-hardening, governs: openemr, delegatedTo: Deploying practice, decidedBy: Project lead, rationale: The practice builds and patches its own server}
   # OpenEMR Cloud
   adopt-rbac-cloud: {mode: inherited, adopts: access-control, governs: openemr-cloud, inherits: adopt-rbac-emr, decidedBy: Security lead}
   adopt-mfa-cloud: {mode: excepted, adopts: mfa, governs: openemr-cloud, decidedBy: Project lead, invokes: accept-cloud-mfa-gap}
