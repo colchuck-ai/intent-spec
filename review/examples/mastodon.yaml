@@ -301,9 +301,9 @@ adoptions:
   adopt-emergency-social: {stage: ratified, mode: procedure, adopts: emergency-access, governs: mastodon-social}
   adopt-shutdown-social: {stage: ratified, mode: procedure, adopts: shutdown-notice, governs: mastodon-social}
   adopt-moderation-sw: {stage: ratified, mode: system, adopts: moderation, governs: mastodon}
-  adopt-backups-sw: {stage: ratified, mode: not-applicable, adopts: backups, governs: mastodon, rationale: The covenant binds server operators; the software ships no backup tooling of its own, decidedBy: Managing director}
-  adopt-emergency-sw: {stage: ratified, mode: not-applicable, adopts: emergency-access, governs: mastodon, rationale: Applies to server operators, not the software, decidedBy: Managing director}
-  adopt-shutdown-sw: {stage: ratified, mode: not-applicable, adopts: shutdown-notice, governs: mastodon, rationale: Applies to server operators, not the software, decidedBy: Managing director}
+  adopt-backups-sw: {stage: ratified, mode: delegated, adopts: backups, governs: mastodon, delegatedTo: Server operator, rationale: The covenant binds server operators; the software ships no backup tooling of its own}
+  adopt-emergency-sw: {stage: ratified, mode: delegated, adopts: emergency-access, governs: mastodon, delegatedTo: Server operator, rationale: The covenant binds server operators}
+  adopt-shutdown-sw: {stage: ratified, mode: delegated, adopts: shutdown-notice, governs: mastodon, delegatedTo: Server operator, rationale: The covenant binds server operators}
 
 people:
   user: {stage: ratified, name: User, description: Posts, follows and reads timelines, plays: [social-user]}

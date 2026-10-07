@@ -180,9 +180,10 @@ erDiagram
   %% rule: at most one selection per (profile, control) pair
 
   ADOPTION {
-    enum mode "system | procedure | inherited | excepted | not-applicable"
-    string rationale "required when not-applicable"
+    enum mode "system | procedure | inherited | delegated | excepted | not-applicable"
+    string rationale "required when delegated or not-applicable"
     string decidedBy "required when not-applicable"
+    string delegatedTo "the downstream party that must implement the control, e.g. the deploying customer; required when delegated, otherwise none"
   }
   ADOPTION }o--|| CONTROL: adopts
   ADOPTION }o--|| PRODUCT: governs
@@ -196,6 +197,7 @@ erDiagram
   %% rule: an inherited adoption adopts the same control as the adoption it inherits
   %% rule: an inheritance chain ends at a system or procedure adoption or an external reference (no cycles)
   %% rule: not-applicable means the control's influencers do not apply to the product
+  %% delegated means the control applies but whoever runs or deploys the product must implement it; it is not coverage
   %% rule: an excepted adoption's product is scoped by an accept treatment that waives every standard the adopted control enforces
 
   SECURE_BASELINE
@@ -206,6 +208,7 @@ erDiagram
   %% rule (should): a secure baseline derives from a CIS benchmark, DISA STIG or vendor guide
 
   %% derived: a product's system security plan (SSP) is its adoptions with their controls, standards, procedures, requirements and inheritance
+  %% derived: a product's customer responsibility matrix is its delegated adoptions
   %% derived: a product's plan of action and milestones (POA&M) is the reduce treatments and accept waivers that scope it
 
   %% C4 (https://c4model.com/abstractions, https://c4model.com/diagrams)

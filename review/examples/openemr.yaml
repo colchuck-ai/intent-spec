@@ -174,6 +174,10 @@ risks:
     stage: ratified
     description: OpenEMR Cloud deployments run without enforced MFA for staff
     endangers: [complete-history]
+  no-tls:
+    stage: ratified
+    description: ePHI travels without TLS and is modified in transit
+    endangers: [complete-history]
 
 treatments:
   reduce-portal-takeover:
@@ -197,6 +201,20 @@ treatments:
     rationale: Deploying practices are responsible for patching under the installation guide and their HIPAA obligations
     treats: [unpatched-installs]
     scopes: [openemr]
+  transfer-tls:
+    stage: ratified
+    strategy: transfer
+    owner: Project lead
+    rationale: Deploying practices terminate TLS under the installation guide and their HIPAA obligations
+    treats: [no-tls]
+    scopes: [openemr]
+  reduce-tls-cloud:
+    stage: ratified
+    strategy: reduce
+    owner: Infrastructure lead
+    reviewBy: 2027-02-01
+    treats: [no-tls]
+    scopes: [openemr-cloud]
   reduce-partner-compromise:
     stage: ratified
     strategy: reduce
@@ -217,7 +235,6 @@ treatments:
 externalReferences:
   onc-cert: {stage: ratified, title: "45 CFR 170.315 ONC Health IT certification criteria", url: "https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-D/part-170/subpart-C/section-170.315", party: ONC}
   hipaa-security: {stage: ratified, title: "45 CFR Part 164 Subpart C (HIPAA Security Rule)", url: "https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C", party: HHS}
-  deploying-practice: {stage: ratified, title: Deploying practice's own safeguards, party: Deploying practice}
   aws-physical: {stage: ratified, title: AWS SOC 2 Type II report, party: AWS}
   cis-amazon-linux: {stage: ratified, title: CIS Amazon Linux 2023 Benchmark, party: Center for Internet Security}
 
@@ -265,7 +282,7 @@ controls:
   access-control: {stage: ratified, owner: Security lead, safeguard: technical, enforces: [std-unique-users], achieves: [co-access-control]}
   mfa: {stage: ratified, owner: Security lead, safeguard: technical, enforces: [std-mfa], achieves: [co-access-control]}
   audit-logging: {stage: ratified, owner: Security lead, safeguard: technical, enforces: [std-audit-log], achieves: [co-audit]}
-  transport-encryption: {stage: ratified, owner: Infrastructure lead, safeguard: technical, enforces: [std-tls], achieves: [co-transmission]}
+  transport-encryption: {stage: ratified, owner: Infrastructure lead, safeguard: technical, enforces: [std-tls], achieves: [co-transmission], executes: [reduce-tls-cloud]}
   document-encryption-control: {stage: ratified, owner: Security lead, safeguard: technical, enforces: [std-encrypt-at-rest], achieves: [co-data-at-rest]}
   vulnerability-management: {stage: ratified, owner: Security lead, safeguard: administrative, enforces: [std-disclosure], achieves: [co-vulnerabilities]}
   physical-security: {stage: ratified, owner: Infrastructure lead, safeguard: physical, enforces: [std-physical], achieves: [co-physical]}
@@ -320,10 +337,10 @@ adoptions:
   adopt-rbac-emr: {stage: ratified, mode: system, adopts: access-control, governs: openemr}
   adopt-mfa-emr: {stage: ratified, mode: system, adopts: mfa, governs: openemr}
   adopt-audit-emr: {stage: ratified, mode: system, adopts: audit-logging, governs: openemr}
-  adopt-tls-emr: {stage: ratified, mode: inherited, adopts: transport-encryption, governs: openemr, inherits: deploying-practice}
+  adopt-tls-emr: {stage: ratified, mode: delegated, adopts: transport-encryption, governs: openemr, delegatedTo: Deploying practice, rationale: The practice terminates TLS on its own server or proxy}
   adopt-doc-encryption-emr: {stage: ratified, mode: system, adopts: document-encryption-control, governs: openemr}
   adopt-vuln-emr: {stage: ratified, mode: procedure, adopts: vulnerability-management, governs: openemr}
-  adopt-physical-emr: {stage: ratified, mode: inherited, adopts: physical-security, governs: openemr, inherits: deploying-practice}
+  adopt-physical-emr: {stage: ratified, mode: delegated, adopts: physical-security, governs: openemr, delegatedTo: Deploying practice, rationale: The practice hosts the server on its own premises or provider}
   adopt-partner-emr: {stage: ratified, mode: system, adopts: partner-validation, governs: openemr}
   # OpenEMR Cloud
   adopt-rbac-cloud: {stage: ratified, mode: inherited, adopts: access-control, governs: openemr-cloud, inherits: adopt-rbac-emr}
@@ -532,13 +549,13 @@ threatReviews:
   r-privilege-billing: {stage: ratified, reviews: t-privilege, inspects: p-billing, disposition: covered, cites: [access-control]}
   r-privilege-portal: {stage: ratified, reviews: t-privilege, inspects: p-portal, disposition: covered, cites: [access-control]}
   r-privilege-fhir: {stage: ratified, reviews: t-privilege, inspects: p-fhir, disposition: covered, cites: [fhir-patient-access, access-control]}
-  r-tamper-clinician: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinician-clinical, disposition: covered, cites: [transport-encryption]}
-  r-tamper-biller: {stage: ratified, reviews: t-flow-tampering, inspects: df-biller-billing, disposition: covered, cites: [transport-encryption]}
-  r-tamper-patient: {stage: ratified, reviews: t-flow-tampering, inspects: df-patient-portal, disposition: covered, cites: [transport-encryption]}
-  r-tamper-apps: {stage: ratified, reviews: t-flow-tampering, inspects: df-apps-fhir, disposition: covered, cites: [transport-encryption]}
-  r-tamper-erx: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinical-erx, disposition: covered, cites: [transport-encryption]}
-  r-tamper-lab: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinical-lab, disposition: covered, cites: [transport-encryption]}
-  r-tamper-clearinghouse: {stage: ratified, reviews: t-flow-tampering, inspects: df-billing-clearinghouse, disposition: covered, cites: [transport-encryption]}
+  r-tamper-clinician: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinician-clinical, disposition: risk, raises: no-tls}
+  r-tamper-biller: {stage: ratified, reviews: t-flow-tampering, inspects: df-biller-billing, disposition: risk, raises: no-tls}
+  r-tamper-patient: {stage: ratified, reviews: t-flow-tampering, inspects: df-patient-portal, disposition: risk, raises: no-tls}
+  r-tamper-apps: {stage: ratified, reviews: t-flow-tampering, inspects: df-apps-fhir, disposition: risk, raises: no-tls}
+  r-tamper-erx: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinical-erx, disposition: risk, raises: no-tls}
+  r-tamper-lab: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinical-lab, disposition: risk, raises: no-tls}
+  r-tamper-clearinghouse: {stage: ratified, reviews: t-flow-tampering, inspects: df-billing-clearinghouse, disposition: risk, raises: no-tls}
   r-tamper-clinical-db: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinical-db, disposition: not-applicable, rationale: Same host or private network inside the data tier boundary}
   r-tamper-clinical-docs: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinical-docs, disposition: not-applicable, rationale: Local file system}
   r-tamper-billing-db: {stage: ratified, reviews: t-flow-tampering, inspects: df-billing-db, disposition: not-applicable, rationale: Same host or private network inside the data tier boundary}

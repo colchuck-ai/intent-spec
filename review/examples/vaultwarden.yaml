@@ -116,6 +116,10 @@ risks:
     stage: ratified
     description: The project depends on a few volunteer maintainers, so fixes can be slow
     endangers: [easy-upgrades, works-with-clients]
+  no-tls:
+    stage: ratified
+    description: A self-hoster runs the server without TLS, so traffic can be read or modified in transit
+    endangers: []
 
 treatments:
   reduce-icon-ssrf:
@@ -148,10 +152,16 @@ treatments:
     rationale: A volunteer project; self-hosters accept this when they choose it
     treats: [maintainer-capacity]
     scopes: [vaultwarden]
+  transfer-tls:
+    stage: ratified
+    strategy: transfer
+    owner: Maintainers
+    rationale: The self-hoster terminates TLS; the setup guide requires a reverse proxy with HTTPS
+    treats: [no-tls]
+    scopes: [vaultwarden]
 
 externalReferences:
   agpl: {stage: ratified, title: GNU Affero General Public License v3, url: "https://www.gnu.org/licenses/agpl-3.0.html", party: Free Software Foundation}
-  self-hoster-proxy: {stage: ratified, title: Self-hoster's reverse proxy with TLS, party: Self-hoster}
 
 influencers:
   inf-user-trust:
@@ -246,7 +256,7 @@ profiles:
 
 adoptions:
   adopt-rate-limit: {stage: ratified, mode: system, adopts: rate-limiting, governs: vaultwarden}
-  adopt-tls: {stage: ratified, mode: inherited, adopts: tls-termination, governs: vaultwarden, inherits: self-hoster-proxy}
+  adopt-tls: {stage: ratified, mode: delegated, adopts: tls-termination, governs: vaultwarden, delegatedTo: Self-hoster, rationale: The self-hoster terminates TLS at their own reverse proxy}
   adopt-disclosure: {stage: ratified, mode: procedure, adopts: vulnerability-disclosure, governs: vaultwarden}
 
 people:
@@ -427,14 +437,14 @@ threatReviews:
   r-spoof-push: {stage: ratified, reviews: t-spoofed-party, inspects: ee-push-relay, disposition: not-applicable, rationale: The server only sends to the relay; a spoofed relay learns only that a vault changed}
   r-spoof-smtp: {stage: ratified, reviews: t-spoofed-party, inspects: ee-smtp, disposition: not-applicable, rationale: The server only sends mail and accepts none}
   r-spoof-websites: {stage: ratified, reviews: t-spoofed-party, inspects: ee-websites, disposition: not-applicable, rationale: Fetched icons are images shown to the user; they carry no authority}
-  r-tamper-clients: {stage: ratified, reviews: t-flow-tampering, inspects: df-clients-api, disposition: covered, cites: [tls-termination, client-side-encryption]}
-  r-tamper-admin: {stage: ratified, reviews: t-flow-tampering, inspects: df-admin-api, disposition: covered, cites: [tls-termination]}
+  r-tamper-clients: {stage: ratified, reviews: t-flow-tampering, inspects: df-clients-api, disposition: risk, raises: no-tls}
+  r-tamper-admin: {stage: ratified, reviews: t-flow-tampering, inspects: df-admin-api, disposition: risk, raises: no-tls}
   r-tamper-member: {stage: ratified, reviews: t-flow-tampering, inspects: df-member-web-vault, disposition: not-applicable, rationale: Interaction inside the user's own browser}
-  r-tamper-web-vault: {stage: ratified, reviews: t-flow-tampering, inspects: df-web-vault-api, disposition: covered, cites: [tls-termination, client-side-encryption]}
+  r-tamper-web-vault: {stage: ratified, reviews: t-flow-tampering, inspects: df-web-vault-api, disposition: risk, raises: no-tls}
   r-tamper-db: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-db, disposition: not-applicable, rationale: Local socket or file on the same host}
   r-tamper-files: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-files, disposition: not-applicable, rationale: Local file system on the same host}
-  r-tamper-push: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-push, disposition: covered, cites: [tls-termination]}
-  r-tamper-smtp: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-smtp, disposition: covered, cites: [tls-termination]}
+  r-tamper-push: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-push, disposition: risk, raises: no-tls}
+  r-tamper-smtp: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-smtp, disposition: risk, raises: no-tls}
   r-tamper-websites: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-websites, disposition: covered, cites: [icon-fetch-guard]}
 
 # Couldn't express
