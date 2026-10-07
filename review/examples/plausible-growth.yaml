@@ -467,12 +467,14 @@ infrastructureNodes:
 deploymentDiagrams:
   deploy-production:
     stage: ratified
-    depicts: [plausible-system, production]
+    depicts: [plausible-system]
+    covers: production
     notDeployed:
       tracker: Runs in the visitor's browser on customers' sites
   deploy-ce:
     stage: ratified
-    depicts: [plausible-system, ce-compose]
+    depicts: [plausible-system]
+    covers: ce-compose
     notDeployed:
       tracker: Runs in the visitor's browser on customers' sites
 

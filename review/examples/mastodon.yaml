@@ -452,7 +452,8 @@ infrastructureNodes:
 deploymentDiagrams:
   deploy-social:
     stage: ratified
-    depicts: [mastodon-system, social-production]
+    depicts: [mastodon-system]
+    covers: social-production
     notDeployed:
       web-ui: Served by the web container and runs in the user's browser
 

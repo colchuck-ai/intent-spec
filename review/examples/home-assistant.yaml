@@ -280,7 +280,8 @@ dynamicDiagrams:
   dyn-motion-light:
     stage: ratified
     name: Motion turns on a light with the internet down
-    depicts: [local-automation, ha-system]
+    illustrates: local-automation
+    depicts: ha-system
 
 dynamicSteps:
   dyn-motion-light-1: {stage: ratified, in: dyn-motion-light, order: 1, follows: core-controls-devices, direction: response, description: A Zigbee sensor sends a motion event to Core}
@@ -342,10 +343,11 @@ containerInstances:
   frontend-container: {stage: ratified, in: container-browser, instantiates: frontend}
 
 deploymentDiagrams:
-  deploy-haos: {stage: ratified, depicts: [ha-system, haos-install]}
+  deploy-haos: {stage: ratified, depicts: [ha-system], covers: haos-install}
   deploy-container:
     stage: ratified
-    depicts: [ha-system, container-install]
+    depicts: [ha-system]
+    covers: container-install
     notDeployed:
       supervisor: Container installs have no Supervisor
 

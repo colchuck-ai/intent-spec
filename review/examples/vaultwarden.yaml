@@ -340,7 +340,8 @@ dynamicDiagrams:
   dyn-sync:
     stage: ratified
     name: Saving a new login on one device appears on another
-    depicts: [push-and-websocket-sync, vaultwarden-system]
+    illustrates: push-and-websocket-sync
+    depicts: vaultwarden-system
 
 dynamicSteps:
   dyn-sync-1: {stage: ratified, in: dyn-sync, order: 1, follows: clients-sync, description: Client uploads the encrypted item}
@@ -369,7 +370,8 @@ infrastructureNodes:
 deploymentDiagrams:
   deploy-home:
     stage: ratified
-    depicts: [vaultwarden-system, home-install]
+    depicts: [vaultwarden-system]
+    covers: home-install
     notDeployed:
       web-vault: Served by the API server and runs in the member's browser
 

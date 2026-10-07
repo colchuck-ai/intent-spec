@@ -458,7 +458,8 @@ dynamicDiagrams:
   dyn-app-access:
     stage: ratified
     name: A patient connects a health app
-    depicts: [fhir-patient-access, web-app]
+    illustrates: fhir-patient-access
+    depicts: web-app
 
 dynamicSteps:
   dyn-app-access-1: {stage: ratified, in: dyn-app-access, order: 1, follows: patient-uses-apps, description: Patient chooses to connect the app}
@@ -494,7 +495,7 @@ infrastructureNodes:
   load-balancer: {stage: ratified, in: aws-region, name: Application load balancer, technology: AWS ALB with ACM certificate}
 
 deploymentDiagrams:
-  deploy-cloud: {stage: ratified, depicts: [openemr-system, cloud-production]}
+  deploy-cloud: {stage: ratified, depicts: [openemr-system], covers: cloud-production}
 
 externalEntities:
   ee-clinician: {stage: ratified, label: Clinician, represents: clinician-person}

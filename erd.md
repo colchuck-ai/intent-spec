@@ -3,6 +3,7 @@ erDiagram
 
   %% Rules and derivations
   %% Each rule and derivation has an ID (SECTION-n). An ID is never renumbered or reused; a removed rule retires its ID.
+  %% Retired: RISK-3, C4-9, C4-18, DFD-2, DFD-16 (now link cardinality).
   %% A rule marked (should) has severity warning; every other rule has severity error.
   %% A rule or derivation that uses a derivation cites its ID in brackets.
   %% A guidance line is review advice that cannot be checked mechanically; it is not a rule and has no ID.
@@ -43,6 +44,13 @@ erDiagram
   %% rule REF-3: a ratified item does not link to a proposed item
   %% rule REF-4 (should): a ratified item does not link to a deprecated item, except a review of a deprecated target
   %% rule REF-5: coverage rules apply only to items declared in this document; an imported or external system is treated as external
+
+  %% Links
+  %% Lines with the same source and verb are one link, stored as one field on the source item. Its target may be any entity type drawn for it.
+  %% Every line of a link carries the same cardinality, counted over all its targets together:
+  %% RELATIONSHIP }o--|| PERSON: leaves and RELATIONSHIP }o--|| SYSTEM: leaves mean a relationship leaves exactly one person or system.
+  %% Where cardinality would differ per target type, the link uses a different verb per type.
+  %% rule REF-6: a link's target is an item of an entity type drawn for that link; generated from the ERD for every link, so other rules do not repeat it
 
   %% Product
   %% Constraints and forces of progress are deliberately out of scope.
@@ -111,14 +119,13 @@ erDiagram
     string rationale "required when not-applicable"
   }
   THREAT_REVIEW }o--|| THREAT: reviews
-  THREAT_REVIEW }o--o| EXTERNAL_ENTITY: inspects
-  THREAT_REVIEW }o--o| PROCESS: inspects
-  THREAT_REVIEW }o--o| DATA_STORE: inspects
-  THREAT_REVIEW }o--o| DATA_FLOW: inspects
+  THREAT_REVIEW }o--|| EXTERNAL_ENTITY: inspects
+  THREAT_REVIEW }o--|| PROCESS: inspects
+  THREAT_REVIEW }o--|| DATA_STORE: inspects
+  THREAT_REVIEW }o--|| DATA_FLOW: inspects
   THREAT_REVIEW }o--o| RISK: raises
   THREAT_REVIEW }o--o{ CONTROL: cites
   THREAT_REVIEW }o--o{ REQUIREMENT: cites
-  %% rule RISK-3: a review inspects exactly one external entity, process, data store or data flow
   %% rule RISK-4: every (threat, target) pair where the threat applies to the target's kind has exactly one review
   %% rule RISK-5: a deprecated target keeps its reviews
   %% rule RISK-6: raises exactly one risk when disposition is risk; otherwise none
@@ -289,18 +296,17 @@ erDiagram
     string description "specific, consistent with direction; avoid bare 'uses'"
     string technology
   }
-  RELATIONSHIP }o--o| PERSON: leaves
-  RELATIONSHIP }o--o| SYSTEM: leaves
-  RELATIONSHIP }o--o| CONTAINER: leaves
-  RELATIONSHIP }o--o| COMPONENT: leaves
-  RELATIONSHIP }o--o| PERSON: enters
-  RELATIONSHIP }o--o| SYSTEM: enters
-  RELATIONSHIP }o--o| CONTAINER: enters
-  RELATIONSHIP }o--o| COMPONENT: enters
-  RELATIONSHIP }o--o| INFRASTRUCTURE_NODE: leaves
-  RELATIONSHIP }o--o| INFRASTRUCTURE_NODE: enters
+  RELATIONSHIP }o--|| PERSON: leaves
+  RELATIONSHIP }o--|| SYSTEM: leaves
+  RELATIONSHIP }o--|| CONTAINER: leaves
+  RELATIONSHIP }o--|| COMPONENT: leaves
+  RELATIONSHIP }o--|| PERSON: enters
+  RELATIONSHIP }o--|| SYSTEM: enters
+  RELATIONSHIP }o--|| CONTAINER: enters
+  RELATIONSHIP }o--|| COMPONENT: enters
+  RELATIONSHIP }o--|| INFRASTRUCTURE_NODE: leaves
+  RELATIONSHIP }o--|| INFRASTRUCTURE_NODE: enters
   %% a relationship is unidirectional and points from the requester to the responder
-  %% rule C4-9: a relationship leaves exactly one and enters exactly one person, system, container, component or infrastructure node
   %% rule C4-10: a relationship with an infrastructure-node end appears only in deployment diagrams
   %% rule C4-11: the two ends of a relationship are distinct and neither contains the other
   %% derived C4-12: a relationship implies one between each enclosing container or system of its source and of its destination, where neither contains the other, unless one is stored
@@ -312,11 +318,11 @@ erDiagram
   %% derived C4-17: each application container with components has a component diagram: its components plus the containers, people and systems joined to them
 
   DYNAMIC_DIAGRAM
-  DYNAMIC_DIAGRAM }o--|| REQUIREMENT: depicts
+  DYNAMIC_DIAGRAM }o--|| REQUIREMENT: illustrates
   DYNAMIC_DIAGRAM }o--o| SYSTEM: depicts
   DYNAMIC_DIAGRAM }o--o| CONTAINER: depicts
   DYNAMIC_DIAGRAM ||--|{ DYNAMIC_STEP: has
-  %% rule C4-18: a dynamic diagram depicts at most one system or container, which sets its C4 level; with neither it is a landscape-level diagram
+  %% the system or container a dynamic diagram depicts sets its C4 level; with neither it is a landscape-level diagram
 
   DYNAMIC_STEP {
     int order "unique within the diagram"
@@ -330,7 +336,7 @@ erDiagram
     map notDeployed "container id to why it has no instance in the environment, e.g. runs in the visitor's browser; optional"
   }
   DEPLOYMENT_DIAGRAM }o--|{ SYSTEM: depicts
-  DEPLOYMENT_DIAGRAM }o--|| ENVIRONMENT: depicts
+  DEPLOYMENT_DIAGRAM }o--|| ENVIRONMENT: covers
   %% derived C4-20: a deployment diagram shows the environment's nodes that host instances of its systems or their containers
   %% rule C4-23 (should): every container of a system a deployment diagram depicts has an instance on a node in the diagram's environment [C4-22], or is listed in its notDeployed
   %% rule C4-24: a notDeployed key is a container of a system the diagram depicts that has no instance in the diagram's environment [C4-22]
@@ -373,7 +379,6 @@ erDiagram
   EXTERNAL_ENTITY }o--o| PERSON: represents
   EXTERNAL_ENTITY }o--o| SYSTEM: represents
   %% anything outside your control, including systems run by other teams
-  %% rule DFD-2: an external entity represents at most one person or system
   %% rule DFD-3 (should): an external entity does not represent the system a DFD including it depicts, or the system containing the container it depicts
 
   PROCESS {
@@ -383,7 +388,7 @@ erDiagram
   PROCESS }o--o| CONTAINER: represents
   PROCESS }o--o| COMPONENT: represents
   %% any running code under your control
-  %% rule DFD-4: a process represents at most one internal system, application container or component
+  %% rule DFD-4: a system a process represents is internal, and a container it represents is an application container
 
   DATA_STORE {
     string label
@@ -391,7 +396,7 @@ erDiagram
   DATA_STORE }o--o| CONTAINER: represents
   DATA_STORE }o--|{ DATA_ELEMENT: stores
   %% anywhere data is stored, including files, shared memory and cookies
-  %% rule DFD-5: a data store represents at most one container, and that container's kind is data-store
+  %% rule DFD-5: a data store represents only a container whose kind is data-store
 
   DATA_ELEMENT {
     enum classification "public | internal | confidential | restricted"
@@ -436,14 +441,13 @@ erDiagram
   DATA_FLOW_DIAGRAM {
     enum level "context | detail"
   }
-  DATA_FLOW_DIAGRAM }o--o| SYSTEM: depicts
-  DATA_FLOW_DIAGRAM }o--o| CONTAINER: depicts
+  DATA_FLOW_DIAGRAM }o--|| SYSTEM: depicts
+  DATA_FLOW_DIAGRAM }o--|| CONTAINER: depicts
   DATA_FLOW_DIAGRAM }o--o{ EXTERNAL_ENTITY: includes
   DATA_FLOW_DIAGRAM }o--o{ PROCESS: includes
   DATA_FLOW_DIAGRAM }o--o{ DATA_STORE: includes
   %% unlike C4 diagrams, a DFD lists its elements: DFD elements need not map onto C4
   %% a context-level DFD is optional
-  %% rule DFD-16: a DFD depicts exactly one system or container
   %% rule DFD-17: a context-level DFD depicts a system and includes exactly one process, which represents that system
   %% rule DFD-18 (should): in a detail DFD, every process represents a container of the depicted system or a component of the depicted container, or connects a shown [DFD-20] data flow to a process that does
   %% rule DFD-19 (should): every data store and external entity in a DFD connects at least one data flow the DFD shows [DFD-20]
