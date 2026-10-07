@@ -78,5 +78,5 @@ You are given one accepted finding.
 
 To decide a gated finding:
 
-- **To reject it:** close the finding with a reason, then resolve the gate.
+- **To reject it:** resolve the gate, then close the finding with a reason. bd refuses to close a finding while its gate is open.
 - **To approve it, with or without changes:** add your decision as a comment with `bd comments add <id> "..."`, then run `bd gate resolve <gate>`. The finding becomes ready for a fixer.
