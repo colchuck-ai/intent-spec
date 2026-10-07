@@ -240,8 +240,12 @@ erDiagram
     string owner "accountable authority for the profile's selections, who decides changes to the baseline; required"
   }
   PROFILE ||--|{ SELECTION: has
+  PROFILE }o--o{ PROFILE: imports
   PRODUCT }o--o{ PROFILE: selects
   %% a profile is a company-level selection of controls (OSCAL profile); a product selects the profiles that apply to it
+  %% a profile may import other profiles and narrow them with exclude selections, e.g. a product line's baseline minus one control
+  %% derived GRC-31: a profile includes a control when it, or a profile it imports, includes it, and it does not exclude it
+  %% rule GRC-32: profile imports have no cycles
 
   SELECTION {
     enum choice "include | exclude; required"
@@ -265,7 +269,7 @@ erDiagram
   ADOPTION }o--o{ PROCEDURE: follows
   %% rule GRC-7: an adoption follows only procedures that operationalize the adopted control
   %% rule GRC-9: at most one adoption per (product, control) pair
-  %% rule GRC-10: a product has an adoption for every control that a profile it selects includes (coverage)
+  %% rule GRC-10: a product has an adoption for every control that a profile it selects includes [GRC-31] (coverage)
   %% rule GRC-11: a system adoption is implemented by at least one requirement, a procedure adoption follows at least one procedure, and other modes do neither
   %% rule GRC-12: when mode is inherited, inherits exactly one target; otherwise none
   %% rule GRC-13: an external reference that an adoption inherits has a party

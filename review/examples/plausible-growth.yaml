@@ -17,7 +17,7 @@ products:
     name: Plausible Community Edition
     description: Free self-hosted release of the same software, run by the operator.
     targets: [understand-traffic, run-analytics-on-site]
-    selects: [plausible-controls]
+    selects: [plausible-ce-controls]
 
 jobExecutors:
   site-owner:
@@ -267,18 +267,22 @@ profiles:
   plausible-controls:
     name: Plausible control profile
     owner: Operations lead
+  plausible-ce-controls:
+    name: Community Edition control profile
+    owner: Operations lead
+    imports: [plausible-controls]
 
 selections:
   sel-visitor-hashing: {in: plausible-controls, choice: include, names: visitor-hashing}
   sel-eu-hosting: {in: plausible-controls, choice: include, names: eu-hosting}
   sel-account-deletion: {in: plausible-controls, choice: include, names: account-deletion}
   sel-host-hardening: {in: plausible-controls, choice: include, names: host-hardening}
+  sel-ce-no-eu-hosting: {in: plausible-ce-controls, choice: exclude, names: eu-hosting, rationale: Community Edition makes no EU-hosting promise; the operator hosts wherever it chooses}
 
 adoptions:
   adopt-hashing-cloud: {mode: system, adopts: visitor-hashing, governs: plausible-cloud, owner: Engineering lead}
   adopt-hashing-ce: {mode: system, adopts: visitor-hashing, governs: plausible-ce, owner: Engineering lead}
   adopt-eu-hosting-cloud: {mode: system, adopts: eu-hosting, governs: plausible-cloud, owner: Operations lead}
-  adopt-eu-hosting-ce: {mode: delegated, adopts: eu-hosting, governs: plausible-ce, delegatedTo: Self-hosting operator, decidedBy: Operations lead, rationale: The operator chooses where to host Community Edition}
   adopt-deletion-cloud: {mode: procedure, adopts: account-deletion, governs: plausible-cloud, follows: [proc-account-deletion], owner: Support lead}
   adopt-deletion-ce: {mode: delegated, adopts: account-deletion, governs: plausible-ce, delegatedTo: Self-hosting operator, decidedBy: Operations lead, rationale: The operator handles deletion requests from its own users}
   adopt-host-cloud: {mode: system, adopts: host-hardening, governs: plausible-cloud, owner: Operations lead}
