@@ -163,9 +163,11 @@ erDiagram
   CONTROL_OBJECTIVE
   CONTROL_OBJECTIVE }o--|{ POLICY: supports
   CONTROL_OBJECTIVE }o--o{ INFLUENCER: cites
+  %% rule GRC-22 (should): every control objective is achieved by at least one control
 
   STANDARD
   STANDARD }o--|{ CONTROL_OBJECTIVE: addresses
+  %% rule GRC-23 (should): every standard is enforced by at least one control
 
   GUIDELINE
   GUIDELINE }o--|{ STANDARD: augments

@@ -122,6 +122,12 @@ requirements:
     serves: [data-stays-in-eu]
     scopes: [plausible-cloud]
     implements: [adopt-eu-hosting-cloud]
+  hardened-hosts:
+    stage: ratified
+    statement: Plausible Cloud servers are hardened to the CIS Ubuntu benchmark before they enter production
+    verification: CIS benchmark scan before a server joins production
+    scopes: [plausible-cloud]
+    implements: [adopt-host-cloud]
   shared-links:
     stage: ratified
     statement: A site's dashboard can be shared via a private link or made public
@@ -234,6 +240,12 @@ controls:
     safeguard: administrative
     enforces: [std-deletion-30-days]
     achieves: [co-honour-deletion]
+  host-hardening:
+    stage: ratified
+    owner: Operations lead
+    safeguard: technical
+    enforces: [std-host-baseline]
+    achieves: [co-hardened-hosts]
 
 procedures:
   proc-account-deletion:
@@ -257,6 +269,10 @@ assessmentObjectives:
     assesses: account-deletion
     verifies: [std-deletion-30-days]
     examines: [proc-account-deletion]
+  ao-host-hardening:
+    stage: ratified
+    assesses: host-hardening
+    verifies: [std-host-baseline]
 
 profiles:
   plausible-controls:
@@ -266,6 +282,7 @@ profiles:
       sel-visitor-hashing: {stage: ratified, choice: include, names: visitor-hashing}
       sel-eu-hosting: {stage: ratified, choice: include, names: eu-hosting}
       sel-account-deletion: {stage: ratified, choice: include, names: account-deletion}
+      sel-host-hardening: {stage: ratified, choice: include, names: host-hardening}
 
 adoptions:
   adopt-hashing-cloud: {stage: ratified, mode: system, adopts: visitor-hashing, governs: plausible-cloud}
@@ -274,6 +291,8 @@ adoptions:
   adopt-eu-hosting-ce: {stage: ratified, mode: inherited, adopts: eu-hosting, governs: plausible-ce, inherits: self-host-operator}
   adopt-deletion-cloud: {stage: ratified, mode: procedure, adopts: account-deletion, governs: plausible-cloud}
   adopt-deletion-ce: {stage: ratified, mode: inherited, adopts: account-deletion, governs: plausible-ce, inherits: self-host-operator}
+  adopt-host-cloud: {stage: ratified, mode: system, adopts: host-hardening, governs: plausible-cloud}
+  adopt-host-ce: {stage: ratified, mode: inherited, adopts: host-hardening, governs: plausible-ce, inherits: self-host-operator}
 
 secureBaselines:
   host-baseline:
