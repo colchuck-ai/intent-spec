@@ -11,79 +11,79 @@ pattern = "^[0-9]+$"
 [[steps]]
 id = "review-product-management"
 title = "Round {{round}} review: product-management"
-description = "Persona: personas/product-management.md. Examples: shiftly, plausible-mvp, plausible-growth, mastodon. Follow loop.md, Review."
+description = "Persona: personas/product-management.md. Examples: shiftly, vaultwarden, openemr. Follow loop.md, Review."
 labels = ["phase:review", "persona:product-management"]
 
 [[steps]]
 id = "review-jobs-to-be-done"
 title = "Round {{round}} review: jobs-to-be-done"
-description = "Persona: personas/jobs-to-be-done.md. Examples: shiftly, plausible-mvp, plausible-growth, mastodon. Follow loop.md, Review."
+description = "Persona: personas/jobs-to-be-done.md. Examples: plausible-growth, home-assistant, vaultwarden. Follow loop.md, Review."
 labels = ["phase:review", "persona:jobs-to-be-done"]
 
 [[steps]]
 id = "review-job-executor"
 title = "Round {{round}} review: job-executor"
-description = "Persona: personas/job-executor.md. Examples: shiftly, plausible-mvp, home-assistant. Follow loop.md, Review."
+description = "Persona: personas/job-executor.md. Examples: shiftly, mastodon, openemr. Follow loop.md, Review."
 labels = ["phase:review", "persona:job-executor"]
 
 [[steps]]
 id = "review-architecture"
 title = "Round {{round}} review: architecture"
-description = "Persona: personas/architecture.md. Examples: plausible-growth, vaultwarden, home-assistant, mastodon. Follow loop.md, Review."
+description = "Persona: personas/architecture.md. Examples: home-assistant, openemr, shiftly. Follow loop.md, Review."
 labels = ["phase:review", "persona:architecture"]
 
 [[steps]]
 id = "review-devops"
 title = "Round {{round}} review: devops"
-description = "Persona: personas/devops.md. Examples: plausible-growth, home-assistant, mastodon. Follow loop.md, Review."
+description = "Persona: personas/devops.md. Examples: mastodon, vaultwarden, openemr. Follow loop.md, Review."
 labels = ["phase:review", "persona:devops"]
 
 [[steps]]
 id = "review-threat-modeling"
 title = "Round {{round}} review: threat-modeling"
-description = "Persona: personas/threat-modeling.md. Examples: vaultwarden, home-assistant, openemr. Follow loop.md, Review."
+description = "Persona: personas/threat-modeling.md. Examples: openemr, mastodon, plausible-growth. Follow loop.md, Review."
 labels = ["phase:review", "persona:threat-modeling"]
 
 [[steps]]
 id = "review-risk-management"
 title = "Round {{round}} review: risk-management"
-description = "Persona: personas/risk-management.md. Examples: shiftly, vaultwarden, openemr. Follow loop.md, Review."
+description = "Persona: personas/risk-management.md. Examples: vaultwarden, home-assistant, mastodon. Follow loop.md, Review."
 labels = ["phase:review", "persona:risk-management"]
 
 [[steps]]
 id = "review-governance"
 title = "Round {{round}} review: governance"
-description = "Persona: personas/governance.md. Examples: vaultwarden, mastodon, openemr. Follow loop.md, Review."
+description = "Persona: personas/governance.md. Examples: openemr, plausible-growth, home-assistant. Follow loop.md, Review."
 labels = ["phase:review", "persona:governance"]
 
 [[steps]]
 id = "review-hcgf"
 title = "Round {{round}} review: hcgf"
-description = "Persona: personas/hcgf.md. Examples: vaultwarden, openemr. Follow loop.md, Review."
+description = "Persona: personas/hcgf.md. Examples: openemr, mastodon. Follow loop.md, Review."
 labels = ["phase:review", "persona:hcgf"]
 
 [[steps]]
 id = "review-compliance"
 title = "Round {{round}} review: compliance"
-description = "Persona: personas/compliance.md. Examples: plausible-growth, openemr. Follow loop.md, Review."
+description = "Persona: personas/compliance.md. Examples: openemr, vaultwarden, home-assistant. Follow loop.md, Review."
 labels = ["phase:review", "persona:compliance"]
 
 [[steps]]
 id = "review-agent-user"
 title = "Round {{round}} review: agent-user"
-description = "Persona: personas/agent-user.md. Examples: shiftly, home-assistant, openemr. Follow loop.md, Review."
+description = "Persona: personas/agent-user.md. Examples: home-assistant, mastodon, vaultwarden. Follow loop.md, Review."
 labels = ["phase:review", "persona:agent-user"]
 
 [[steps]]
 id = "review-schema-designer"
 title = "Round {{round}} review: schema-designer"
-description = "Persona: personas/schema-designer.md. Examples: shiftly, openemr. Follow loop.md, Review."
+description = "Persona: personas/schema-designer.md. Examples: openemr, home-assistant, plausible-growth. Follow loop.md, Review."
 labels = ["phase:review", "persona:schema-designer"]
 
 [[steps]]
 id = "review-simplicity-advocate"
 title = "Round {{round}} review: simplicity-advocate"
-description = "Persona: personas/simplicity-advocate.md. Examples: shiftly, openemr. Follow loop.md, Review."
+description = "Persona: personas/simplicity-advocate.md. Examples: shiftly, vaultwarden, mastodon. Follow loop.md, Review."
 labels = ["phase:review", "persona:simplicity-advocate"]
 
 [[steps]]
