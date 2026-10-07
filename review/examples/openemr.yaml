@@ -171,13 +171,11 @@ treatments:
     owner: Security lead
     reviewBy: 2027-02-01
     treats: [portal-takeover]
-    scopes: [openemr, openemr-cloud]
   reduce-acl-misconfiguration:
     strategy: reduce
     owner: Security lead
     reviewBy: 2027-02-01
     treats: [acl-misconfiguration]
-    scopes: [openemr, openemr-cloud]
   transfer-patching:
     strategy: transfer
     owner: Project lead
@@ -201,7 +199,6 @@ treatments:
     owner: Security lead
     reviewBy: 2027-02-01
     treats: [partner-compromise]
-    scopes: [openemr, openemr-cloud]
   accept-cloud-mfa-gap:
     strategy: accept
     owner: Project lead

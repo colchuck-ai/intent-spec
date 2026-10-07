@@ -126,20 +126,17 @@ treatments:
     owner: Product lead
     reviewBy: 2027-03-01
     treats: [low-uptake]
-    scopes: [shiftly]
   minimise-volunteer-data:
     strategy: reduce
     owner: Product lead
     reviewBy: 2027-03-01
     treats: [phone-number-exposure]
-    scopes: [shiftly]
   accept-sms-cost:
     strategy: accept
     owner: Founder
     reviewBy: 2027-01-15
     rationale: We don't know real volumes yet; we'll revisit after the first three pilot food banks
     treats: [sms-cost]
-    scopes: [shiftly]
 
 # Couldn't express
 # - What we still need to learn. The whole product is a bet ("coordinators will

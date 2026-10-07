@@ -135,26 +135,22 @@ treatments:
     owner: Core team
     reviewBy: 2027-04-01
     treats: [exposed-instances]
-    scopes: [home-assistant]
   reduce-update-supply-chain:
     strategy: reduce
     owner: Core team
     reviewBy: 2027-04-01
     treats: [update-supply-chain]
-    scopes: [home-assistant]
   reduce-custom-code:
     strategy: reduce
     owner: Core team
     reviewBy: 2027-04-01
     treats: [custom-code]
-    scopes: [home-assistant]
   accept-vendor-shutdown:
     strategy: accept
     owner: Core team
     reviewBy: 2027-04-01
     rationale: Outside our control; the integration quality scale shows users which devices are local
     treats: [vendor-cloud-shutdown]
-    scopes: [home-assistant]
 
 people:
   tinkerer: {name: Home admin, description: Configures integrations and automations, plays: [home-tinkerer]}

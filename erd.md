@@ -176,12 +176,13 @@ erDiagram
     string rationale "required unless reduce; names the removed feature, the receiving party, or why the risk is accepted"
   }
   TREATMENT }o--|{ RISK: treats
-  TREATMENT }o--|{ PRODUCT: scopes
+  TREATMENT }o--o{ PRODUCT: scopes
   TREATMENT }o--o{ STANDARD: waives
   TREATMENT }o--o{ PROCEDURE: waives
+  %% derived RISK-17: a treatment applies to the products it scopes, or to every product in the document when it scopes none
   %% rule RISK-13: a reduce treatment is executed by at least one control or requirement
-  %% rule RISK-14: a control executing a treatment is adopted in mode system, procedure or inherited by every product the treatment scopes
-  %% rule RISK-15: waives only when strategy is accept; a waiver applies only within the products the treatment scopes
+  %% rule RISK-14: a control executing a treatment is adopted in mode system, procedure or inherited by every product the treatment applies to [RISK-17]
+  %% rule RISK-15: waives only when strategy is accept; a waiver applies only within the products the treatment applies to [RISK-17]
 
   %% GRC (HCGF)
 
@@ -297,7 +298,7 @@ erDiagram
   %% rule GRC-28: when mode is not-applicable, none of the adopted control's influencers [GRC-6] applies [GRC-27] to the adoption's product
   %% delegated means the control applies but whoever runs or deploys the product must implement it; it is not coverage
   %% rule GRC-26 (should): a system or procedure adoption has an owner
-  %% rule GRC-16: when mode is excepted, invokes exactly one treatment, which is an accept treatment that scopes the adoption's product and waives every standard the adopted control enforces; otherwise none
+  %% rule GRC-16: when mode is excepted, invokes exactly one treatment, which is an accept treatment that applies to [RISK-17] the adoption's product and waives every standard the adopted control enforces; otherwise none
 
   SECURE_BASELINE
   SECURE_BASELINE }o--|{ STANDARD: encodes
@@ -309,7 +310,7 @@ erDiagram
 
   %% derived GRC-19: a product's system security plan (SSP) is its adoptions with their controls, standards, procedures, requirements and inheritance
   %% derived GRC-20: a product's customer responsibility matrix is its delegated adoptions
-  %% derived GRC-21: a product's plan of action and milestones (POA&M) is the reduce treatments and accept waivers that scope it
+  %% derived GRC-21: a product's plan of action and milestones (POA&M) is the reduce treatments and accept waivers that apply to it [RISK-17]
 
   %% C4 (https://c4model.com/abstractions, https://c4model.com/diagrams)
   %% The landscape, context, container and component diagrams are fully derived. Dynamic and deployment diagrams store a scope; DFDs list their elements.

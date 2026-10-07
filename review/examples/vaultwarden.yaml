@@ -113,33 +113,28 @@ treatments:
     owner: Maintainers
     reviewBy: 2027-06-01
     treats: [icon-ssrf]
-    scopes: [vaultwarden]
   reduce-admin-takeover:
     strategy: reduce
     owner: Maintainers
     reviewBy: 2027-06-01
     treats: [admin-takeover]
-    scopes: [vaultwarden]
   accept-api-drift:
     strategy: accept
     owner: Maintainers
     reviewBy: 2027-01-01
     rationale: Following upstream is the project's core work; compatibility gaps are fixed as releases appear
     treats: [client-api-drift]
-    scopes: [vaultwarden]
   accept-maintainer-capacity:
     strategy: accept
     owner: Maintainers
     reviewBy: 2027-01-01
     rationale: A volunteer project; self-hosters accept this when they choose it
     treats: [maintainer-capacity]
-    scopes: [vaultwarden]
   transfer-tls:
     strategy: transfer
     owner: Maintainers
     rationale: The self-hoster terminates TLS; the setup guide requires a reverse proxy with HTTPS
     treats: [no-tls]
-    scopes: [vaultwarden]
 
 externalReferences:
   agpl: {title: GNU Affero General Public License v3, url: "https://www.gnu.org/licenses/agpl-3.0.html", party: Free Software Foundation}
