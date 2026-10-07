@@ -40,7 +40,8 @@ erDiagram
     string party "who it comes from, e.g. AWS; optional"
     string version "edition or date; optional"
   }
-  %% Every item has a document-unique id. Containment between items (contains, has, hosts) is a to-one link from the contained item to its container, like any other link; items never nest.
+  %% Every item has a document-unique id. Items never nest: containment is the link in, drawn from the contained item to its container like any other link.
+  %% Rule prose says X contains Y (or hosts Y) to mean Y in X.
   %% Every item except an external reference, which is not intent, has a stage: proposed | ratified | deprecated. An item states its stage only where it differs from the document's stage.
   %% derived DOC-2: an item's stage is its own stage, or else the document's stage; every rule that names a stage means this one
   %% A deprecated item names its replacement (replacedBy) or, when nothing replaces it, gives a deprecationRationale.
@@ -81,13 +82,13 @@ erDiagram
   %% guidance: the statement of a core or related job, and of its outcomes, is solution-free; a consumption or purchase job and its outcomes may name the product
   JOB }o--|| JOB_EXECUTOR: motivates
   JOB }o--o{ EXTERNAL_REFERENCE: cites
-  JOB ||--o{ OUTCOME: has
 
   OUTCOME {
     string statement "required; measurable"
     enum disposition "out-of-scope | overserved | deferred; optional"
     string rationale "required with a disposition"
   }
+  OUTCOME }o--|| JOB: in
   OUTCOME }o--o{ PRODUCT: scopes
   OUTCOME }o--o{ EXTERNAL_REFERENCE: cites
   %% derived PRODUCT-7: a disposition applies to the products the outcome scopes, or to every product that targets its job when it scopes none
@@ -239,7 +240,6 @@ erDiagram
   PROFILE {
     string owner "accountable authority for the profile's selections, who decides changes to the baseline; required"
   }
-  PROFILE ||--|{ SELECTION: has
   PROFILE }o--o{ PROFILE: imports
   PRODUCT }o--o{ PROFILE: selects
   %% a profile is a company-level selection of controls (OSCAL profile); a product selects the profiles that apply to it
@@ -251,6 +251,7 @@ erDiagram
     enum choice "include | exclude; required"
     string rationale "required when exclude"
   }
+  SELECTION }|--|| PROFILE: in
   SELECTION }o--|| CONTROL: names
   %% rule GRC-8: at most one selection per (profile, control) pair
 
@@ -307,7 +308,6 @@ erDiagram
     string owner "team that builds and runs it; required"
     boolean external "not built and owned by the team that owns this document; optional, default false"
   }
-  SYSTEM ||--o{ CONTAINER: contains
   SYSTEM }o--o{ PRODUCT: realizes
   %% rule C4-3: a ratified internal system that realizes a product contains at least one container; a proposed one may stop at its system context [DOC-2]
   %% rule C4-4: an external system contains no containers
@@ -317,12 +317,13 @@ erDiagram
     enum kind "application | data-store; required"
     string technology
   }
-  CONTAINER ||--o{ COMPONENT: contains
+  CONTAINER }o--|| SYSTEM: in
   %% rule C4-6 (should): only an application container contains components
 
   COMPONENT {
     string technology
   }
+  COMPONENT }o--|| CONTAINER: in
 
   SYSTEM }o--o{ REQUIREMENT: satisfies
   CONTAINER }o--o{ REQUIREMENT: satisfies
@@ -359,7 +360,6 @@ erDiagram
   DYNAMIC_DIAGRAM }o--|| REQUIREMENT: illustrates
   DYNAMIC_DIAGRAM }o--o| SYSTEM: depicts
   DYNAMIC_DIAGRAM }o--o| CONTAINER: depicts
-  DYNAMIC_DIAGRAM ||--|{ DYNAMIC_STEP: has
   %% the system or container a dynamic diagram depicts sets its C4 level; with neither it is a landscape-level diagram
 
   DYNAMIC_STEP {
@@ -367,6 +367,7 @@ erDiagram
     string description "optional; overrides the relationship's description"
     enum direction "request | response; optional, default request; a response runs from the relationship's destination back to its source"
   }
+  DYNAMIC_STEP }|--|| DYNAMIC_DIAGRAM: in
   DYNAMIC_STEP }o--|| RELATIONSHIP: follows
   %% rule C4-19: each end of a step's relationship is a person or a system, a container when the diagram depicts its system or any container, or a component when the diagram depicts its container
 
@@ -377,6 +378,7 @@ erDiagram
   DEPLOYMENT_DIAGRAM }o--|| ENVIRONMENT: covers
   %% derived C4-20: a deployment diagram shows the environment's nodes that host instances of its systems or their containers
   %% rule C4-23 (should): every container of a system a deployment diagram depicts has an instance on a node in the diagram's environment [C4-22], or is listed in its notDeployed
+  %% notDeployed keys are references to CONTAINER, checked by REF-1 and REF-6 like links
   %% rule C4-24: a notDeployed key is a container of a system the diagram depicts that has no instance in the diagram's environment [C4-22]
 
   ENVIRONMENT {
@@ -389,22 +391,22 @@ erDiagram
     string technology
   }
   DEPLOYMENT_NODE }o--o| ENVIRONMENT: belongs
-  DEPLOYMENT_NODE |o--o{ DEPLOYMENT_NODE: contains
-  DEPLOYMENT_NODE ||--o{ SYSTEM_INSTANCE: hosts
-  DEPLOYMENT_NODE ||--o{ CONTAINER_INSTANCE: hosts
-  DEPLOYMENT_NODE ||--o{ INFRASTRUCTURE_NODE: hosts
+  DEPLOYMENT_NODE }o--o| DEPLOYMENT_NODE: in
   %% rule C4-21: a node that no other node contains belongs to exactly one environment; a contained node belongs to none
   %% derived C4-22: a contained node's environment is that of the outermost node containing it
 
   SYSTEM_INSTANCE
+  SYSTEM_INSTANCE }o--|| DEPLOYMENT_NODE: in
   SYSTEM_INSTANCE }o--|| SYSTEM: instantiates
 
   CONTAINER_INSTANCE
+  CONTAINER_INSTANCE }o--|| DEPLOYMENT_NODE: in
   CONTAINER_INSTANCE }o--|| CONTAINER: instantiates
 
   INFRASTRUCTURE_NODE {
     string technology "e.g. DNS, load balancer, firewall"
   }
+  INFRASTRUCTURE_NODE }o--|| DEPLOYMENT_NODE: in
 
   %% DFD (DFD3, https://github.com/adamshostack/DFD3)
   %% Five element types only: no multi-process or complex-process element.
@@ -467,7 +469,7 @@ erDiagram
   TRUST_BOUNDARY }o--o{ EXTERNAL_ENTITY: encloses
   TRUST_BOUNDARY }o--o{ PROCESS: encloses
   TRUST_BOUNDARY }o--o{ DATA_STORE: encloses
-  TRUST_BOUNDARY |o--o{ TRUST_BOUNDARY: contains
+  TRUST_BOUNDARY }o--o| TRUST_BOUNDARY: in
   TRUST_BOUNDARY }o--o{ CONTAINER: relies
   TRUST_BOUNDARY }o--o{ INFRASTRUCTURE_NODE: relies
   TRUST_BOUNDARY }o--o{ CONTROL: relies
