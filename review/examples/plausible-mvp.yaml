@@ -22,29 +22,36 @@ jobs:
     stage: ratified
     statement: Understand how many people visit my site and where they come from
     motivates: site-owner
-    outcomes:
-      traffic-at-a-glance:
-        stage: ratified
-        statement: Minimize the time it takes to see how traffic is trending
-      know-sources:
-        stage: ratified
-        statement: Minimize the effort to see which sites send me visitors
-      no-consent-banner:
-        stage: ratified
-        statement: Minimize the need to ask visitors for consent before measuring traffic
-      fast-pages:
-        stage: ratified
-        statement: Minimize the page weight that analytics adds
-      campaign-conversions:
-        stage: ratified
-        statement: Minimize the time it takes to see which campaigns lead to sign-ups
-        disposition: deferred
-        rationale: Goals and conversions come after launch; we're validating the basic dashboard first
-      individual-journeys:
-        stage: ratified
-        statement: Minimize the effort to follow one visitor's path through the site
-        disposition: out-of-scope
-        rationale: Tracking individuals conflicts with the product's privacy promise
+
+outcomes:
+  traffic-at-a-glance:
+    stage: ratified
+    in: understand-traffic
+    statement: Minimize the time it takes to see how traffic is trending
+  know-sources:
+    stage: ratified
+    in: understand-traffic
+    statement: Minimize the effort to see which sites send me visitors
+  no-consent-banner:
+    stage: ratified
+    in: understand-traffic
+    statement: Minimize the need to ask visitors for consent before measuring traffic
+  fast-pages:
+    stage: ratified
+    in: understand-traffic
+    statement: Minimize the page weight that analytics adds
+  campaign-conversions:
+    stage: ratified
+    in: understand-traffic
+    statement: Minimize the time it takes to see which campaigns lead to sign-ups
+    disposition: deferred
+    rationale: Goals and conversions come after launch; we're validating the basic dashboard first
+  individual-journeys:
+    stage: ratified
+    in: understand-traffic
+    statement: Minimize the effort to follow one visitor's path through the site
+    disposition: out-of-scope
+    rationale: Tracking individuals conflicts with the product's privacy promise
 
 requirements:
   one-page-dashboard:
@@ -100,27 +107,31 @@ systems:
     external: false
     realizes: [plausible]
     satisfies: [one-page-dashboard]
-    containers:
-      tracker:
-        stage: ratified
-        name: Tracker script
-        description: JavaScript that runs on customers' sites and sends pageviews
-        kind: application
-        technology: JavaScript
-        satisfies: [no-cookies, small-script]
-      web-app:
-        stage: ratified
-        name: Web app
-        description: Receives events and serves the dashboard
-        kind: application
-        technology: Elixir, Phoenix
-        satisfies: [one-page-dashboard, referrer-list, daily-salted-visitor-hash]
-      database:
-        stage: ratified
-        name: Database
-        description: Accounts, sites and pageview events
-        kind: data-store
-        technology: PostgreSQL
+
+containers:
+  tracker:
+    stage: ratified
+    in: plausible-system
+    name: Tracker script
+    description: JavaScript that runs on customers' sites and sends pageviews
+    kind: application
+    technology: JavaScript
+    satisfies: [no-cookies, small-script]
+  web-app:
+    stage: ratified
+    in: plausible-system
+    name: Web app
+    description: Receives events and serves the dashboard
+    kind: application
+    technology: Elixir, Phoenix
+    satisfies: [one-page-dashboard, referrer-list, daily-salted-visitor-hash]
+  database:
+    stage: ratified
+    in: plausible-system
+    name: Database
+    description: Accounts, sites and pageview events
+    kind: data-store
+    technology: PostgreSQL
 
 relationships:
   visitor-loads-tracker: {stage: ratified, leaves: visitor, enters: tracker, description: Loads the tracker while browsing a customer site, technology: HTTPS}

@@ -37,49 +37,58 @@ jobs:
     stage: ratified
     statement: Record and act on everything needed to care for a patient during a visit
     motivates: clinician
-    outcomes:
-      chart-in-visit:
-        stage: ratified
-        statement: Minimize the time spent documenting during a visit
-      complete-history:
-        stage: ratified
-        statement: Minimize the likelihood of missing relevant history, medications or allergies
-      send-prescriptions:
-        stage: ratified
-        statement: Minimize the time it takes to get a prescription to the pharmacy
-      lab-results-back:
-        stage: ratified
-        statement: Minimize the time between a lab result being ready and seeing it
   get-paid:
     stage: ratified
     statement: Get paid for the care the practice delivers
     motivates: biller
-    outcomes:
-      clean-claims:
-        stage: ratified
-        statement: Minimize the number of claims rejected for errors
-      days-to-payment:
-        stage: ratified
-        statement: Minimize the time between a visit and payment
   access-my-care:
     stage: ratified
     statement: See my health information and stay in touch with my clinic
     motivates: patient
-    outcomes:
-      see-records:
-        stage: ratified
-        statement: Minimize the effort to see my records and results
-      use-my-apps:
-        stage: ratified
-        statement: Minimize the effort to use my own health apps with my records
-      message-clinic:
-        stage: ratified
-        statement: Minimize the time to get an answer from my clinic
-      telehealth:
-        stage: ratified
-        statement: Minimize the effort to see my clinician without travelling
-        disposition: deferred
-        rationale: Provided through third-party modules for now
+
+outcomes:
+  chart-in-visit:
+    stage: ratified
+    in: run-patient-care
+    statement: Minimize the time spent documenting during a visit
+  complete-history:
+    stage: ratified
+    in: run-patient-care
+    statement: Minimize the likelihood of missing relevant history, medications or allergies
+  send-prescriptions:
+    stage: ratified
+    in: run-patient-care
+    statement: Minimize the time it takes to get a prescription to the pharmacy
+  lab-results-back:
+    stage: ratified
+    in: run-patient-care
+    statement: Minimize the time between a lab result being ready and seeing it
+  clean-claims:
+    stage: ratified
+    in: get-paid
+    statement: Minimize the number of claims rejected for errors
+  days-to-payment:
+    stage: ratified
+    in: get-paid
+    statement: Minimize the time between a visit and payment
+  see-records:
+    stage: ratified
+    in: access-my-care
+    statement: Minimize the effort to see my records and results
+  use-my-apps:
+    stage: ratified
+    in: access-my-care
+    statement: Minimize the effort to use my own health apps with my records
+  message-clinic:
+    stage: ratified
+    in: access-my-care
+    statement: Minimize the time to get an answer from my clinic
+  telehealth:
+    stage: ratified
+    in: access-my-care
+    statement: Minimize the effort to see my clinician without travelling
+    disposition: deferred
+    rationale: Provided through third-party modules for now
 
 requirements:
   encounter-forms:
@@ -339,16 +348,17 @@ profiles:
   openemr-controls:
     stage: ratified
     name: OpenEMR control profile
-    selections:
-      sel-access-control: {stage: ratified, choice: include, names: access-control}
-      sel-mfa: {stage: ratified, choice: include, names: mfa}
-      sel-audit-logging: {stage: ratified, choice: include, names: audit-logging}
-      sel-transport-encryption: {stage: ratified, choice: include, names: transport-encryption}
-      sel-document-encryption-control: {stage: ratified, choice: include, names: document-encryption-control}
-      sel-vulnerability-management: {stage: ratified, choice: include, names: vulnerability-management}
-      sel-physical-security: {stage: ratified, choice: include, names: physical-security}
-      sel-partner-validation: {stage: ratified, choice: include, names: partner-validation}
-      sel-host-hardening: {stage: ratified, choice: include, names: host-hardening}
+
+selections:
+  sel-access-control: {stage: ratified, in: openemr-controls, choice: include, names: access-control}
+  sel-mfa: {stage: ratified, in: openemr-controls, choice: include, names: mfa}
+  sel-audit-logging: {stage: ratified, in: openemr-controls, choice: include, names: audit-logging}
+  sel-transport-encryption: {stage: ratified, in: openemr-controls, choice: include, names: transport-encryption}
+  sel-document-encryption-control: {stage: ratified, in: openemr-controls, choice: include, names: document-encryption-control}
+  sel-vulnerability-management: {stage: ratified, in: openemr-controls, choice: include, names: vulnerability-management}
+  sel-physical-security: {stage: ratified, in: openemr-controls, choice: include, names: physical-security}
+  sel-partner-validation: {stage: ratified, in: openemr-controls, choice: include, names: partner-validation}
+  sel-host-hardening: {stage: ratified, in: openemr-controls, choice: include, names: host-hardening}
 
 adoptions:
   # OpenEMR (self-installed)
@@ -393,36 +403,41 @@ systems:
     external: false
     realizes: [openemr, openemr-cloud]
     satisfies: [cloud-tls]
-    containers:
-      web-app:
-        stage: ratified
-        name: Web application
-        description: PHP application serving clinical, billing, portal and API functions
-        kind: application
-        technology: PHP, Apache
-        satisfies: [role-based-access, multi-factor-login, tamper-evident-audit]
-        components:
-          clinical: {stage: ratified, name: Clinical, description: Encounters, problem lists, prescribing and lab orders, technology: PHP, satisfies: [encounter-forms, e-prescribing, lab-interface]}
-          billing: {stage: ratified, name: Billing, description: Fee sheets, claims and payments, technology: PHP, satisfies: [claims-export]}
-          portal: {stage: ratified, name: Patient portal, description: Patient-facing records and messaging, technology: PHP, satisfies: [patient-portal, portal-lockout]}
-          fhir-api: {stage: ratified, name: FHIR API, description: FHIR R4 with SMART on FHIR and OAuth 2, technology: PHP, satisfies: [fhir-patient-access]}
-      database:
-        stage: ratified
-        name: Database
-        description: Patient records, billing, users, ACLs and audit log
-        kind: data-store
-        technology: MySQL or MariaDB
-      documents:
-        stage: ratified
-        name: Document store
-        description: Scanned documents and images, optionally encrypted
-        kind: data-store
-        technology: File system
-        satisfies: [document-encryption]
   erx-network: {stage: ratified, name: E-prescribing network, description: Routes prescriptions to pharmacies, owner: E-prescribing vendor, external: true}
   lab: {stage: ratified, name: Lab, description: Reference lab receiving orders and returning results, owner: Lab, external: true}
   clearinghouse: {stage: ratified, name: Clearinghouse, description: Validates and forwards claims to payers, owner: Clearinghouse, external: true}
   smart-apps: {stage: ratified, name: Patient apps, description: Third-party SMART on FHIR apps chosen by patients, owner: App developers, external: true}
+
+containers:
+  web-app:
+    stage: ratified
+    in: openemr-system
+    name: Web application
+    description: PHP application serving clinical, billing, portal and API functions
+    kind: application
+    technology: PHP, Apache
+    satisfies: [role-based-access, multi-factor-login, tamper-evident-audit]
+  database:
+    stage: ratified
+    in: openemr-system
+    name: Database
+    description: Patient records, billing, users, ACLs and audit log
+    kind: data-store
+    technology: MySQL or MariaDB
+  documents:
+    stage: ratified
+    in: openemr-system
+    name: Document store
+    description: Scanned documents and images, optionally encrypted
+    kind: data-store
+    technology: File system
+    satisfies: [document-encryption]
+
+components:
+  clinical: {stage: ratified, in: web-app, name: Clinical, description: Encounters, problem lists, prescribing and lab orders, technology: PHP, satisfies: [encounter-forms, e-prescribing, lab-interface]}
+  billing: {stage: ratified, in: web-app, name: Billing, description: Fee sheets, claims and payments, technology: PHP, satisfies: [claims-export]}
+  portal: {stage: ratified, in: web-app, name: Patient portal, description: Patient-facing records and messaging, technology: PHP, satisfies: [patient-portal, portal-lockout]}
+  fhir-api: {stage: ratified, in: web-app, name: FHIR API, description: FHIR R4 with SMART on FHIR and OAuth 2, technology: PHP, satisfies: [fhir-patient-access]}
 
 relationships:
   clinician-uses-clinical: {stage: ratified, leaves: clinician-person, enters: clinical, description: Documents visits and orders, technology: HTTPS}
@@ -444,10 +459,11 @@ dynamicDiagrams:
     stage: ratified
     name: A patient connects a health app
     depicts: [fhir-patient-access, web-app]
-    steps:
-      s1: {stage: ratified, order: 1, follows: patient-uses-apps, description: Patient chooses to connect the app}
-      s2: {stage: ratified, order: 2, follows: apps-call-fhir, description: App completes SMART authorization and requests records}
-      s3: {stage: ratified, order: 3, follows: fhir-uses-db, description: API reads the records and logs the access}
+
+dynamicSteps:
+  dyn-app-access-1: {stage: ratified, in: dyn-app-access, order: 1, follows: patient-uses-apps, description: Patient chooses to connect the app}
+  dyn-app-access-2: {stage: ratified, in: dyn-app-access, order: 2, follows: apps-call-fhir, description: App completes SMART authorization and requests records}
+  dyn-app-access-3: {stage: ratified, in: dyn-app-access, order: 3, follows: fhir-uses-db, description: API reads the records and logs the access}
 
 environments:
   cloud-production: {stage: ratified, name: OpenEMR Cloud on AWS, serves: [openemr-cloud]}
@@ -458,22 +474,24 @@ deploymentNodes:
     name: AWS region
     technology: AWS
     belongs: cloud-production
-    infrastructureNodes:
-      load-balancer: {stage: ratified, name: Application load balancer, technology: AWS ALB with ACM certificate}
-    deploymentNodes:
-      app-node:
-        stage: ratified
-        name: Application server
-        technology: EC2, Amazon Linux, Docker
-        containerInstances:
-          web-app-cloud: {stage: ratified, instantiates: web-app}
-          documents-cloud: {stage: ratified, instantiates: documents}
-      db-node:
-        stage: ratified
-        name: Managed database
-        technology: Amazon RDS for MySQL, encrypted
-        containerInstances:
-          database-cloud: {stage: ratified, instantiates: database}
+  app-node:
+    stage: ratified
+    in: aws-region
+    name: Application server
+    technology: EC2, Amazon Linux, Docker
+  db-node:
+    stage: ratified
+    in: aws-region
+    name: Managed database
+    technology: Amazon RDS for MySQL, encrypted
+
+containerInstances:
+  web-app-cloud: {stage: ratified, in: app-node, instantiates: web-app}
+  documents-cloud: {stage: ratified, in: app-node, instantiates: documents}
+  database-cloud: {stage: ratified, in: db-node, instantiates: database}
+
+infrastructureNodes:
+  load-balancer: {stage: ratified, in: aws-region, name: Application load balancer, technology: AWS ALB with ACM certificate}
 
 deploymentDiagrams:
   deploy-cloud: {stage: ratified, depicts: [openemr-system, cloud-production]}
@@ -529,13 +547,13 @@ trustBoundaries:
     crossing: Authenticated HTTPS from staff, patients and apps; SFTP and HTTPS to partners
     encloses: [p-clinical, p-billing, p-portal, p-fhir]
     relies: [access-control, transport-encryption]
-    trustBoundaries:
-      tb-data:
-        stage: ratified
-        label: Data tier
-        crossing: Only the web application's database account and file system user
-        encloses: [ds-database, ds-documents]
-        relies: [database, document-encryption-control]
+  tb-data:
+    stage: ratified
+    in: tb-server
+    label: Data tier
+    crossing: Only the web application's database account and file system user
+    encloses: [ds-database, ds-documents]
+    relies: [database, document-encryption-control]
 
 dataFlowDiagrams:
   dfd-web-app:

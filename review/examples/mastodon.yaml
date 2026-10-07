@@ -32,44 +32,54 @@ jobs:
     stage: ratified
     statement: Keep up with and talk to the people and communities I care about, on my own terms
     motivates: social-user
-    outcomes:
-      chronological-feed:
-        stage: ratified
-        statement: Minimize the likelihood that a platform decides what I see
-      move-freely:
-        stage: ratified
-        statement: Minimize what I lose when I move to another server
-      reach-across-servers:
-        stage: ratified
-        statement: Minimize the number of people I can't follow because they're on a different server
-      safe-from-abuse:
-        stage: ratified
-        statement: Minimize the time abusive content stays in front of me
-      find-people:
-        stage: ratified
-        statement: Minimize the effort to find people and topics I'd want to follow
-      algorithmic-discovery:
-        stage: ratified
-        statement: Minimize the effort to discover popular content I didn't know to look for
-        disposition: out-of-scope
-        rationale: Engagement-ranked feeds go against the product's purpose; trends and hashtags are the limit
   run-a-community:
     stage: ratified
     statement: Run an online space for my community with our own rules
     motivates: community-admin
-    outcomes:
-      enforce-rules:
-        stage: ratified
-        statement: Minimize the time it takes to act on a report
-      defederate:
-        stage: ratified
-        statement: Minimize the effort to limit or block a misbehaving server
-      affordable:
-        stage: ratified
-        statement: Minimize the cost of hosting per active user
-      easy-upgrades:
-        stage: ratified
-        statement: Minimize the effort to upgrade to a new release
+
+outcomes:
+  chronological-feed:
+    stage: ratified
+    in: stay-connected
+    statement: Minimize the likelihood that a platform decides what I see
+  move-freely:
+    stage: ratified
+    in: stay-connected
+    statement: Minimize what I lose when I move to another server
+  reach-across-servers:
+    stage: ratified
+    in: stay-connected
+    statement: Minimize the number of people I can't follow because they're on a different server
+  safe-from-abuse:
+    stage: ratified
+    in: stay-connected
+    statement: Minimize the time abusive content stays in front of me
+  find-people:
+    stage: ratified
+    in: stay-connected
+    statement: Minimize the effort to find people and topics I'd want to follow
+  algorithmic-discovery:
+    stage: ratified
+    in: stay-connected
+    statement: Minimize the effort to discover popular content I didn't know to look for
+    disposition: out-of-scope
+    rationale: Engagement-ranked feeds go against the product's purpose; trends and hashtags are the limit
+  enforce-rules:
+    stage: ratified
+    in: run-a-community
+    statement: Minimize the time it takes to act on a report
+  defederate:
+    stage: ratified
+    in: run-a-community
+    statement: Minimize the effort to limit or block a misbehaving server
+  affordable:
+    stage: ratified
+    in: run-a-community
+    statement: Minimize the cost of hosting per active user
+  easy-upgrades:
+    stage: ratified
+    in: run-a-community
+    statement: Minimize the effort to upgrade to a new release
 
 requirements:
   chronological-timelines:
@@ -291,11 +301,12 @@ profiles:
   mastodon-controls:
     stage: ratified
     name: Mastodon control profile
-    selections:
-      sel-moderation: {stage: ratified, choice: include, names: moderation}
-      sel-backups: {stage: ratified, choice: include, names: backups}
-      sel-emergency-access: {stage: ratified, choice: include, names: emergency-access}
-      sel-shutdown-notice: {stage: ratified, choice: include, names: shutdown-notice}
+
+selections:
+  sel-moderation: {stage: ratified, in: mastodon-controls, choice: include, names: moderation}
+  sel-backups: {stage: ratified, in: mastodon-controls, choice: include, names: backups}
+  sel-emergency-access: {stage: ratified, in: mastodon-controls, choice: include, names: emergency-access}
+  sel-shutdown-notice: {stage: ratified, in: mastodon-controls, choice: include, names: shutdown-notice}
 
 adoptions:
   adopt-moderation-social: {stage: ratified, mode: procedure, adopts: moderation, governs: mastodon-social}
@@ -319,62 +330,71 @@ systems:
     owner: Mastodon gGmbH engineering
     external: false
     realizes: [mastodon, mastodon-social]
-    containers:
-      web-ui:
-        stage: ratified
-        name: Web interface
-        description: Single-page app for users and moderators
-        kind: application
-        technology: React
-      web:
-        stage: ratified
-        name: Web and API
-        description: REST API, ActivityPub inbox and outbox, admin pages
-        kind: application
-        technology: Ruby on Rails, Puma
-        satisfies: [chronological-timelines, account-migration, reports-and-moderation, domain-blocks, horizontal-scaling, documented-upgrades]
-        components:
-          rest-api: {stage: ratified, name: REST API, description: Client API used by the web UI and apps, technology: Rails}
-          activitypub: {stage: ratified, name: ActivityPub, description: Inbox and outbox for federation, technology: Rails, satisfies: [activitypub-federation]}
-          admin: {stage: ratified, name: Admin and moderation, description: Report queue, account and domain actions, technology: Rails}
-      sidekiq:
-        stage: ratified
-        name: Background workers
-        description: Federation delivery, media processing, email and scheduled jobs
-        kind: application
-        technology: Ruby, Sidekiq
-        satisfies: [activitypub-federation, horizontal-scaling]
-      streaming:
-        stage: ratified
-        name: Streaming API
-        description: Pushes live timeline updates to clients
-        kind: application
-        technology: Node.js
-        satisfies: [horizontal-scaling]
-      postgres:
-        stage: ratified
-        name: Database
-        description: Accounts, posts, follows and reports
-        kind: data-store
-        technology: PostgreSQL
-        satisfies: [daily-backups]
-      redis:
-        stage: ratified
-        name: Redis
-        description: Home feeds, job queues and streaming pub/sub
-        kind: data-store
-        technology: Redis
-      search:
-        stage: ratified
-        name: Search index
-        description: Optional full-text index of opted-in posts
-        kind: data-store
-        technology: Elasticsearch or OpenSearch
-        satisfies: [search-and-hashtags]
   fediverse: {stage: ratified, name: Other fediverse servers, description: Mastodon and other ActivityPub servers, owner: Their operators, external: true}
   client-apps: {stage: ratified, name: Third-party apps, description: Mobile and desktop clients built on the REST API, owner: Their developers, external: true}
   object-storage: {stage: ratified, name: Object storage, description: S3-compatible storage for media, owner: Storage provider, external: true}
   smtp: {stage: ratified, name: Email provider, description: Sends confirmation and notification email, owner: Email provider, external: true}
+
+containers:
+  web-ui:
+    stage: ratified
+    in: mastodon-system
+    name: Web interface
+    description: Single-page app for users and moderators
+    kind: application
+    technology: React
+  web:
+    stage: ratified
+    in: mastodon-system
+    name: Web and API
+    description: REST API, ActivityPub inbox and outbox, admin pages
+    kind: application
+    technology: Ruby on Rails, Puma
+    satisfies: [chronological-timelines, account-migration, reports-and-moderation, domain-blocks, horizontal-scaling, documented-upgrades]
+  sidekiq:
+    stage: ratified
+    in: mastodon-system
+    name: Background workers
+    description: Federation delivery, media processing, email and scheduled jobs
+    kind: application
+    technology: Ruby, Sidekiq
+    satisfies: [activitypub-federation, horizontal-scaling]
+  streaming:
+    stage: ratified
+    in: mastodon-system
+    name: Streaming API
+    description: Pushes live timeline updates to clients
+    kind: application
+    technology: Node.js
+    satisfies: [horizontal-scaling]
+  postgres:
+    stage: ratified
+    in: mastodon-system
+    name: Database
+    description: Accounts, posts, follows and reports
+    kind: data-store
+    technology: PostgreSQL
+    satisfies: [daily-backups]
+  redis:
+    stage: ratified
+    in: mastodon-system
+    name: Redis
+    description: Home feeds, job queues and streaming pub/sub
+    kind: data-store
+    technology: Redis
+  search:
+    stage: ratified
+    in: mastodon-system
+    name: Search index
+    description: Optional full-text index of opted-in posts
+    kind: data-store
+    technology: Elasticsearch or OpenSearch
+    satisfies: [search-and-hashtags]
+
+components:
+  rest-api: {stage: ratified, in: web, name: REST API, description: Client API used by the web UI and apps, technology: Rails}
+  activitypub: {stage: ratified, in: web, name: ActivityPub, description: Inbox and outbox for federation, technology: Rails, satisfies: [activitypub-federation]}
+  admin: {stage: ratified, in: web, name: Admin and moderation, description: Report queue, account and domain actions, technology: Rails}
 
 relationships:
   user-uses-web-ui: {stage: ratified, leaves: user, enters: web-ui, description: Reads timelines and posts}
@@ -407,25 +427,27 @@ deploymentNodes:
     name: Cloud region
     technology: Managed Kubernetes
     belongs: social-production
-    infrastructureNodes:
-      ingress: {stage: ratified, name: Ingress and CDN, technology: nginx, CDN}
-    deploymentNodes:
-      app-pool:
-        stage: ratified
-        name: Application node pool
-        technology: Kubernetes
-        containerInstances:
-          web-instance: {stage: ratified, instantiates: web}
-          sidekiq-instance: {stage: ratified, instantiates: sidekiq}
-          streaming-instance: {stage: ratified, instantiates: streaming}
-      data-nodes:
-        stage: ratified
-        name: Data nodes
-        technology: Managed PostgreSQL, Redis and OpenSearch
-        containerInstances:
-          postgres-instance: {stage: ratified, instantiates: postgres}
-          redis-instance: {stage: ratified, instantiates: redis}
-          search-instance: {stage: ratified, instantiates: search}
+  app-pool:
+    stage: ratified
+    in: cloud-region
+    name: Application node pool
+    technology: Kubernetes
+  data-nodes:
+    stage: ratified
+    in: cloud-region
+    name: Data nodes
+    technology: Managed PostgreSQL, Redis and OpenSearch
+
+containerInstances:
+  web-instance: {stage: ratified, in: app-pool, instantiates: web}
+  sidekiq-instance: {stage: ratified, in: app-pool, instantiates: sidekiq}
+  streaming-instance: {stage: ratified, in: app-pool, instantiates: streaming}
+  postgres-instance: {stage: ratified, in: data-nodes, instantiates: postgres}
+  redis-instance: {stage: ratified, in: data-nodes, instantiates: redis}
+  search-instance: {stage: ratified, in: data-nodes, instantiates: search}
+
+infrastructureNodes:
+  ingress: {stage: ratified, in: cloud-region, name: Ingress and CDN, technology: nginx, CDN}
 
 deploymentDiagrams:
   deploy-social:

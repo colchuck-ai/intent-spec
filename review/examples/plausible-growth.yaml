@@ -32,49 +32,59 @@ jobs:
     stage: ratified
     statement: Understand how many people visit my site, where they come from and what they do
     motivates: site-owner
-    outcomes:
-      traffic-at-a-glance:
-        stage: ratified
-        statement: Minimize the time it takes to see how traffic is trending
-      know-sources:
-        stage: ratified
-        statement: Minimize the effort to see which sources and campaigns send me visitors
-      no-consent-banner:
-        stage: ratified
-        statement: Minimize the need to ask visitors for consent before measuring traffic
-      fast-pages:
-        stage: ratified
-        statement: Minimize the page weight that analytics adds
-      campaign-conversions:
-        stage: ratified
-        statement: Minimize the time it takes to see which campaigns lead to sign-ups
-      individual-journeys:
-        stage: ratified
-        statement: Minimize the effort to follow one visitor's path through the site
-        disposition: out-of-scope
-        rationale: Tracking individuals conflicts with the product's privacy promise
-      data-stays-in-eu:
-        stage: ratified
-        statement: Minimize the likelihood that visitor data leaves the EU
-        disposition: out-of-scope
-        rationale: Community Edition runs wherever the operator chooses to host it
-        scopes: [plausible-ce]
   report-to-clients:
     stage: ratified
     statement: Show clients how their sites are performing
     motivates: agency
-    outcomes:
-      share-without-logins:
-        stage: ratified
-        statement: Minimize the effort to give a client access to their stats
-      many-sites:
-        stage: ratified
-        statement: Minimize the time spent switching between client sites
-      white-label:
-        stage: ratified
-        statement: Minimize the visibility of the analytics vendor in client reports
-        disposition: deferred
-        rationale: Not enough demand yet compared with other agency requests
+
+outcomes:
+  traffic-at-a-glance:
+    stage: ratified
+    in: understand-traffic
+    statement: Minimize the time it takes to see how traffic is trending
+  know-sources:
+    stage: ratified
+    in: understand-traffic
+    statement: Minimize the effort to see which sources and campaigns send me visitors
+  no-consent-banner:
+    stage: ratified
+    in: understand-traffic
+    statement: Minimize the need to ask visitors for consent before measuring traffic
+  fast-pages:
+    stage: ratified
+    in: understand-traffic
+    statement: Minimize the page weight that analytics adds
+  campaign-conversions:
+    stage: ratified
+    in: understand-traffic
+    statement: Minimize the time it takes to see which campaigns lead to sign-ups
+  individual-journeys:
+    stage: ratified
+    in: understand-traffic
+    statement: Minimize the effort to follow one visitor's path through the site
+    disposition: out-of-scope
+    rationale: Tracking individuals conflicts with the product's privacy promise
+  data-stays-in-eu:
+    stage: ratified
+    in: understand-traffic
+    statement: Minimize the likelihood that visitor data leaves the EU
+    disposition: out-of-scope
+    rationale: Community Edition runs wherever the operator chooses to host it
+    scopes: [plausible-ce]
+  share-without-logins:
+    stage: ratified
+    in: report-to-clients
+    statement: Minimize the effort to give a client access to their stats
+  many-sites:
+    stage: ratified
+    in: report-to-clients
+    statement: Minimize the time spent switching between client sites
+  white-label:
+    stage: ratified
+    in: report-to-clients
+    statement: Minimize the visibility of the analytics vendor in client reports
+    disposition: deferred
+    rationale: Not enough demand yet compared with other agency requests
 
 requirements:
   one-page-dashboard:
@@ -287,11 +297,12 @@ profiles:
   plausible-controls:
     stage: ratified
     name: Plausible control profile
-    selections:
-      sel-visitor-hashing: {stage: ratified, choice: include, names: visitor-hashing}
-      sel-eu-hosting: {stage: ratified, choice: include, names: eu-hosting}
-      sel-account-deletion: {stage: ratified, choice: include, names: account-deletion}
-      sel-host-hardening: {stage: ratified, choice: include, names: host-hardening}
+
+selections:
+  sel-visitor-hashing: {stage: ratified, in: plausible-controls, choice: include, names: visitor-hashing}
+  sel-eu-hosting: {stage: ratified, in: plausible-controls, choice: include, names: eu-hosting}
+  sel-account-deletion: {stage: ratified, in: plausible-controls, choice: include, names: account-deletion}
+  sel-host-hardening: {stage: ratified, in: plausible-controls, choice: include, names: host-hardening}
 
 adoptions:
   adopt-hashing-cloud: {stage: ratified, mode: system, adopts: visitor-hashing, governs: plausible-cloud}
@@ -324,36 +335,41 @@ systems:
     external: false
     realizes: [plausible-cloud, plausible-ce]
     satisfies: [host-in-eu]
-    containers:
-      tracker:
-        stage: ratified
-        name: Tracker script
-        description: JavaScript that runs on customers' sites and sends pageviews and custom events
-        kind: application
-        technology: JavaScript
-        satisfies: [no-cookies, small-script]
-      web-app:
-        stage: ratified
-        name: Web app
-        description: Ingests events, serves the dashboard and API, manages accounts and billing
-        kind: application
-        technology: Elixir, Phoenix
-        satisfies: [one-page-dashboard, source-breakdown, goals-and-funnels, daily-salted-visitor-hash, shared-links, site-switcher, referrer-list]
-      events-db:
-        stage: ratified
-        name: Events database
-        description: Pageview and custom events
-        kind: data-store
-        technology: ClickHouse
-        satisfies: [dashboard-speed]
-      app-db:
-        stage: ratified
-        name: Application database
-        description: Accounts, sites, goals and shared links
-        kind: data-store
-        technology: PostgreSQL
   billing-provider: {stage: ratified, name: Paddle, description: Merchant of record for subscriptions, owner: Paddle, external: true}
   email-provider: {stage: ratified, name: Transactional email provider, description: Sends reports and account email, owner: Vendor, external: true}
+
+containers:
+  tracker:
+    stage: ratified
+    in: plausible-system
+    name: Tracker script
+    description: JavaScript that runs on customers' sites and sends pageviews and custom events
+    kind: application
+    technology: JavaScript
+    satisfies: [no-cookies, small-script]
+  web-app:
+    stage: ratified
+    in: plausible-system
+    name: Web app
+    description: Ingests events, serves the dashboard and API, manages accounts and billing
+    kind: application
+    technology: Elixir, Phoenix
+    satisfies: [one-page-dashboard, source-breakdown, goals-and-funnels, daily-salted-visitor-hash, shared-links, site-switcher, referrer-list]
+  events-db:
+    stage: ratified
+    in: plausible-system
+    name: Events database
+    description: Pageview and custom events
+    kind: data-store
+    technology: ClickHouse
+    satisfies: [dashboard-speed]
+  app-db:
+    stage: ratified
+    in: plausible-system
+    name: Application database
+    description: Accounts, sites, goals and shared links
+    kind: data-store
+    technology: PostgreSQL
 
 relationships:
   visitor-loads-tracker: {stage: ratified, leaves: visitor, enters: tracker, description: Loads the tracker while browsing a customer site, technology: HTTPS}
@@ -421,31 +437,32 @@ deploymentNodes:
     name: Hosting provider, Germany
     technology: Dedicated servers
     belongs: production
-    infrastructureNodes:
-      load-balancer: {stage: ratified, name: Load balancer, technology: HAProxy}
-    deploymentNodes:
-      app-servers:
-        stage: ratified
-        name: App servers
-        technology: Ubuntu, Docker
-        containerInstances:
-          web-app-instance: {stage: ratified, instantiates: web-app}
-      db-servers:
-        stage: ratified
-        name: Database servers
-        technology: Ubuntu
-        containerInstances:
-          events-db-instance: {stage: ratified, instantiates: events-db}
-          app-db-instance: {stage: ratified, instantiates: app-db}
+  app-servers:
+    stage: ratified
+    in: eu-region
+    name: App servers
+    technology: Ubuntu, Docker
+  db-servers:
+    stage: ratified
+    in: eu-region
+    name: Database servers
+    technology: Ubuntu
   compose-host:
     stage: ratified
     name: Operator's server
     technology: Docker Compose
     belongs: ce-compose
-    containerInstances:
-      ce-web-app-instance: {stage: ratified, instantiates: web-app}
-      ce-events-db-instance: {stage: ratified, instantiates: events-db}
-      ce-app-db-instance: {stage: ratified, instantiates: app-db}
+
+containerInstances:
+  web-app-instance: {stage: ratified, in: app-servers, instantiates: web-app}
+  events-db-instance: {stage: ratified, in: db-servers, instantiates: events-db}
+  app-db-instance: {stage: ratified, in: db-servers, instantiates: app-db}
+  ce-web-app-instance: {stage: ratified, in: compose-host, instantiates: web-app}
+  ce-events-db-instance: {stage: ratified, in: compose-host, instantiates: events-db}
+  ce-app-db-instance: {stage: ratified, in: compose-host, instantiates: app-db}
+
+infrastructureNodes:
+  load-balancer: {stage: ratified, in: eu-region, name: Load balancer, technology: HAProxy}
 
 deploymentDiagrams:
   deploy-production:

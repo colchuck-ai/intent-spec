@@ -36,7 +36,8 @@ erDiagram
     string party "who it comes from, e.g. AWS; optional"
     string version "edition or date; optional"
   }
-  %% Every item has a document-unique id and a stage: proposed | ratified | deprecated; a deprecated item names its replacement (replacedBy) or, when nothing replaces it, gives a deprecationRationale.
+  %% Every item has a document-unique id. Containment between items (contains, has, hosts) is a to-one link from the contained item to its container, like any other link; items never nest.
+  %% Every item has a stage: proposed | ratified | deprecated; a deprecated item names its replacement (replacedBy) or, when nothing replaces it, gives a deprecationRationale.
   %% rule REF-1: a link not drawn to EXTERNAL_REFERENCE resolves to a local or imported item; an external reference there is a type error
   %% rule REF-2: where allowed, an external reference satisfies a link's cardinality; rules that inspect the target skip it
   %% rule REF-3: a ratified item does not link to a proposed item
@@ -241,7 +242,7 @@ erDiagram
   SECURE_BASELINE }o--o| EXTERNAL_REFERENCE: derives
   SECURE_BASELINE }o--o{ DEPLOYMENT_NODE: hardens
   SECURE_BASELINE }o--o{ INFRASTRUCTURE_NODE: hardens
-  %% derived GRC-17: a secure baseline hardens every node nested in, or hosted by, a deployment node it hardens
+  %% derived GRC-17: a secure baseline hardens every node contained in, or hosted by, a deployment node it hardens
   %% rule GRC-18 (should): a secure baseline derives from a CIS benchmark, DISA STIG or vendor guide
 
   %% derived GRC-19: a product's system security plan (SSP) is its adoptions with their controls, standards, procedures, requirements and inheritance
@@ -348,8 +349,8 @@ erDiagram
   DEPLOYMENT_NODE ||--o{ SYSTEM_INSTANCE: hosts
   DEPLOYMENT_NODE ||--o{ CONTAINER_INSTANCE: hosts
   DEPLOYMENT_NODE ||--o{ INFRASTRUCTURE_NODE: hosts
-  %% rule C4-21: a top-level node belongs to exactly one environment; a nested node belongs to none
-  %% derived C4-22: a nested node's environment is its top-level ancestor's
+  %% rule C4-21: a node that no other node contains belongs to exactly one environment; a contained node belongs to none
+  %% derived C4-22: a contained node's environment is that of the outermost node containing it
 
   SYSTEM_INSTANCE
   SYSTEM_INSTANCE }o--|| SYSTEM: instantiates

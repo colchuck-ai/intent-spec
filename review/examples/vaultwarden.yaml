@@ -24,27 +24,34 @@ jobs:
     stage: ratified
     statement: Keep my household's passwords available on every device without handing them to a third party
     motivates: self-hoster
-    outcomes:
-      low-resources:
-        stage: ratified
-        statement: Minimize the hardware needed to run the password server
-      works-with-clients:
-        stage: ratified
-        statement: Minimize the number of client features that don't work with my server
-      server-breach-safe:
-        stage: ratified
-        statement: Minimize the likelihood that a compromised server exposes readable passwords
-      always-available:
-        stage: ratified
-        statement: Minimize the time my family can't reach their passwords
-      easy-upgrades:
-        stage: ratified
-        statement: Minimize the effort to stay on a secure version
-      enterprise-sso:
-        stage: ratified
-        statement: Minimize the effort to sign in with my organisation's identity provider
-        disposition: out-of-scope
-        rationale: The project targets households and small groups
+
+outcomes:
+  low-resources:
+    stage: ratified
+    in: keep-passwords-in-sync
+    statement: Minimize the hardware needed to run the password server
+  works-with-clients:
+    stage: ratified
+    in: keep-passwords-in-sync
+    statement: Minimize the number of client features that don't work with my server
+  server-breach-safe:
+    stage: ratified
+    in: keep-passwords-in-sync
+    statement: Minimize the likelihood that a compromised server exposes readable passwords
+  always-available:
+    stage: ratified
+    in: keep-passwords-in-sync
+    statement: Minimize the time my family can't reach their passwords
+  easy-upgrades:
+    stage: ratified
+    in: keep-passwords-in-sync
+    statement: Minimize the effort to stay on a secure version
+  enterprise-sso:
+    stage: ratified
+    in: keep-passwords-in-sync
+    statement: Minimize the effort to sign in with my organisation's identity provider
+    disposition: out-of-scope
+    rationale: The project targets households and small groups
 
 requirements:
   client-side-encryption:
@@ -251,10 +258,11 @@ profiles:
   vaultwarden-controls:
     stage: ratified
     name: Vaultwarden control profile
-    selections:
-      sel-rate-limiting: {stage: ratified, choice: include, names: rate-limiting}
-      sel-tls-termination: {stage: ratified, choice: include, names: tls-termination}
-      sel-vulnerability-disclosure: {stage: ratified, choice: include, names: vulnerability-disclosure}
+
+selections:
+  sel-rate-limiting: {stage: ratified, in: vaultwarden-controls, choice: include, names: rate-limiting}
+  sel-tls-termination: {stage: ratified, in: vaultwarden-controls, choice: include, names: tls-termination}
+  sel-vulnerability-disclosure: {stage: ratified, in: vaultwarden-controls, choice: include, names: vulnerability-disclosure}
 
 adoptions:
   adopt-rate-limit: {stage: ratified, mode: system, adopts: rate-limiting, governs: vaultwarden}
@@ -273,42 +281,48 @@ systems:
     owner: Vaultwarden maintainers
     external: false
     realizes: [vaultwarden]
-    containers:
-      api-server:
-        stage: ratified
-        name: API server
-        description: Implements the Bitwarden API, admin page, notifications and icon service
-        kind: application
-        technology: Rust
-        satisfies: [bitwarden-api-compat, single-binary, push-and-websocket-sync, login-rate-limit, two-factor, hashed-admin-token]
-        components:
-          identity: {stage: ratified, name: Identity, description: Login, two-factor and tokens, technology: Rust}
-          vault-api: {stage: ratified, name: Vault API, description: Sync and cipher endpoints, technology: Rust, satisfies: [client-side-encryption]}
-          admin-page: {stage: ratified, name: Admin page, description: User and settings management behind the admin token, technology: Rust}
-          icon-service: {stage: ratified, name: Icon service, description: Fetches and caches website icons, technology: Rust, satisfies: [icon-fetch-guard]}
-          notifications: {stage: ratified, name: Notifications, description: WebSocket hub and push relay client, technology: Rust}
-      web-vault:
-        stage: ratified
-        name: Web vault
-        description: Bitwarden web client build served by the API server, runs in the browser
-        kind: application
-        technology: Angular
-      database:
-        stage: ratified
-        name: Database
-        description: Users, organisations and encrypted vault items
-        kind: data-store
-        technology: SQLite, MySQL or PostgreSQL
-      attachments:
-        stage: ratified
-        name: Attachments and icon cache
-        description: Encrypted attachments, sends and cached icons on disk
-        kind: data-store
-        technology: File system
   bitwarden-clients: {stage: ratified, name: Bitwarden clients, description: Official desktop, mobile, browser and CLI apps, owner: Bitwarden Inc., external: true}
   push-relay: {stage: ratified, name: Bitwarden push relay, description: Forwards push notifications to mobile apps, owner: Bitwarden Inc., external: true}
   smtp-server: {stage: ratified, name: SMTP server, description: Sends invitations and two-factor codes, owner: Self-hoster's provider, external: true}
   websites: {stage: ratified, name: Websites, description: Sites whose icons are fetched, owner: Anyone, external: true}
+
+containers:
+  api-server:
+    stage: ratified
+    in: vaultwarden-system
+    name: API server
+    description: Implements the Bitwarden API, admin page, notifications and icon service
+    kind: application
+    technology: Rust
+    satisfies: [bitwarden-api-compat, single-binary, push-and-websocket-sync, login-rate-limit, two-factor, hashed-admin-token]
+  web-vault:
+    stage: ratified
+    in: vaultwarden-system
+    name: Web vault
+    description: Bitwarden web client build served by the API server, runs in the browser
+    kind: application
+    technology: Angular
+  database:
+    stage: ratified
+    in: vaultwarden-system
+    name: Database
+    description: Users, organisations and encrypted vault items
+    kind: data-store
+    technology: SQLite, MySQL or PostgreSQL
+  attachments:
+    stage: ratified
+    in: vaultwarden-system
+    name: Attachments and icon cache
+    description: Encrypted attachments, sends and cached icons on disk
+    kind: data-store
+    technology: File system
+
+components:
+  identity: {stage: ratified, in: api-server, name: Identity, description: Login, two-factor and tokens, technology: Rust}
+  vault-api: {stage: ratified, in: api-server, name: Vault API, description: Sync and cipher endpoints, technology: Rust, satisfies: [client-side-encryption]}
+  admin-page: {stage: ratified, in: api-server, name: Admin page, description: User and settings management behind the admin token, technology: Rust}
+  icon-service: {stage: ratified, in: api-server, name: Icon service, description: Fetches and caches website icons, technology: Rust, satisfies: [icon-fetch-guard]}
+  notifications: {stage: ratified, in: api-server, name: Notifications, description: WebSocket hub and push relay client, technology: Rust}
 
 relationships:
   member-uses-clients: {stage: ratified, leaves: household-member, enters: bitwarden-clients, description: Stores and fills passwords}
@@ -327,11 +341,12 @@ dynamicDiagrams:
     stage: ratified
     name: Saving a new login on one device appears on another
     depicts: [push-and-websocket-sync, vaultwarden-system]
-    steps:
-      s1: {stage: ratified, order: 1, follows: clients-sync, description: Client uploads the encrypted item}
-      s2: {stage: ratified, order: 2, follows: api-uses-db, description: Server stores the ciphertext}
-      s3: {stage: ratified, order: 3, follows: api-pushes, description: Server notifies mobile clients via the push relay}
-      s4: {stage: ratified, order: 4, follows: clients-sync, description: Other clients fetch the change}
+
+dynamicSteps:
+  dyn-sync-1: {stage: ratified, in: dyn-sync, order: 1, follows: clients-sync, description: Client uploads the encrypted item}
+  dyn-sync-2: {stage: ratified, in: dyn-sync, order: 2, follows: api-uses-db, description: Server stores the ciphertext}
+  dyn-sync-3: {stage: ratified, in: dyn-sync, order: 3, follows: api-pushes, description: Server notifies mobile clients via the push relay}
+  dyn-sync-4: {stage: ratified, in: dyn-sync, order: 4, follows: clients-sync, description: Other clients fetch the change}
 
 environments:
   home-install: {stage: ratified, name: Typical home install, serves: [vaultwarden], operator: Self-hosting operator}
@@ -342,12 +357,14 @@ deploymentNodes:
     name: Home server
     technology: Linux, Docker
     belongs: home-install
-    infrastructureNodes:
-      reverse-proxy: {stage: ratified, name: Reverse proxy, technology: Caddy or nginx with TLS}
-    containerInstances:
-      api-server-instance: {stage: ratified, instantiates: api-server}
-      database-instance: {stage: ratified, instantiates: database}
-      attachments-instance: {stage: ratified, instantiates: attachments}
+
+containerInstances:
+  api-server-instance: {stage: ratified, in: home-server, instantiates: api-server}
+  database-instance: {stage: ratified, in: home-server, instantiates: database}
+  attachments-instance: {stage: ratified, in: home-server, instantiates: attachments}
+
+infrastructureNodes:
+  reverse-proxy: {stage: ratified, in: home-server, name: Reverse proxy, technology: Caddy or nginx with TLS}
 
 deploymentDiagrams:
   deploy-home:

@@ -25,41 +25,50 @@ jobs:
     stage: ratified
     statement: Make my home's devices work together automatically, without depending on any one vendor
     motivates: home-tinkerer
-    outcomes:
-      one-place:
-        stage: ratified
-        statement: Minimize the number of devices I can't control from one place
-      works-offline:
-        stage: ratified
-        statement: Minimize the number of automations that stop when the internet is down
-      quick-device-setup:
-        stage: ratified
-        statement: Minimize the time it takes to add a new device
-      data-stays-home:
-        stage: ratified
-        statement: Minimize the amount of household data that leaves the home
-      safe-to-update:
-        stage: ratified
-        statement: Minimize the likelihood that an update breaks my home
-      multi-home:
-        stage: ratified
-        statement: Minimize the effort to manage several homes from one place
-        disposition: out-of-scope
-        rationale: One instance runs one home; people run several instances
   check-on-home:
     stage: ratified
     statement: Know the home is okay and adjust it, wherever I am
     motivates: household-member
-    outcomes:
-      no-learning-needed:
-        stage: ratified
-        statement: Minimize what I have to learn to turn on lights or change the heating
-      alerted-when-wrong:
-        stage: ratified
-        statement: Minimize the time before I learn something is wrong at home
-      control-when-away:
-        stage: ratified
-        statement: Minimize the effort to control the home when I'm away
+
+outcomes:
+  one-place:
+    stage: ratified
+    in: run-home-together
+    statement: Minimize the number of devices I can't control from one place
+  works-offline:
+    stage: ratified
+    in: run-home-together
+    statement: Minimize the number of automations that stop when the internet is down
+  quick-device-setup:
+    stage: ratified
+    in: run-home-together
+    statement: Minimize the time it takes to add a new device
+  data-stays-home:
+    stage: ratified
+    in: run-home-together
+    statement: Minimize the amount of household data that leaves the home
+  safe-to-update:
+    stage: ratified
+    in: run-home-together
+    statement: Minimize the likelihood that an update breaks my home
+  multi-home:
+    stage: ratified
+    in: run-home-together
+    statement: Minimize the effort to manage several homes from one place
+    disposition: out-of-scope
+    rationale: One instance runs one home; people run several instances
+  no-learning-needed:
+    stage: ratified
+    in: check-on-home
+    statement: Minimize what I have to learn to turn on lights or change the heating
+  alerted-when-wrong:
+    stage: ratified
+    in: check-on-home
+    statement: Minimize the time before I learn something is wrong at home
+  control-when-away:
+    stage: ratified
+    in: check-on-home
+    statement: Minimize the effort to control the home when I'm away
 
 requirements:
   local-automation:
@@ -193,57 +202,65 @@ systems:
     owner: Home Assistant project
     external: false
     realizes: [home-assistant]
-    containers:
-      core:
-        stage: ratified
-        name: Core
-        description: Event bus, state machine, automations and integrations
-        kind: application
-        technology: Python, asyncio
-        satisfies: [local-automation, unified-entity-model, discovery-and-config-flows, role-based-users, multi-factor-auth, custom-integration-warning, remote-access-options]
-        components:
-          automation-engine: {stage: ratified, name: Automation engine, description: Runs triggers, conditions and actions, technology: Python}
-          integrations: {stage: ratified, name: Integrations, description: Device and service integrations, technology: Python}
-          recorder: {stage: ratified, name: Recorder, description: Writes state history, technology: SQLAlchemy, satisfies: [local-history]}
-          auth: {stage: ratified, name: Auth, description: Users, tokens and multi-factor modules, technology: Python}
-          websocket-api: {stage: ratified, name: WebSocket API, description: API for the frontend and apps, technology: aiohttp}
-      frontend:
-        stage: ratified
-        name: Frontend
-        description: Dashboards and settings UI, served by Core and run in the browser
-        kind: application
-        technology: TypeScript, Lit
-      companion:
-        stage: ratified
-        name: Companion apps
-        description: iOS and Android apps
-        kind: application
-        technology: Swift, Kotlin
-        satisfies: [companion-app]
-      supervisor:
-        stage: ratified
-        name: Supervisor
-        description: Manages updates, backups and add-ons on Home Assistant OS
-        kind: application
-        technology: Python, Docker
-        satisfies: [signed-images, backups-before-update]
-      recorder-db:
-        stage: ratified
-        name: Recorder database
-        description: State and event history
-        kind: data-store
-        technology: SQLite
-      config-store:
-        stage: ratified
-        name: Configuration store
-        description: YAML configuration and .storage files, including auth tokens and integration credentials
-        kind: data-store
-        technology: Files
   devices: {stage: ratified, name: Local devices, description: Lights, sensors and hubs reached over Zigbee, Z-Wave, Matter, Wi-Fi or Bluetooth, owner: Device makers, external: true}
   vendor-clouds: {stage: ratified, name: Vendor clouds, description: Cloud APIs for cloud-only devices, owner: Device vendors, external: true}
   ha-cloud: {stage: ratified, name: Home Assistant Cloud, description: Paid remote access and voice assistant bridge, owner: Nabu Casa, external: true}
   image-registry: {stage: ratified, name: Container registry, description: Hosts signed images, owner: GitHub, external: true}
   version-service: {stage: ratified, name: Version service, description: Publishes which versions are current, owner: Home Assistant project}
+
+containers:
+  core:
+    stage: ratified
+    in: ha-system
+    name: Core
+    description: Event bus, state machine, automations and integrations
+    kind: application
+    technology: Python, asyncio
+    satisfies: [local-automation, unified-entity-model, discovery-and-config-flows, role-based-users, multi-factor-auth, custom-integration-warning, remote-access-options]
+  frontend:
+    stage: ratified
+    in: ha-system
+    name: Frontend
+    description: Dashboards and settings UI, served by Core and run in the browser
+    kind: application
+    technology: TypeScript, Lit
+  companion:
+    stage: ratified
+    in: ha-system
+    name: Companion apps
+    description: iOS and Android apps
+    kind: application
+    technology: Swift, Kotlin
+    satisfies: [companion-app]
+  supervisor:
+    stage: ratified
+    in: ha-system
+    name: Supervisor
+    description: Manages updates, backups and add-ons on Home Assistant OS
+    kind: application
+    technology: Python, Docker
+    satisfies: [signed-images, backups-before-update]
+  recorder-db:
+    stage: ratified
+    in: ha-system
+    name: Recorder database
+    description: State and event history
+    kind: data-store
+    technology: SQLite
+  config-store:
+    stage: ratified
+    in: ha-system
+    name: Configuration store
+    description: YAML configuration and .storage files, including auth tokens and integration credentials
+    kind: data-store
+    technology: Files
+
+components:
+  automation-engine: {stage: ratified, in: core, name: Automation engine, description: Runs triggers, conditions and actions, technology: Python}
+  integrations: {stage: ratified, in: core, name: Integrations, description: Device and service integrations, technology: Python}
+  recorder: {stage: ratified, in: core, name: Recorder, description: Writes state history, technology: SQLAlchemy, satisfies: [local-history]}
+  auth: {stage: ratified, in: core, name: Auth, description: Users, tokens and multi-factor modules, technology: Python}
+  websocket-api: {stage: ratified, in: core, name: WebSocket API, description: API for the frontend and apps, technology: aiohttp}
 
 relationships:
   tinkerer-configures: {stage: ratified, leaves: tinkerer, enters: frontend, description: Configures integrations and automations}
@@ -264,10 +281,11 @@ dynamicDiagrams:
     stage: ratified
     name: Motion turns on a light with the internet down
     depicts: [local-automation, ha-system]
-    steps:
-      s1: {stage: ratified, order: 1, follows: core-controls-devices, direction: response, description: A Zigbee sensor sends a motion event to Core}
-      s2: {stage: ratified, order: 2, follows: core-controls-devices, description: Core runs the automation and sends a turn-on command to the light}
-      s3: {stage: ratified, order: 3, follows: core-records, description: The recorder stores both state changes}
+
+dynamicSteps:
+  dyn-motion-light-1: {stage: ratified, in: dyn-motion-light, order: 1, follows: core-controls-devices, direction: response, description: A Zigbee sensor sends a motion event to Core}
+  dyn-motion-light-2: {stage: ratified, in: dyn-motion-light, order: 2, follows: core-controls-devices, description: Core runs the automation and sends a turn-on command to the light}
+  dyn-motion-light-3: {stage: ratified, in: dyn-motion-light, order: 3, follows: core-records, description: The recorder stores both state changes}
 
 environments:
   haos-install: {stage: ratified, name: Home Assistant OS install, serves: [home-assistant], operator: Household}
@@ -279,53 +297,49 @@ deploymentNodes:
     name: Home Assistant Green or Raspberry Pi
     technology: Home Assistant OS
     belongs: haos-install
-    deploymentNodes:
-      docker-engine:
-        stage: ratified
-        name: Docker engine
-        technology: Docker
-        containerInstances:
-          core-haos: {stage: ratified, instantiates: core}
-          supervisor-haos: {stage: ratified, instantiates: supervisor}
-          recorder-haos: {stage: ratified, instantiates: recorder-db}
-          config-haos: {stage: ratified, instantiates: config-store}
+  docker-engine:
+    stage: ratified
+    in: ha-device
+    name: Docker engine
+    technology: Docker
   phone:
     stage: ratified
     name: Household member's phone
     technology: iOS or Android
     belongs: haos-install
-    containerInstances:
-      companion-haos: {stage: ratified, instantiates: companion}
   browser:
     stage: ratified
     name: Web browser
     technology: Any modern browser
     belongs: haos-install
-    containerInstances:
-      frontend-haos: {stage: ratified, instantiates: frontend}
   docker-host:
     stage: ratified
     name: User's Linux server
     technology: Docker
     belongs: container-install
-    containerInstances:
-      core-container: {stage: ratified, instantiates: core}
-      recorder-container: {stage: ratified, instantiates: recorder-db}
-      config-container: {stage: ratified, instantiates: config-store}
   container-phone:
     stage: ratified
     name: Household member's phone
     technology: iOS or Android
     belongs: container-install
-    containerInstances:
-      companion-container: {stage: ratified, instantiates: companion}
   container-browser:
     stage: ratified
     name: Web browser
     technology: Any modern browser
     belongs: container-install
-    containerInstances:
-      frontend-container: {stage: ratified, instantiates: frontend}
+
+containerInstances:
+  core-haos: {stage: ratified, in: docker-engine, instantiates: core}
+  supervisor-haos: {stage: ratified, in: docker-engine, instantiates: supervisor}
+  recorder-haos: {stage: ratified, in: docker-engine, instantiates: recorder-db}
+  config-haos: {stage: ratified, in: docker-engine, instantiates: config-store}
+  companion-haos: {stage: ratified, in: phone, instantiates: companion}
+  frontend-haos: {stage: ratified, in: browser, instantiates: frontend}
+  core-container: {stage: ratified, in: docker-host, instantiates: core}
+  recorder-container: {stage: ratified, in: docker-host, instantiates: recorder-db}
+  config-container: {stage: ratified, in: docker-host, instantiates: config-store}
+  companion-container: {stage: ratified, in: container-phone, instantiates: companion}
+  frontend-container: {stage: ratified, in: container-browser, instantiates: frontend}
 
 deploymentDiagrams:
   deploy-haos: {stage: ratified, depicts: [ha-system, haos-install]}
@@ -382,13 +396,13 @@ trustBoundaries:
     crossing: Outbound HTTPS and tunnels only, unless the user exposes a port
     encloses: [ee-devices]
     relies: [core]
-    trustBoundaries:
-      tb-ha-host:
-        stage: ratified
-        label: Home Assistant host
-        crossing: Authenticated WebSocket and REST on port 8123; Supervisor API only from Core and add-ons
-        encloses: [p-core, p-supervisor, ds-recorder, ds-config]
-        relies: [core, supervisor]
+  tb-ha-host:
+    stage: ratified
+    in: tb-home-network
+    label: Home Assistant host
+    crossing: Authenticated WebSocket and REST on port 8123; Supervisor API only from Core and add-ons
+    encloses: [p-core, p-supervisor, ds-recorder, ds-config]
+    relies: [core, supervisor]
 
 dataFlowDiagrams:
   dfd-ha:

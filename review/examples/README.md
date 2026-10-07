@@ -21,7 +21,7 @@ There is no schema yet. These documents follow `erd.md` using the provisional co
 - The header holds the `DOCUMENT` fields: `intentSpec`, `id` and `version`. Imports, when present, go in `imports`, a map from alias to `{source, version}`.
 - Other top-level keys are entity types, written in camelCase and plural (`jobs`, `controls`, `dataFlows`). Each one is a map keyed by item ID.
 - IDs are kebab-case and unique across the whole document.
-- Containment in the ERD (`contains`, `has`, `hosts`) is written by nesting. Outcomes nest under jobs, containers under systems, and so on. A nested item is still addressed only by its own ID.
+- Nothing nests. Containment in the ERD (`contains`, `has`, `hosts`) is a to-one `in` field on the contained item, holding its container's ID: an outcome has `in: <job>`, a container `in: <system>`, a dynamic step `in: <dynamic diagram>`. An item's JSON pointer is always `/<type>/<id>`.
 - Every other link is a field on the item it starts from, named after the ERD verb (`serves`, `enforces`, `inspects`). A to-one link holds one ID and a to-many link holds a list. Because IDs are unique across the document, a link that can target several entity types (such as `inspects` or `leaves`) still holds a plain ID.
 - Every item has a `stage`. A deprecated item names its replacement in `replacedBy`, or says why nothing replaces it in `deprecationRationale`.
 - Any item may have `name` and `description`, even though the ERD doesn't list them.
