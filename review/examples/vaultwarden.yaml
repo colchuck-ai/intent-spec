@@ -171,6 +171,7 @@ treatments:
 
 externalReferences:
   agpl: {stage: ratified, title: GNU Affero General Public License v3, url: "https://www.gnu.org/licenses/agpl-3.0.html", party: Free Software Foundation}
+  reverse-proxy-wiki: {stage: ratified, title: Example reverse proxy configurations in the project wiki, party: Vaultwarden maintainers}
 
 influencers:
   inf-user-trust:
@@ -214,16 +215,11 @@ standards:
     stage: ratified
     statement: Clients reach the server only over TLS
     addresses: [co-protect-in-transit]
+    cites: [reverse-proxy-wiki]
   std-private-disclosure:
     stage: ratified
     statement: Vulnerabilities can be reported privately and are acknowledged within 7 days
     addresses: [co-fix-vulnerabilities]
-
-guidelines:
-  gl-reverse-proxy:
-    stage: ratified
-    description: Example reverse proxy configurations in the project wiki
-    augments: [std-tls-only]
 
 controls:
   rate-limiting:

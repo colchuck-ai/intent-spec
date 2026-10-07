@@ -253,6 +253,7 @@ externalReferences:
   hipaa-security: {stage: ratified, title: "45 CFR Part 164 Subpart C (HIPAA Security Rule)", url: "https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C", party: HHS}
   aws-physical: {stage: ratified, title: AWS SOC 2 Type II report, party: AWS}
   cis-amazon-linux: {stage: ratified, title: CIS Amazon Linux 2023 Benchmark, party: Center for Internet Security}
+  acl-setup-wiki: {stage: ratified, title: Wiki guidance on setting up ACL roles for a clinic, party: OpenEMR project}
   partner-baas: {stage: ratified, title: Business associate agreements with ePHI exchange partners, party: E-prescribing network, lab and clearinghouse}
 
 influencers:
@@ -290,7 +291,7 @@ controlObjectives:
   co-physical: {stage: ratified, statement: "Only authorised people can physically reach systems holding ePHI", supports: [pol-security], cites: [inf-hipaa], clauses: [45 CFR 164.310]}
 
 standards:
-  std-unique-users: {stage: ratified, statement: Every user has a unique login and least-privilege role, addresses: [co-access-control]}
+  std-unique-users: {stage: ratified, statement: Every user has a unique login and least-privilege role, addresses: [co-access-control], cites: [acl-setup-wiki]}
   std-mfa: {stage: ratified, statement: Staff accounts use multi-factor authentication, addresses: [co-access-control]}
   std-audit-log: {stage: ratified, statement: Actions on ePHI are logged and the log is tamper-evident, addresses: [co-audit]}
   std-tls: {stage: ratified, statement: ePHI is encrypted in transit with TLS 1.2 or later, addresses: [co-transmission]}
@@ -299,9 +300,6 @@ standards:
   std-physical: {stage: ratified, statement: Servers are in physically secured facilities, addresses: [co-physical]}
   std-host-baseline: {stage: ratified, statement: Hosts are hardened to the secure baseline, addresses: [co-access-control]}
   std-partner-auth: {stage: ratified, statement: Partner systems authenticate with their own credentials over TLS, addresses: [co-access-control]}
-
-guidelines:
-  gl-acl-setup: {stage: ratified, description: Wiki guidance on setting up ACL roles for a clinic, augments: [std-unique-users]}
 
 controls:
   access-control: {stage: ratified, statement: "Each user logs in with a unique account and gets only the ACL role their job needs", owner: Security lead, safeguard: technical, enforces: [std-unique-users], achieves: [co-access-control]}

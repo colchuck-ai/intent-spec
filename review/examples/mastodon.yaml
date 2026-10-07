@@ -233,6 +233,7 @@ standards:
     stage: ratified
     statement: Active moderation against racism, sexism, homophobia and transphobia
     addresses: [co-act-on-reports]
+    cites: [server-rules]
   std-notice-and-action:
     stage: ratified
     statement: Every report gets a decision and a statement of reasons to the affected user
@@ -249,12 +250,6 @@ standards:
     stage: ratified
     statement: At least three months' notice before shutting down
     addresses: [co-continuity]
-
-guidelines:
-  gl-server-rules:
-    stage: ratified
-    description: The published server rules users agree to
-    augments: [std-active-moderation]
 
 controls:
   moderation:
@@ -500,9 +495,8 @@ dataElements:
 #   thousands of independent servers adopt. That's exactly the "define once, adopt
 #   many times" case, but it lives across organisations I don't control and can't
 #   import from.
-# - Server rules as a user-facing document. They're partly a guideline and partly
-#   a contract with users. I linked them as a guideline and an external reference
-#   that nothing uses.
+# - Server rules as a user-facing document. They're partly guidance and partly
+#   a contract with users. I could only cite them from the moderation standard.
 # - Moderation decisions crossing servers. Defederation is a policy decision
 #   about another party, and reports forwarded from other servers carry obligations.
 #   I had no way to say who decides to defederate or on what grounds.
