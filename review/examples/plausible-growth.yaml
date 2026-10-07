@@ -54,6 +54,9 @@ jobs:
       data-stays-in-eu:
         stage: ratified
         statement: Minimize the likelihood that visitor data leaves the EU
+        disposition: out-of-scope
+        rationale: Community Edition runs wherever the operator chooses to host it
+        scopes: [plausible-ce]
   report-to-clients:
     stage: ratified
     statement: Show clients how their sites are performing
@@ -115,6 +118,7 @@ requirements:
     statement: Plausible Cloud runs only on servers owned by an EU company and located in the EU
     verification: Hosting contract and infrastructure inventory
     serves: [data-stays-in-eu]
+    scopes: [plausible-cloud]
     implements: [adopt-eu-hosting-cloud]
   shared-links:
     stage: ratified
@@ -422,10 +426,6 @@ deploymentDiagrams:
     depicts: [plausible-system, ce-compose]
 
 # Couldn't express
-# - Which requirements belong to which product. Cloud has billing, shared links
-#   and EU hosting. CE has none of those, but requirements link only to outcomes,
-#   and both products target understand-traffic, so it looks as if CE serves
-#   data-stays-in-eu too.
 # - Plans and pricing tiers, and which features each plan includes.
 # - That Community Edition gets features later than Cloud, or is a release cut of
 #   the same code.

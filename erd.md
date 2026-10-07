@@ -43,8 +43,10 @@ erDiagram
     enum disposition "out-of-scope | overserved | deferred; optional"
     string rationale "required with a disposition"
   }
-  %% rule: every ratified outcome is served by at least one ratified requirement or has a disposition, never both
-  %% an outcome's disposition applies to every product that targets its job
+  OUTCOME }o--o{ PRODUCT: scopes
+  %% a disposition applies to the products the outcome scopes, or to every product that targets its job when it scopes none
+  %% rule: an outcome scopes products only when it has a disposition, and only products that target its job
+  %% rule: for every ratified product that targets its job, every ratified outcome is served by at least one ratified requirement that applies to that product or has a disposition that applies to it, never both
 
   REQUIREMENT {
     string statement "required"
@@ -54,6 +56,8 @@ erDiagram
   REQUIREMENT }o--o{ OUTCOME: serves
   REQUIREMENT }o--o{ TREATMENT: executes
   REQUIREMENT }o--o{ ADOPTION: implements
+  REQUIREMENT }o--o{ PRODUCT: scopes
+  %% a requirement applies to the products it scopes, or to every product that targets the job of an outcome it serves when it scopes none
   %% rule: every requirement serves an outcome, executes a treatment, implements an adoption or is cited by a threat review
 
   %% Measurement (shared by product and governance)
