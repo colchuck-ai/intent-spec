@@ -22,6 +22,6 @@ There is no schema yet. These documents follow `erd.md` using the provisional co
 - IDs are kebab-case and unique across the whole document.
 - Containment in the ERD (`contains`, `has`, `hosts`) is written by nesting. Outcomes nest under jobs, containers under systems, and so on. A nested item is still addressed only by its own ID.
 - Every other link is a field on the item it starts from, named after the ERD verb (`serves`, `enforces`, `inspects`). A to-one link holds one ID and a to-many link holds a list. Because IDs are unique across the document, a link that can target several entity types (such as `inspects` or `leaves`) still holds a plain ID.
-- Every item has a `stage`. A deprecated item names its replacement in `replacedBy`.
+- Every item has a `stage`. A deprecated item names its replacement in `replacedBy`, or says why nothing replaces it in `deprecationRationale`.
 - Any item may have `name` and `description`, even though the ERD doesn't list them.
 - A reference is a local ID, an `alias:id` from `imports`, or the ID of an item in `externalReferences`.

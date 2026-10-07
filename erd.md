@@ -12,7 +12,7 @@ erDiagram
     string party "who it comes from, e.g. AWS; optional"
     string version "edition or date; optional"
   }
-  %% Every item has a document-unique id and a stage: proposed | ratified | deprecated; a deprecated item names its replacement.
+  %% Every item has a document-unique id and a stage: proposed | ratified | deprecated; a deprecated item names its replacement (replacedBy) or, when nothing replaces it, gives a deprecationRationale.
   %% rule: a link not drawn to EXTERNAL_REFERENCE resolves to a local or imported item; an external reference there is a type error
   %% rule: where allowed, an external reference satisfies a link's cardinality; rules that inspect the target skip it
   %% rule: a ratified item does not link to a proposed item
