@@ -441,7 +441,7 @@ threatReviews:
   r-tamper-files: {reviews: t-flow-tampering, inspects: [df-api-files], disposition: not-applicable, rationale: Local file system on the same host}
   r-tamper-push: {reviews: t-flow-tampering, inspects: [df-api-push], disposition: risk, raises: no-tls}
   r-tamper-smtp: {reviews: t-flow-tampering, inspects: [df-api-smtp], disposition: risk, raises: no-tls}
-  r-tamper-websites: {reviews: t-flow-tampering, inspects: [df-api-websites], disposition: covered, cites: [icon-fetch-guard]}
+  r-tamper-websites: {reviews: t-flow-tampering, inspects: [df-api-websites], disposition: not-applicable, rationale: A modified response is only an icon shown to the user; it carries no authority}
 
 # Couldn't express
 # - Backups. The biggest real availability risk is a self-hoster losing their

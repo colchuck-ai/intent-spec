@@ -146,6 +146,7 @@ erDiagram
     enum disposition "risk | covered | not-applicable; required"
     string rationale "required when not-applicable"
   }
+  %% disposition: covered means the cited safeguards leave no exposure at the targets that needs an owner or a review date; risk means some exposure remains to own, even when a reduce treatment addresses it; not-applicable means the threat leaves no such exposure there even without safeguards, and the rationale says why
   THREAT_REVIEW }o--|| THREAT: reviews
   THREAT_REVIEW }o--o{ EXTERNAL_ENTITY: inspects
   THREAT_REVIEW }o--o{ PROCESS: inspects

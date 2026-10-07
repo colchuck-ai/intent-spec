@@ -400,7 +400,7 @@ threatReviews:
   r-spoof-versions: {reviews: t-spoofed-party, inspects: [ee-version-service], disposition: covered, cites: [signed-images]}
   r-store-recorder: {reviews: t-store-disclosure, inspects: [ds-recorder], disposition: covered, cites: [local-history, role-based-users]}
   r-store-config: {reviews: t-store-disclosure, inspects: [ds-config], disposition: risk, raises: custom-code}
-  r-tamper-core: {reviews: t-process-tampering, inspects: [p-core], disposition: covered, cites: [custom-integration-warning]}
+  r-tamper-core: {reviews: t-process-tampering, inspects: [p-core], disposition: risk, raises: custom-code}
   r-tamper-supervisor: {reviews: t-process-tampering, inspects: [p-supervisor], disposition: risk, raises: update-supply-chain}
   r-tamper-frontend: {reviews: t-process-tampering, inspects: [p-frontend], disposition: covered, cites: [signed-images]}
   r-tamper-companion: {reviews: t-process-tampering, inspects: [p-companion], disposition: not-applicable, rationale: Distributed through the app stores, which sign and review builds}

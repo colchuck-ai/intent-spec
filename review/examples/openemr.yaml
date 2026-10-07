@@ -520,7 +520,7 @@ threatReviews:
   r-spoof-patient: {reviews: t-spoofing, inspects: [ee-patient], disposition: risk, raises: portal-takeover}
   r-spoof-apps: {reviews: t-spoofing, inspects: [ee-smart-apps], disposition: covered, cites: [fhir-patient-access]}
   r-spoof-erx: {reviews: t-spoofing, inspects: [ee-erx], disposition: risk, raises: partner-compromise}
-  r-spoof-partners: {reviews: t-spoofing, inspects: [ee-lab, ee-clearinghouse], disposition: covered, cites: [partner-validation]}
+  r-spoof-partners: {reviews: t-spoofing, inspects: [ee-lab, ee-clearinghouse], disposition: risk, raises: partner-compromise}
   r-store-db: {reviews: t-store-disclosure, inspects: [ds-database], disposition: covered, cites: [access-control]}
   r-store-docs: {reviews: t-store-disclosure, inspects: [ds-documents], disposition: covered, cites: [document-encryption-control]}
   r-repudiate: {reviews: t-repudiation, inspects: [p-clinical, p-billing, p-portal, p-fhir], disposition: covered, cites: [audit-logging]}
