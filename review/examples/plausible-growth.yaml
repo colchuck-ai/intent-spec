@@ -441,9 +441,6 @@ deploymentDiagrams:
 #   outcome, and no outcome is about availability.
 # - How the product changed since the MVP. The deprecated requirement is the only
 #   trace; there's no change history or reason for the change.
-# - That the secure baseline also applies to the database servers. `hardens`
-#   targets a deployment node, so I pointed it at the region node and assumed it
-#   covers everything nested inside.
 # - The tracker running in the visitor's browser, outside our control. Its
 #   process sits outside the hosting boundary, but nothing says where it runs.
 # - host-in-eu is satisfied by where we deploy, not by any container. Deployment

@@ -209,6 +209,7 @@ erDiagram
   SECURE_BASELINE }o--o| EXTERNAL_REFERENCE: derives
   SECURE_BASELINE }o--o{ DEPLOYMENT_NODE: hardens
   SECURE_BASELINE }o--o{ INFRASTRUCTURE_NODE: hardens
+  %% derived: a secure baseline hardens every node nested in, or hosted by, a deployment node it hardens
   %% rule (should): a secure baseline derives from a CIS benchmark, DISA STIG or vendor guide
 
   %% derived: a product's system security plan (SSP) is its adoptions with their controls, standards, procedures, requirements and inheritance
