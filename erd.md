@@ -179,9 +179,12 @@ erDiagram
   POLICY }o--o{ INFLUENCER: satisfies
   %% rule GRC-2 (should): every policy satisfies at least one influencer
 
-  CONTROL_OBJECTIVE
+  CONTROL_OBJECTIVE {
+    string clauses "sections or clauses of the cited influencers' sources it answers, e.g. 45 CFR 164.312(b); zero or more"
+  }
   CONTROL_OBJECTIVE }o--|{ POLICY: supports
   CONTROL_OBJECTIVE }o--o{ INFLUENCER: cites
+  %% rule GRC-29: a control objective has clauses only when it cites at least one influencer
   %% rule GRC-22 (should): every control objective is achieved by at least one control
 
   STANDARD

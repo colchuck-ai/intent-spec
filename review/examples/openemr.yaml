@@ -281,12 +281,12 @@ policies:
     satisfies: [inf-onc, inf-hipaa]
 
 controlObjectives:
-  co-access-control: {stage: ratified, supports: [pol-security], cites: [inf-hipaa, inf-onc]}
-  co-audit: {stage: ratified, supports: [pol-security], cites: [inf-hipaa, inf-onc]}
-  co-transmission: {stage: ratified, supports: [pol-security], cites: [inf-hipaa]}
-  co-data-at-rest: {stage: ratified, supports: [pol-security], cites: [inf-onc]}
+  co-access-control: {stage: ratified, supports: [pol-security], cites: [inf-hipaa, inf-onc], clauses: [45 CFR 164.312(a)(1), 45 CFR 164.312(d), 45 CFR 170.315(d)(1)]}
+  co-audit: {stage: ratified, supports: [pol-security], cites: [inf-hipaa, inf-onc], clauses: [45 CFR 164.312(b), 45 CFR 170.315(d)(2)]}
+  co-transmission: {stage: ratified, supports: [pol-security], cites: [inf-hipaa], clauses: [45 CFR 164.312(e)(1)]}
+  co-data-at-rest: {stage: ratified, supports: [pol-security], cites: [inf-onc], clauses: [45 CFR 170.315(d)(7)]}
   co-vulnerabilities: {stage: ratified, supports: [pol-security]}
-  co-physical: {stage: ratified, supports: [pol-security], cites: [inf-hipaa]}
+  co-physical: {stage: ratified, supports: [pol-security], cites: [inf-hipaa], clauses: [45 CFR 164.310]}
 
 standards:
   std-unique-users: {stage: ratified, description: Every user has a unique login and least-privilege role, addresses: [co-access-control]}
@@ -592,8 +592,8 @@ threatReviews:
 #   place to say so. There's no way to express "we provide this control so that
 #   our customers can meet their obligation".
 # - Certification status. OpenEMR holds a specific ONC certification with a
-#   listing number and date, and certified criteria map to requirements. Neither
-#   the certification nor the criterion-to-requirement mapping fits.
+#   listing number and date. A control objective can name the criteria it answers
+#   in clauses, but the certification itself has nowhere to go.
 # - The deploying practice's shared responsibility. It's spread across inherited
 #   adoptions, a transfer treatment and free-text owners. A clinic reading this
 #   can't easily get "what you must do yourself" out of it.

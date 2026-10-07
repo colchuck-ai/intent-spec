@@ -213,6 +213,7 @@ controlObjectives:
     stage: ratified
     supports: [pol-privacy]
     cites: [inf-gdpr]
+    clauses: [GDPR Art. 5(1)(c), GDPR Art. 25]
   co-eu-residency:
     stage: ratified
     supports: [pol-privacy]
@@ -221,6 +222,7 @@ controlObjectives:
     stage: ratified
     supports: [pol-privacy]
     cites: [inf-gdpr, inf-dpa]
+    clauses: [GDPR Art. 17]
   co-hardened-hosts:
     stage: ratified
     supports: [pol-privacy]
