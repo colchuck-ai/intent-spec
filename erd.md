@@ -24,7 +24,9 @@ erDiagram
     string source "where the imported document is fetched from; required"
     string version "semver range; required"
   }
-  %% the lockfile sits beside the document and, per import alias, records source, resolved version, digest and a snapshot of the referenced items
+  %% the lockfile sits beside the document and, per import alias, records source, resolved version, digest, the imported document's stage and a snapshot of items keyed by type and id, each with its stage resolved [DOC-2]
+  %% the snapshot holds the referenced items plus their closure over outgoing links and over contained items (items whose in points at a snapshotted item, e.g. a profile's selections), stopping at external references
+  %% ids inside a snapshot are read relative to its alias; rules that follow links into an import read the snapshot, never the fetched document
   %% rule DOC-1: removing or renaming an item id is a breaking change (major version)
 
   %% References
