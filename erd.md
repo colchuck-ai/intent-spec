@@ -29,7 +29,7 @@ erDiagram
   %% References
   %% Every link below is a reference. Its target is a local item id or an imported alias:id.
   %% Only a link drawn to EXTERNAL_REFERENCE may instead target the id of an external reference
-  %% for things outside intent-spec: adoption inherits, influencer cites, secure baseline derives.
+  %% for things outside intent-spec: job cites, outcome cites, adoption inherits, influencer cites, secure baseline derives.
 
   EXTERNAL_REFERENCE {
     string title "free text; required"
@@ -69,6 +69,7 @@ erDiagram
     string statement "required; solution-free, from the executor's perspective"
   }
   JOB }o--|| JOB_EXECUTOR: motivates
+  JOB }o--o{ EXTERNAL_REFERENCE: cites
   JOB ||--o{ OUTCOME: has
 
   OUTCOME {
@@ -77,6 +78,7 @@ erDiagram
     string rationale "required with a disposition"
   }
   OUTCOME }o--o{ PRODUCT: scopes
+  OUTCOME }o--o{ EXTERNAL_REFERENCE: cites
   %% derived PRODUCT-7: a disposition applies to the products the outcome scopes, or to every product that targets its job when it scopes none
   %% rule PRODUCT-4: an outcome scopes products only when it has a disposition, and only products that target its job
   %% rule PRODUCT-5: for every ratified product that targets its job, every ratified outcome is served by at least one ratified requirement that applies to that product [PRODUCT-8] or has a disposition that applies to it [PRODUCT-7], never both

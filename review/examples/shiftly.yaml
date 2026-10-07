@@ -24,36 +24,44 @@ jobs:
     stage: proposed
     statement: Make sure every distribution shift has enough people to run
     motivates: volunteer-coordinator
+    cites: [coordinator-interviews]
   sign-up-for-shift:
     stage: proposed
     statement: Commit to helping at a time that fits my week
     motivates: volunteer
+    cites: [coordinator-interviews]
 
 outcomes:
   fewer-short-shifts:
     stage: proposed
     in: fill-shifts
     statement: Minimize the number of shifts that start short-staffed
+    cites: [coordinator-interviews]
   less-time-chasing:
     stage: proposed
     in: fill-shifts
     statement: Minimize the time spent contacting volunteers to cover gaps
+    cites: [coordinator-interviews]
   know-who-is-coming:
     stage: proposed
     in: fill-shifts
     statement: Minimize the likelihood of not knowing who will turn up the day before a shift
+    cites: [coordinator-interviews]
   quick-to-commit:
     stage: proposed
     in: sign-up-for-shift
     statement: Minimize the time it takes to find and commit to a shift that fits
+    cites: [coordinator-interviews]
   easy-to-drop:
     stage: proposed
     in: sign-up-for-shift
     statement: Minimize the effort to drop a shift I can no longer make
+    cites: [coordinator-interviews]
   not-forgotten:
     stage: proposed
     in: sign-up-for-shift
     statement: Minimize the likelihood of forgetting a shift I committed to
+    cites: [coordinator-interviews]
 
 requirements:
   open-shift-board:
@@ -95,6 +103,12 @@ metrics:
     target: Under 5% of shifts
     frequency: Monthly
     measures: [fewer-short-shifts]
+
+externalReferences:
+  coordinator-interviews:
+    stage: proposed
+    title: Interviews with three food bank volunteer coordinators
+    party: Shiftly founders
 
 risks:
   low-uptake:
@@ -138,8 +152,6 @@ treatments:
 # - What we still need to learn. The whole product is a bet ("coordinators will
 #   switch from phone trees"). There is nowhere to state a hypothesis, how we'll
 #   test it, or what result would kill the idea.
-# - Evidence behind the jobs. They come from interviews with three coordinators,
-#   and nothing links a job or outcome to that research.
 # - How important an outcome is or how badly it's served today. Every outcome
 #   looks equally important.
 # - Who pays. The food bank director pays and the coordinator uses it. There is
