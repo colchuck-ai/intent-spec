@@ -213,6 +213,7 @@ erDiagram
   CONTROL_OBJECTIVE }o--|{ POLICY: supports
   CONTROL_OBJECTIVE }o--o{ INFLUENCER: cites
   %% rule GRC-29: a control objective has clauses only when it cites at least one influencer
+  %% rule GRC-34 (should): every influencer a control objective cites is satisfied by at least one policy it supports
   %% rule GRC-22 (should): every control objective is achieved by at least one control
 
   STANDARD {
@@ -243,7 +244,7 @@ erDiagram
   CONTROL }o--|{ STANDARD: enforces
   CONTROL }o--|{ CONTROL_OBJECTIVE: achieves
   CONTROL }o--o{ TREATMENT: executes
-  %% derived GRC-6: a control's influencers are those its control objectives cite, or that the policies they support satisfy
+  %% derived GRC-6: a control's influencers are those its control objectives cite; a control objective that cites none contributes the influencers its policies satisfy
 
   PROCEDURE {
     string steps "what is done, in order; required"
