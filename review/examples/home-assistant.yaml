@@ -422,9 +422,6 @@ threatReviews:
 #   say both.
 # - The household as a context. Who lives there, guests and kids all matter for
 #   permissions, but a person is just a role.
-# - The home network boundary encloses local devices, yet nothing we own enforces
-#   it. `relies` must name a container, infrastructure node or control, so I named
-#   Core, which is wrong. Really, the user's router enforces it.
 # - Voice assistant, energy dashboard and other major features are each big enough
 #   to be products or capabilities, but only requirements exist.
 # - remote-access-options is also satisfied by the user's own reverse proxy,
