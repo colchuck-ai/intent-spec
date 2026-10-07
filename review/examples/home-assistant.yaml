@@ -275,6 +275,21 @@ relationships:
   supervisor-manages-core: {stage: ratified, leaves: supervisor, enters: core, description: Starts, stops, updates and backs up Core, technology: Docker API, HTTP}
   supervisor-pulls-images: {stage: ratified, leaves: supervisor, enters: image-registry, description: Pulls signed images, technology: HTTPS}
   supervisor-checks-versions: {stage: ratified, leaves: supervisor, enters: version-service, description: Checks for updates, technology: HTTPS}
+  frontend-calls-websocket: {stage: ratified, leaves: frontend, enters: websocket-api, description: Reads state and calls services, technology: WebSocket}
+  frontend-logs-in: {stage: ratified, leaves: frontend, enters: auth, description: Logs in and refreshes tokens, technology: HTTPS}
+  companion-calls-websocket: {stage: ratified, leaves: companion, enters: websocket-api, description: Reads state, calls services and registers for notifications, technology: WebSocket, REST}
+  companion-logs-in: {stage: ratified, leaves: companion, enters: auth, description: Logs in and refreshes tokens, technology: HTTPS}
+  supervisor-checks-core: {stage: ratified, leaves: supervisor, enters: websocket-api, description: Checks Core is up before and after updates and backups, technology: HTTP}
+  websocket-checks-tokens: {stage: ratified, leaves: websocket-api, enters: auth, description: Validates access tokens}
+  websocket-calls-services: {stage: ratified, leaves: websocket-api, enters: integrations, description: Calls services}
+  automation-calls-services: {stage: ratified, leaves: automation-engine, enters: integrations, description: Calls services when automations run}
+  recorder-writes-history: {stage: ratified, leaves: recorder, enters: recorder-db, description: Writes and queries history, technology: SQL}
+  automation-loads-config: {stage: ratified, leaves: automation-engine, enters: config-store, description: Loads automations, technology: File I/O}
+  integrations-load-config: {stage: ratified, leaves: integrations, enters: config-store, description: Loads config entries and stores credentials, technology: File I/O}
+  auth-stores-users: {stage: ratified, leaves: auth, enters: config-store, description: Stores users and tokens, technology: File I/O}
+  integrations-control-devices: {stage: ratified, leaves: integrations, enters: devices, description: Subscribes to events and sends commands, technology: Zigbee, Z-Wave, Matter, IP}
+  integrations-poll-clouds: {stage: ratified, leaves: integrations, enters: vendor-clouds, description: Polls state and sends commands, technology: HTTPS}
+  integrations-use-ha-cloud: {stage: ratified, leaves: integrations, enters: ha-cloud, description: Opens the remote access tunnel and voice bridge, technology: TLS tunnel}
 
 dynamicDiagrams:
   dyn-motion-light:

@@ -311,6 +311,7 @@ erDiagram
   %% rule C4-11: the two ends of a relationship are distinct and neither contains the other
   %% derived C4-12: a relationship implies one between each enclosing container or system of its source and of its destination, where neither contains the other, unless one is stored
   %% derived C4-13: an implied relationship's description and technology are those of the relationships that imply it; store one at the higher level to give it a curated label
+  %% rule C4-25 (should): every stored relationship with an end at an application container that contains components is implied [C4-12] by a stored relationship with that end at one of its components
 
   %% derived C4-14: the document has one system landscape: every system and person, and the relationships between them
   %% derived C4-15: each internal system has a system context diagram: the system plus every person and system joined to it

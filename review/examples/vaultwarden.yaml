@@ -335,6 +335,23 @@ relationships:
   api-pushes: {stage: ratified, leaves: api-server, enters: push-relay, description: Sends sync notifications for mobile apps, technology: HTTPS}
   api-sends-mail: {stage: ratified, leaves: api-server, enters: smtp-server, description: Sends invitations and two-factor codes, technology: SMTP}
   api-fetches-icons: {stage: ratified, leaves: api-server, enters: websites, description: Fetches site icons, technology: HTTPS}
+  clients-log-in: {stage: ratified, leaves: bitwarden-clients, enters: identity, description: Logs in and refreshes tokens, technology: HTTPS}
+  clients-sync-ciphers: {stage: ratified, leaves: bitwarden-clients, enters: vault-api, description: Syncs encrypted vault items, technology: HTTPS}
+  clients-subscribe: {stage: ratified, leaves: bitwarden-clients, enters: notifications, description: Subscribes to sync notifications, technology: WebSocket}
+  clients-get-icons: {stage: ratified, leaves: bitwarden-clients, enters: icon-service, description: Gets site icons, technology: HTTPS}
+  admin-uses-admin-page: {stage: ratified, leaves: admin, enters: admin-page, description: Manages users and settings, technology: HTTPS}
+  web-vault-logs-in: {stage: ratified, leaves: web-vault, enters: identity, description: Logs in and refreshes tokens, technology: HTTPS}
+  web-vault-syncs-ciphers: {stage: ratified, leaves: web-vault, enters: vault-api, description: Syncs encrypted vault items, technology: HTTPS}
+  vault-api-notifies: {stage: ratified, leaves: vault-api, enters: notifications, description: Announces vault changes}
+  identity-uses-db: {stage: ratified, leaves: identity, enters: database, description: Reads users and stores tokens, technology: Diesel/SQL}
+  vault-api-uses-db: {stage: ratified, leaves: vault-api, enters: database, description: Reads and writes ciphertext, technology: Diesel/SQL}
+  admin-page-uses-db: {stage: ratified, leaves: admin-page, enters: database, description: Reads and writes users and settings, technology: Diesel/SQL}
+  vault-api-uses-files: {stage: ratified, leaves: vault-api, enters: attachments, description: Reads and writes encrypted attachments, technology: File I/O}
+  icon-service-caches: {stage: ratified, leaves: icon-service, enters: attachments, description: Caches icons, technology: File I/O}
+  notifications-push: {stage: ratified, leaves: notifications, enters: push-relay, description: Sends sync notifications for mobile apps, technology: HTTPS}
+  identity-sends-codes: {stage: ratified, leaves: identity, enters: smtp-server, description: Sends two-factor codes, technology: SMTP}
+  admin-page-invites: {stage: ratified, leaves: admin-page, enters: smtp-server, description: Sends invitations, technology: SMTP}
+  icon-service-fetches: {stage: ratified, leaves: icon-service, enters: websites, description: Fetches site icons, technology: HTTPS}
 
 dynamicDiagrams:
   dyn-sync:

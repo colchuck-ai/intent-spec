@@ -417,6 +417,17 @@ relationships:
   sidekiq-sends-email: {stage: ratified, leaves: sidekiq, enters: smtp, description: Sends email, technology: SMTP}
   streaming-uses-redis: {stage: ratified, leaves: streaming, enters: redis, description: Subscribes to timeline events, technology: Redis pub/sub}
   streaming-uses-postgres: {stage: ratified, leaves: streaming, enters: postgres, description: Checks access tokens and filters, technology: SQL}
+  web-ui-calls-rest: {stage: ratified, leaves: web-ui, enters: rest-api, description: Reads timelines and posts, technology: HTTPS}
+  web-ui-moderates: {stage: ratified, leaves: web-ui, enters: admin, description: Handles reports and domain blocks, technology: HTTPS}
+  apps-call-rest: {stage: ratified, leaves: client-apps, enters: rest-api, description: Reads timelines and posts, technology: HTTPS, OAuth 2}
+  fediverse-posts-inbox: {stage: ratified, leaves: fediverse, enters: activitypub, description: Delivers activities to the inbox, technology: HTTPS, ActivityPub, HTTP signatures}
+  rest-api-uses-postgres: {stage: ratified, leaves: rest-api, enters: postgres, description: Reads and writes accounts and posts, technology: SQL}
+  activitypub-uses-postgres: {stage: ratified, leaves: activitypub, enters: postgres, description: Reads actors and stores remote posts, technology: SQL}
+  admin-uses-postgres: {stage: ratified, leaves: admin, enters: postgres, description: Reads reports and writes moderation actions, technology: SQL}
+  rest-api-uses-redis: {stage: ratified, leaves: rest-api, enters: redis, description: Reads feeds and enqueues jobs, technology: Redis protocol}
+  activitypub-enqueues: {stage: ratified, leaves: activitypub, enters: redis, description: Enqueues inbox processing jobs, technology: Redis protocol}
+  rest-api-searches: {stage: ratified, leaves: rest-api, enters: search, description: Runs searches, technology: HTTP}
+  rest-api-uploads: {stage: ratified, leaves: rest-api, enters: object-storage, description: Uploads media, technology: S3 API}
 
 environments:
   social-production: {stage: ratified, name: mastodon.social production, serves: [mastodon-social]}
