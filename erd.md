@@ -42,6 +42,8 @@ erDiagram
   %% Every item except an external reference, which is not intent, has a stage: proposed | ratified | deprecated. An item states its stage only where it differs from the document's stage.
   %% derived DOC-2: an item's stage is its own stage, or else the document's stage; every rule that names a stage means this one
   %% A deprecated item names its replacement (replacedBy) or, when nothing replaces it, gives a deprecationRationale.
+  %% Every item may also have a name and a description (free text, optional); they are not repeated in each entity. Rule C4-1 asks for both on C4 elements.
+  %% A date is an ISO 8601 calendar date string (YYYY-MM-DD). Loaders parse YAML with the YAML 1.2 JSON or core schema, so an unquoted date stays a string, never a timestamp.
   %% rule REF-1: a link not drawn to EXTERNAL_REFERENCE resolves to a local or imported item; an external reference there is a type error
   %% rule REF-2: where allowed, an external reference satisfies a link's cardinality; rules that inspect the target skip it
   %% rule REF-3: a ratified item does not link to a proposed item [DOC-2]
