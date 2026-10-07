@@ -231,6 +231,7 @@ erDiagram
     string rationale "required when delegated or not-applicable"
     string decidedBy "who made the governance decision; required when inherited, excepted or not-applicable"
     string delegatedTo "the downstream party that must implement the control, e.g. the deploying customer; required when delegated, otherwise none"
+    string owner "who is accountable for the control in this product; the control's owner defines it"
   }
   ADOPTION }o--|| CONTROL: adopts
   ADOPTION }o--|| PRODUCT: governs
@@ -246,6 +247,7 @@ erDiagram
   %% rule GRC-15: an inheritance chain ends at a system or procedure adoption or an external reference (no cycles)
   %% guidance: not-applicable means the control's influencers [GRC-6] do not apply to the product
   %% delegated means the control applies but whoever runs or deploys the product must implement it; it is not coverage
+  %% rule GRC-26 (should): a system or procedure adoption has an owner
   %% rule GRC-16: when mode is excepted, invokes exactly one treatment, which is an accept treatment that scopes the adoption's product and waives every standard the adopted control enforces; otherwise none
 
   SECURE_BASELINE

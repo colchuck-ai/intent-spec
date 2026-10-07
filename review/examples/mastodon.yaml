@@ -309,11 +309,11 @@ selections:
   sel-shutdown-notice: {stage: ratified, in: mastodon-controls, choice: include, names: shutdown-notice}
 
 adoptions:
-  adopt-moderation-social: {stage: ratified, mode: procedure, adopts: moderation, governs: mastodon-social}
-  adopt-backups-social: {stage: ratified, mode: system, adopts: backups, governs: mastodon-social}
-  adopt-emergency-social: {stage: ratified, mode: procedure, adopts: emergency-access, governs: mastodon-social}
-  adopt-shutdown-social: {stage: ratified, mode: procedure, adopts: shutdown-notice, governs: mastodon-social}
-  adopt-moderation-sw: {stage: ratified, mode: system, adopts: moderation, governs: mastodon}
+  adopt-moderation-social: {stage: ratified, mode: procedure, adopts: moderation, governs: mastodon-social, owner: Moderation team lead}
+  adopt-backups-social: {stage: ratified, mode: system, adopts: backups, governs: mastodon-social, owner: Infrastructure lead}
+  adopt-emergency-social: {stage: ratified, mode: procedure, adopts: emergency-access, governs: mastodon-social, owner: Infrastructure lead}
+  adopt-shutdown-social: {stage: ratified, mode: procedure, adopts: shutdown-notice, governs: mastodon-social, owner: Managing director}
+  adopt-moderation-sw: {stage: ratified, mode: system, adopts: moderation, governs: mastodon, owner: Mastodon gGmbH engineering}
   adopt-backups-sw: {stage: ratified, mode: delegated, adopts: backups, governs: mastodon, delegatedTo: Server operator, rationale: The covenant binds server operators; the software ships no backup tooling of its own}
   adopt-emergency-sw: {stage: ratified, mode: delegated, adopts: emergency-access, governs: mastodon, delegatedTo: Server operator, rationale: The covenant binds server operators}
   adopt-shutdown-sw: {stage: ratified, mode: delegated, adopts: shutdown-notice, governs: mastodon, delegatedTo: Server operator, rationale: The covenant binds server operators}

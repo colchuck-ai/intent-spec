@@ -230,7 +230,7 @@ controls:
     achieves: [co-prevent-unauthorised-access]
   tls-termination:
     stage: ratified
-    owner: Self-hoster
+    owner: Maintainers
     safeguard: technical
     enforces: [std-tls-only]
     achieves: [co-protect-in-transit]
@@ -265,9 +265,9 @@ selections:
   sel-vulnerability-disclosure: {stage: ratified, in: vaultwarden-controls, choice: include, names: vulnerability-disclosure}
 
 adoptions:
-  adopt-rate-limit: {stage: ratified, mode: system, adopts: rate-limiting, governs: vaultwarden}
+  adopt-rate-limit: {stage: ratified, mode: system, adopts: rate-limiting, governs: vaultwarden, owner: Maintainers}
   adopt-tls: {stage: ratified, mode: delegated, adopts: tls-termination, governs: vaultwarden, delegatedTo: Self-hoster, rationale: The self-hoster terminates TLS at their own reverse proxy}
-  adopt-disclosure: {stage: ratified, mode: procedure, adopts: vulnerability-disclosure, governs: vaultwarden}
+  adopt-disclosure: {stage: ratified, mode: procedure, adopts: vulnerability-disclosure, governs: vaultwarden, owner: Maintainers}
 
 people:
   household-member: {stage: ratified, name: Household member, description: Uses the Bitwarden apps to store and fill passwords}
@@ -488,10 +488,6 @@ threatReviews:
   r-tamper-websites: {stage: ratified, reviews: t-flow-tampering, inspects: [df-api-websites], disposition: covered, cites: [icon-fetch-guard]}
 
 # Couldn't express
-# - Who owns what between the project and the self-hoster. The project ships
-#   software; the self-hoster runs it, terminates TLS, takes backups and patches.
-#   I could only show this as an "inherited" adoption from an external reference,
-#   and the TLS control's owner is a free-text "Self-hoster".
 # - Backups. The biggest real availability risk is a self-hoster losing their
 #   database. That's entirely the operator's job, and there's no place to say "this
 #   product depends on the operator doing X".
