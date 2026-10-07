@@ -425,7 +425,7 @@ dynamicDiagrams:
   dyn-app-access:
     stage: ratified
     name: A patient connects a health app
-    depicts: fhir-patient-access
+    depicts: [fhir-patient-access, web-app]
     steps:
       s1: {stage: ratified, order: 1, follows: patient-uses-apps, description: Patient chooses to connect the app}
       s2: {stage: ratified, order: 2, follows: apps-call-fhir, description: App completes SMART authorization and requests records}

@@ -326,7 +326,7 @@ dynamicDiagrams:
   dyn-sync:
     stage: ratified
     name: Saving a new login on one device appears on another
-    depicts: push-and-websocket-sync
+    depicts: [push-and-websocket-sync, vaultwarden-system]
     steps:
       s1: {stage: ratified, order: 1, follows: clients-sync, description: Client uploads the encrypted item}
       s2: {stage: ratified, order: 2, follows: api-uses-db, description: Server stores the ciphertext}

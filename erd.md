@@ -298,14 +298,18 @@ erDiagram
 
   DYNAMIC_DIAGRAM
   DYNAMIC_DIAGRAM }o--|| REQUIREMENT: depicts
+  DYNAMIC_DIAGRAM }o--o| SYSTEM: depicts
+  DYNAMIC_DIAGRAM }o--o| CONTAINER: depicts
   DYNAMIC_DIAGRAM ||--|{ DYNAMIC_STEP: has
+  %% rule: a dynamic diagram depicts at most one system or container, which sets its C4 level; with neither it is a landscape-level diagram
 
   DYNAMIC_STEP {
     int order "unique within the diagram"
     string description "optional; overrides the relationship's description"
+    enum direction "request | response; optional, default request; a response runs from the relationship's destination back to its source"
   }
   DYNAMIC_STEP }o--|| RELATIONSHIP: follows
-  %% rule: a step follows a relationship that joins people, systems, containers or components
+  %% rule: each end of a step's relationship is a person or a system, a container when the diagram depicts its system or any container, or a component when the diagram depicts its container
 
   DEPLOYMENT_DIAGRAM
   DEPLOYMENT_DIAGRAM }o--|{ SYSTEM: depicts

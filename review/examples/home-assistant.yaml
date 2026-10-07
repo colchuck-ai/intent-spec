@@ -263,10 +263,10 @@ dynamicDiagrams:
   dyn-motion-light:
     stage: ratified
     name: Motion turns on a light with the internet down
-    depicts: local-automation
+    depicts: [local-automation, ha-system]
     steps:
-      s1: {stage: ratified, order: 1, follows: core-controls-devices, description: Core receives a motion event from a Zigbee sensor}
-      s2: {stage: ratified, order: 2, follows: core-controls-devices, description: The automation engine sends a turn-on command to the light}
+      s1: {stage: ratified, order: 1, follows: core-controls-devices, direction: response, description: A Zigbee sensor sends a motion event to Core}
+      s2: {stage: ratified, order: 2, follows: core-controls-devices, description: Core runs the automation and sends a turn-on command to the light}
       s3: {stage: ratified, order: 3, follows: core-records, description: The recorder stores both state changes}
 
 environments:
