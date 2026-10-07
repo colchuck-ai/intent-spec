@@ -93,6 +93,7 @@ requirements:
     statement: Admins can silence or suspend whole remote domains
     verification: Federation tests with a blocked domain
     serves: [defederate, safe-from-abuse]
+    executes: [reduce-spam-waves]
   search-and-hashtags:
     statement: Users can follow hashtags and search posts that opt in to search
     verification: Search tests
@@ -109,6 +110,7 @@ requirements:
     statement: mastodon.social backs up its database and media daily to a separate location
     verification: Monthly restore test
     implements: [adopt-backups-social]
+    executes: [reduce-data-loss]
 
 metrics:
   report-resolution:
@@ -132,10 +134,11 @@ risks:
     endangers: [move-freely]
 
 treatments:
-  reduce-moderator-burnout:
-    strategy: reduce
+  accept-moderator-burnout:
+    strategy: accept
     owner: Head of trust and safety
     reviewBy: 2027-03-01
+    rationale: No safeguard yet adds moderator capacity; the weekly report-resolution metric shows when volume outgrows the team
     treats: [moderator-burnout]
     scopes: [mastodon-social]
   reduce-spam-waves:
@@ -223,6 +226,7 @@ controls:
     safeguard: technical
     enforces: [std-daily-backups]
     achieves: [co-continuity]
+    executes: [reduce-data-loss]
   emergency-access:
     statement: A second named person holds credentials to the server
     owner: Managing director
