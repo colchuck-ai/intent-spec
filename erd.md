@@ -434,7 +434,9 @@ erDiagram
   TRUST_BOUNDARY }o--o{ CONTAINER: relies
   TRUST_BOUNDARY }o--o{ INFRASTRUCTURE_NODE: relies
   TRUST_BOUNDARY }o--o{ CONTROL: relies
-  %% rule DFD-12: every trust boundary relies on at least one container, infrastructure node or control that enforces it
+  TRUST_BOUNDARY }o--o{ SYSTEM: relies
+  %% rule DFD-12: every trust boundary relies on at least one container, infrastructure node, control or system that enforces it
+  %% rule DFD-21: only an external system is relied on, for a boundary someone else enforces, e.g. a home router or a cloud provider's network
   %% rule DFD-13: an element is enclosed directly by at most one boundary
   %% rule DFD-14: boundary containment has no cycles
   %% derived DFD-15: an element is inside a boundary when that boundary, or one it contains, encloses it

@@ -207,6 +207,7 @@ systems:
   ha-cloud: {stage: ratified, name: Home Assistant Cloud, description: Paid remote access and voice assistant bridge, owner: Nabu Casa, external: true}
   image-registry: {stage: ratified, name: Container registry, description: Hosts signed images, owner: GitHub, external: true}
   version-service: {stage: ratified, name: Version service, description: Publishes which versions are current, owner: Home Assistant project}
+  household-router: {stage: ratified, name: Home router, description: The household's router and firewall at the edge of the home network, owner: Household, external: true}
 
 containers:
   core:
@@ -412,7 +413,7 @@ trustBoundaries:
     label: Home network
     crossing: Outbound HTTPS and tunnels only, unless the user exposes a port
     encloses: [ee-devices]
-    relies: [core]
+    relies: [household-router]
   tb-ha-host:
     stage: ratified
     in: tb-home-network
