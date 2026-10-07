@@ -29,7 +29,7 @@ erDiagram
   %% References
   %% Every link below is a reference. Its target is a local item id or an imported alias:id.
   %% Only a link drawn to EXTERNAL_REFERENCE may instead target the id of an external reference
-  %% for things outside intent-spec: job cites, outcome cites, adoption inherits, influencer cites, standard cites, secure baseline derives.
+  %% for things outside intent-spec: job cites, outcome cites, adoption inherits, influencer cites, secure baseline derives.
 
   EXTERNAL_REFERENCE {
     string title "free text; required"
@@ -193,9 +193,10 @@ erDiagram
     string statement "the mandatory, measurable requirement; required"
   }
   STANDARD }o--|{ CONTROL_OBJECTIVE: addresses
-  STANDARD }o--o{ EXTERNAL_REFERENCE: cites
-  %% a standard cites guidance on meeting it, e.g. a wiki page or published rules
   %% rule GRC-23 (should): every standard is enforced by at least one control
+
+  GUIDELINE
+  GUIDELINE }o--|{ STANDARD: augments
 
   ASSESSMENT_OBJECTIVE {
     enum methods "examine | interview | test; one or more"
