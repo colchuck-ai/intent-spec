@@ -50,7 +50,7 @@ You are given one review step. Its description names your persona and examples.
 3. Decide each finding:
    - **Duplicate:** close it with the reason "duplicate of <id>". Raise the surviving finding's priority if the duplicate was higher, and add the duplicate's persona and example labels to it.
    - **Reject:** close it with the reason "rejected: <why>". Reject repeats of earlier rejections unless the finding brings new evidence.
-   - **Defer:** add the label `triage:defer` and run `bd defer <id>` with a reason.
+   - **Defer:** add the label `triage:defer` and run `bd defer <id>` with a reason. If it blocks any other finding (`bd dep list <id> --direction=up`), remove that dependency with `bd dep remove <other> <id>`, so nothing waits on deferred work. Do the same whenever an accepted finding is deferred later.
    - **Accept:** add the label `triage:accept`.
    - **Needs a human:** add the labels `triage:accept` and `triage:human`, then run `bd gate create --type=human --blocks <id> --reason "<INV-n or process>: <decision needed>"`. Use this only if accepting the finding would:
      - create, change or delete an invariant in `../README.md`,
