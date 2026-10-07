@@ -422,6 +422,7 @@ dynamicSteps:
 
 environments:
   cloud-production: {name: OpenEMR Cloud on AWS, serves: [openemr-cloud]}
+  docker-install: {name: Docker reference install, serves: [openemr], operator: Deploying practice}
 
 deploymentNodes:
   aws-region:
@@ -436,17 +437,25 @@ deploymentNodes:
     in: aws-region
     name: Managed database
     technology: Amazon RDS for MySQL, encrypted
+  practice-host:
+    name: Practice's server
+    technology: Docker Compose
+    belongs: docker-install
 
 containerInstances:
   web-app-cloud: {in: app-node, instantiates: web-app}
   documents-cloud: {in: app-node, instantiates: documents}
   database-cloud: {in: db-node, instantiates: database}
+  web-app-docker: {in: practice-host, instantiates: web-app}
+  documents-docker: {in: practice-host, instantiates: documents}
+  database-docker: {in: practice-host, instantiates: database}
 
 infrastructureNodes:
   load-balancer: {in: aws-region, name: Application load balancer, technology: AWS ALB with ACM certificate}
 
 deploymentDiagrams:
   deploy-cloud: {depicts: [openemr-system], covers: cloud-production}
+  deploy-docker: {depicts: [openemr-system], covers: docker-install}
 
 externalEntities:
   ee-clinician: {label: Clinician, represents: clinician-person}

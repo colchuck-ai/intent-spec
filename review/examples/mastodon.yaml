@@ -393,6 +393,7 @@ relationships:
 
 environments:
   social-production: {name: mastodon.social production, serves: [mastodon-social]}
+  compose-install: {name: Docker Compose reference install, serves: [mastodon], operator: Server operator}
 
 deploymentNodes:
   cloud-region:
@@ -407,6 +408,10 @@ deploymentNodes:
     in: cloud-region
     name: Data nodes
     technology: Managed PostgreSQL, Redis and OpenSearch
+  compose-host:
+    name: Operator's server
+    technology: Docker Compose
+    belongs: compose-install
 
 containerInstances:
   web-instance: {in: app-pool, instantiates: web}
@@ -415,6 +420,12 @@ containerInstances:
   postgres-instance: {in: data-nodes, instantiates: postgres}
   redis-instance: {in: data-nodes, instantiates: redis}
   search-instance: {in: data-nodes, instantiates: search}
+  compose-web-instance: {in: compose-host, instantiates: web}
+  compose-sidekiq-instance: {in: compose-host, instantiates: sidekiq}
+  compose-streaming-instance: {in: compose-host, instantiates: streaming}
+  compose-postgres-instance: {in: compose-host, instantiates: postgres}
+  compose-redis-instance: {in: compose-host, instantiates: redis}
+  compose-search-instance: {in: compose-host, instantiates: search}
 
 infrastructureNodes:
   ingress: {in: cloud-region, name: Ingress and CDN, technology: nginx, CDN}
@@ -423,6 +434,11 @@ deploymentDiagrams:
   deploy-social:
     depicts: [mastodon-system]
     covers: social-production
+    notDeployed:
+      web-ui: Served by the web container and runs in the user's browser
+  deploy-compose:
+    depicts: [mastodon-system]
+    covers: compose-install
     notDeployed:
       web-ui: Served by the web container and runs in the user's browser
 

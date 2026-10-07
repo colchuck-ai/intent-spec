@@ -407,6 +407,7 @@ erDiagram
   }
   ENVIRONMENT }o--|{ PRODUCT: serves
   %% an operator-run environment describes the reference topology the project ships, e.g. a Docker Compose host
+  %% rule C4-28 (should): every ratified product that a system realizes is served by at least one environment
 
   DEPLOYMENT_NODE {
     string technology

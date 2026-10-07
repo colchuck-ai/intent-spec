@@ -130,6 +130,19 @@ relationships:
   owner-views-dashboard: {leaves: site-owner-person, enters: web-app, description: Views the dashboard, technology: HTTPS}
   web-app-stores: {leaves: web-app, enters: database, description: Reads and writes accounts and events, technology: Ecto/SQL}
 
+environments:
+  production: {name: Production, serves: [plausible]}
+
+deploymentNodes:
+  app-server:
+    name: Rented server
+    technology: Ubuntu, Docker
+    belongs: production
+
+containerInstances:
+  web-app-instance: {in: app-server, instantiates: web-app}
+  database-instance: {in: app-server, instantiates: database}
+
 # Couldn't express
 # - What the MVP is for: "get the first 100 paying customers and learn whether
 #   people pay for privacy-first analytics". There is no goal or hypothesis.
