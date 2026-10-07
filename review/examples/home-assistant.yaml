@@ -169,7 +169,7 @@ systems:
     realizes: [home-assistant]
   devices: {name: Local devices, description: Lights, sensors and hubs reached over Zigbee, Z-Wave, Matter, Wi-Fi or Bluetooth, owner: Device makers, external: true}
   vendor-clouds: {name: Vendor clouds, description: Cloud APIs for cloud-only devices, owner: Device vendors, external: true}
-  ha-cloud: {name: Home Assistant Cloud, description: Paid remote access and voice assistant bridge, owner: Nabu Casa, external: true}
+  ha-cloud: {name: Home Assistant Cloud, description: Paid remote access and voice assistant bridge, owner: Nabu Casa, external: true, satisfies: [remote-access-options]}
   image-registry: {name: Container registry, description: Hosts signed images, owner: GitHub, external: true}
   version-service: {name: Version service, description: Publishes which versions are current, owner: Home Assistant project}
   household-router: {name: Home router, description: The household's router and firewall at the edge of the home network, owner: Household, external: true}
@@ -427,9 +427,8 @@ threatReviews:
 #   Core, which is wrong. Really, the user's router enforces it.
 # - Voice assistant, energy dashboard and other major features are each big enough
 #   to be products or capabilities, but only requirements exist.
-# - remote-access-options is really satisfied by Home Assistant Cloud or the
-#   user's reverse proxy. Only an internal system can satisfy a requirement, so
-#   I attached it to Core.
+# - remote-access-options is also satisfied by the user's own reverse proxy,
+#   which varies per household and isn't a system I can name.
 # - Release cadence (monthly releases) and the deprecation policy for integrations,
 #   which matter to anyone running it.
 # - No GRC chain. Home Assistant has no compliance obligations to speak of, and

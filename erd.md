@@ -323,7 +323,6 @@ erDiagram
   SYSTEM }o--o{ REQUIREMENT: satisfies
   CONTAINER }o--o{ REQUIREMENT: satisfies
   COMPONENT }o--o{ REQUIREMENT: satisfies
-  %% rule C4-7: only an internal system satisfies a requirement
   %% rule C4-8: every ratified requirement is satisfied by at least one system, container or component
 
   RELATIONSHIP {

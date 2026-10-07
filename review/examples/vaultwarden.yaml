@@ -245,7 +245,7 @@ systems:
     owner: Vaultwarden maintainers
     external: false
     realizes: [vaultwarden]
-  bitwarden-clients: {name: Bitwarden clients, description: Official desktop, mobile, browser and CLI apps, owner: Bitwarden Inc., external: true}
+  bitwarden-clients: {name: Bitwarden clients, description: Official desktop, mobile, browser and CLI apps, owner: Bitwarden Inc., external: true, satisfies: [client-side-encryption]}
   push-relay: {name: Bitwarden push relay, description: Forwards push notifications to mobile apps, owner: Bitwarden Inc., external: true}
   smtp-server: {name: SMTP server, description: Sends invitations and two-factor codes, owner: Self-hoster's provider, external: true}
   websites: {name: Websites, description: Sites whose icons are fetched, owner: Anyone, external: true}
@@ -445,9 +445,6 @@ threatReviews:
 # - Configuration options that change the security posture: disabling the admin
 #   page, disabling the icon service, enabling sign-ups. Requirements mention
 #   them, but I can't model a deployment choice and its effect.
-# - That the client is the security boundary. client-side-encryption is the key
-#   requirement, yet it's satisfied by Bitwarden's clients, which are an external
-#   system. I attached it to the vault API component instead.
 # - The icon SSRF risk endangers the self-hoster's home network, not an outcome
 #   of the job, so `endangers` is empty.
 # - Risks of the project itself (bus factor, upstream API drift) sit alongside
