@@ -4,6 +4,8 @@
 # Illustrative only, written from public information. Owners, targets and the
 # MFA exception are invented and say nothing about OpenEMR's actual posture.
 intentSpec: "0.1"
+id: openemr
+version: 7.0.0
 
 products:
   openemr:

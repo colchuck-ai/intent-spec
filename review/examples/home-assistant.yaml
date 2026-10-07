@@ -2,6 +2,8 @@
 # thousands of device integrations. Stage: mature.
 # Illustrative only, written from public information; owners and targets are invented.
 intentSpec: "0.1"
+id: home-assistant
+version: 3.0.0
 
 products:
   home-assistant:

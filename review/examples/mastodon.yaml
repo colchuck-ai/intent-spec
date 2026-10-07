@@ -2,6 +2,8 @@
 # the flagship server run by the same non-profit. Stage: mature.
 # Illustrative only, written from public information; owners and targets are invented.
 intentSpec: "0.1"
+id: mastodon
+version: 4.0.0
 
 products:
   mastodon:

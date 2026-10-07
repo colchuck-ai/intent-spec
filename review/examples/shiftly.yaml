@@ -1,6 +1,8 @@
 # Shiftly: volunteer shift scheduling for small food banks.
 # A made-up product at the concept stage. Nothing is built, so every item is proposed.
 intentSpec: "0.1"
+id: shiftly
+version: 0.1.0
 
 products:
   shiftly:

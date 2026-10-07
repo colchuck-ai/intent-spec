@@ -2,6 +2,8 @@
 # privacy-friendly website analytics. Stage: MVP.
 # Illustrative only, written from public information.
 intentSpec: "0.1"
+id: plausible
+version: 1.0.0
 
 products:
   plausible:

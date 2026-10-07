@@ -2,6 +2,8 @@
 # Community Edition, with GDPR at the centre of the pitch. Stage: growth.
 # Illustrative only, written from public information; owners and targets are invented.
 intentSpec: "0.1"
+id: plausible
+version: 2.0.0
 
 products:
   plausible-cloud:

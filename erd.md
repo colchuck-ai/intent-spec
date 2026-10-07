@@ -1,6 +1,24 @@
 ```mermaid
 erDiagram
 
+  %% Document
+  %% The document is the unit of distribution; its fields are the header, not an item.
+
+  DOCUMENT {
+    string id "package name, e.g. openemr; required"
+    string version "semver; required"
+    string intentSpec "contract version; required"
+  }
+  DOCUMENT ||--o{ IMPORT: has
+
+  IMPORT {
+    string alias "local prefix in alias:id; unique in the document"
+    string source "where the imported document is fetched from; required"
+    string version "semver range; required"
+  }
+  %% the lockfile sits beside the document and, per import alias, records source, resolved version, digest and a snapshot of the referenced items
+  %% rule: removing or renaming an item id is a breaking change (major version)
+
   %% References
   %% Every link below is a reference. Its target is a local item id or an imported alias:id.
   %% Only a link drawn to EXTERNAL_REFERENCE may instead target the id of an external reference
