@@ -96,12 +96,13 @@ erDiagram
 
   OUTCOME {
     string statement "required; measurable"
-    enum disposition "out-of-scope | overserved | deferred; optional"
+    enum disposition "out-of-scope | deferred; optional"
     string rationale "required with a disposition"
   }
   OUTCOME }o--|| JOB: in
   OUTCOME }o--o{ PRODUCT: scopes
   OUTCOME }o--o{ EXTERNAL_REFERENCE: cites
+  %% disposition: out-of-scope means the products it applies to will not serve the outcome; deferred means they will, but not yet
   %% derived PRODUCT-7: a disposition applies to the products the outcome scopes, or to every product that targets its job when it scopes none
   %% rule PRODUCT-4: an outcome scopes products only when it has a disposition, and only products that target its job
   %% rule PRODUCT-5: for every ratified product that targets its job, every ratified outcome is served by at least one ratified requirement that applies to that product [PRODUCT-8] or has a disposition that applies to it [PRODUCT-7], never both
