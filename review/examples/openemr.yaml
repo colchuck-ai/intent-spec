@@ -237,7 +237,7 @@ policies:
     statement: We protect the confidentiality, integrity and availability of patient health information
     name: Information security policy
     approver: OpenEMR Foundation board
-    satisfies: [inf-onc, inf-hipaa]
+    satisfies: [inf-onc, inf-hipaa, inf-baa, inf-aws-baa]
 
 controlObjectives:
   co-access-control: {statement: "Only authenticated, authorised users reach ePHI", supports: [pol-security], cites: [inf-hipaa, inf-onc], clauses: [45 CFR 164.312(a)(1), 45 CFR 164.312(d), 45 CFR 170.315(d)(1)]}

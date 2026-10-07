@@ -195,6 +195,7 @@ erDiagram
   %% rule GRC-24: only a contractual influencer binds, and only external systems or external references that have a party; binds names the counterparty (an external reference's party), e.g. a BAA or DPA sub-processor or a hosting provider
   %% rule GRC-25 (should): an external system is bound by at least one contractual influencer when an external entity representing it connects a data flow carrying a data element that triggers a statutory or regulatory influencer
   %% derived GRC-27: an influencer applies to the products that answer it; a local influencer that no product answers applies to every product in the document, and an imported one to none
+  %% rule GRC-33 (should): every influencer that applies to at least one product [GRC-27] is satisfied by at least one policy or cited by at least one control objective
 
   POLICY {
     string statement "management intent; required"

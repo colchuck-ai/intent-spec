@@ -159,6 +159,11 @@ policies:
     name: Security policy (SECURITY.md)
     approver: Maintainers
     satisfies: [inf-user-trust]
+  pol-source:
+    statement: We publish the complete source of every release under AGPLv3
+    name: Licensing policy
+    approver: Maintainers
+    satisfies: [inf-agpl]
 
 controlObjectives:
   co-prevent-unauthorised-access:
