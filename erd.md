@@ -15,6 +15,7 @@ erDiagram
     string id "package name, e.g. openemr; required"
     string version "semver; required"
     string intentSpec "contract version; required"
+    string stage "proposed | ratified | deprecated; the stage of every item that states none; required"
   }
   DOCUMENT ||--o{ IMPORT: has
 
@@ -38,11 +39,13 @@ erDiagram
     string version "edition or date; optional"
   }
   %% Every item has a document-unique id. Containment between items (contains, has, hosts) is a to-one link from the contained item to its container, like any other link; items never nest.
-  %% Every item has a stage: proposed | ratified | deprecated; a deprecated item names its replacement (replacedBy) or, when nothing replaces it, gives a deprecationRationale.
+  %% Every item except an external reference, which is not intent, has a stage: proposed | ratified | deprecated. An item states its stage only where it differs from the document's stage.
+  %% derived DOC-2: an item's stage is its own stage, or else the document's stage; every rule that names a stage means this one
+  %% A deprecated item names its replacement (replacedBy) or, when nothing replaces it, gives a deprecationRationale.
   %% rule REF-1: a link not drawn to EXTERNAL_REFERENCE resolves to a local or imported item; an external reference there is a type error
   %% rule REF-2: where allowed, an external reference satisfies a link's cardinality; rules that inspect the target skip it
-  %% rule REF-3: a ratified item does not link to a proposed item
-  %% rule REF-4 (should): a ratified item does not link to a deprecated item, except a review of a deprecated target
+  %% rule REF-3: a ratified item does not link to a proposed item [DOC-2]
+  %% rule REF-4 (should): a ratified item does not link to a deprecated item, except a review of a deprecated target [DOC-2]
   %% rule REF-5: coverage rules apply only to items declared in this document; an imported or external system is treated as external
 
   %% Links

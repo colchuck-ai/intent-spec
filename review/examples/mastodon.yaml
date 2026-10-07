@@ -4,16 +4,15 @@
 intentSpec: "0.1"
 id: mastodon
 version: 4.0.0
+stage: ratified
 
 products:
   mastodon:
-    stage: ratified
     name: Mastodon
     description: Free software anyone can run to host a social network server that federates with others.
     targets: [stay-connected, run-a-community, keep-server-running]
     selects: [mastodon-controls]
   mastodon-social:
-    stage: ratified
     name: mastodon.social
     description: The flagship general-purpose server, operated by the Mastodon non-profit.
     targets: [stay-connected]
@@ -21,162 +20,130 @@ products:
 
 jobExecutors:
   social-user:
-    stage: ratified
     description: Someone following and talking with people and communities they care about
   community-admin:
-    stage: ratified
     description: Person or small team running a server for a community, including moderating it
 
 jobs:
   stay-connected:
-    stage: ratified
     statement: Keep up with and talk to the people and communities I care about, on my own terms
     motivates: social-user
   run-a-community:
-    stage: ratified
     statement: Run an online space for my community with our own rules
     motivates: community-admin
   keep-server-running:
-    stage: ratified
     kind: consumption
     statement: Keep our Mastodon server running and up to date
     motivates: community-admin
 
 outcomes:
   chronological-feed:
-    stage: ratified
     in: stay-connected
     statement: Minimize the likelihood that a platform decides what I see
   move-freely:
-    stage: ratified
     in: stay-connected
     statement: Minimize what I lose when I move to another server
   reach-across-servers:
-    stage: ratified
     in: stay-connected
     statement: Minimize the number of people I can't follow because they're on a different server
   safe-from-abuse:
-    stage: ratified
     in: stay-connected
     statement: Minimize the time abusive content stays in front of me
   find-people:
-    stage: ratified
     in: stay-connected
     statement: Minimize the effort to find people and topics I'd want to follow
   algorithmic-discovery:
-    stage: ratified
     in: stay-connected
     statement: Minimize the effort to discover popular content I didn't know to look for
     disposition: out-of-scope
     rationale: Engagement-ranked feeds go against the product's purpose; trends and hashtags are the limit
   enforce-rules:
-    stage: ratified
     in: run-a-community
     statement: Minimize the time it takes to act on a report
   defederate:
-    stage: ratified
     in: run-a-community
     statement: Minimize the effort to limit or block a misbehaving server
   affordable:
-    stage: ratified
     in: keep-server-running
     statement: Minimize the cost of hosting per active user
   easy-upgrades:
-    stage: ratified
     in: keep-server-running
     statement: Minimize the effort to upgrade to a new release
 
 requirements:
   chronological-timelines:
-    stage: ratified
     statement: Home and list timelines are strictly reverse-chronological
     verification: Timeline tests
     serves: [chronological-feed]
   activitypub-federation:
-    stage: ratified
     statement: Accounts, posts and follows federate with other servers over ActivityPub
     verification: Interoperability tests with other ActivityPub software
     serves: [reach-across-servers]
   account-migration:
-    stage: ratified
     statement: Users can move followers to a new account on another server and export their data
     verification: Migration test between two servers
     serves: [move-freely]
   reports-and-moderation:
-    stage: ratified
     statement: Users can report posts and accounts; moderators act on reports from an admin queue, including reports forwarded from other servers
     verification: Moderation workflow tests
     serves: [safe-from-abuse, enforce-rules]
     implements: [adopt-moderation-social, adopt-moderation-sw]
   domain-blocks:
-    stage: ratified
     statement: Admins can silence or suspend whole remote domains
     verification: Federation tests with a blocked domain
     serves: [defederate, safe-from-abuse]
   search-and-hashtags:
-    stage: ratified
     statement: Users can follow hashtags and search posts that opt in to search
     verification: Search tests
     serves: [find-people]
   horizontal-scaling:
-    stage: ratified
     statement: Web, streaming and background workers scale independently
     verification: Load test of each service
     serves: [affordable]
   documented-upgrades:
-    stage: ratified
     statement: Every release has upgrade notes with migration steps
     verification: Release checklist
     serves: [easy-upgrades]
   daily-backups:
-    stage: ratified
     statement: mastodon.social backs up its database and media daily to a separate location
     verification: Monthly restore test
     implements: [adopt-backups-social]
 
 metrics:
   report-resolution:
-    stage: ratified
     target: 90% of reports on mastodon.social resolved within 24 hours
     frequency: Weekly
     measures: [enforce-rules, moderation]
   backup-restore:
-    stage: ratified
     target: Monthly restore test succeeds
     frequency: Monthly
     measures: [backups]
 
 risks:
   moderator-burnout:
-    stage: ratified
     description: Report volume outgrows the moderation team on mastodon.social
     endangers: [safe-from-abuse, enforce-rules]
   federated-spam-wave:
-    stage: ratified
     description: Spam or harassment campaigns arrive from newly created servers faster than domain blocks
     endangers: [safe-from-abuse]
   data-loss:
-    stage: ratified
     description: mastodon.social loses its database
     endangers: [move-freely]
 
 treatments:
   reduce-moderator-burnout:
-    stage: ratified
     strategy: reduce
     owner: Head of trust and safety
     reviewBy: 2027-03-01
     treats: [moderator-burnout]
     scopes: [mastodon-social]
   reduce-spam-waves:
-    stage: ratified
     strategy: reduce
     owner: Head of trust and safety
     reviewBy: 2027-03-01
     treats: [federated-spam-wave]
     scopes: [mastodon-social]
   reduce-data-loss:
-    stage: ratified
     strategy: reduce
     owner: Infrastructure lead
     reviewBy: 2027-03-01
@@ -184,19 +151,17 @@ treatments:
     scopes: [mastodon-social]
 
 externalReferences:
-  server-covenant: {stage: ratified, title: Mastodon Server Covenant, url: "https://joinmastodon.org/covenant", party: Mastodon gGmbH}
-  dsa: {stage: ratified, title: "Regulation (EU) 2022/2065 (Digital Services Act)", url: "https://eur-lex.europa.eu/eli/reg/2022/2065/oj", party: European Union}
-  server-rules: {stage: ratified, title: mastodon.social server rules, url: "https://mastodon.social/about", party: Mastodon gGmbH}
+  server-covenant: {title: Mastodon Server Covenant, url: "https://joinmastodon.org/covenant", party: Mastodon gGmbH}
+  dsa: {title: "Regulation (EU) 2022/2065 (Digital Services Act)", url: "https://eur-lex.europa.eu/eli/reg/2022/2065/oj", party: European Union}
+  server-rules: {title: mastodon.social server rules, url: "https://mastodon.social/about", party: Mastodon gGmbH}
 
 influencers:
   inf-covenant:
-    stage: ratified
     kinds: [contractual]
     scopeRationale: Servers listed on joinmastodon.org must commit to the covenant, and mastodon.social is listed
     cites: server-covenant
     scopes: [mastodon-social]
   inf-dsa:
-    stage: ratified
     kinds: [regulatory]
     scopeRationale: mastodon.social is an online platform offered to users in the EU
     cites: dsa
@@ -204,13 +169,11 @@ influencers:
 
 policies:
   pol-moderation:
-    stage: ratified
     statement: We moderate actively and act on every report, as the Server Covenant and the DSA require
     name: Content moderation policy
     approver: Managing director
     satisfies: [inf-covenant, inf-dsa]
   pol-operations:
-    stage: ratified
     statement: We run the server reliably and never leave users without notice or a way to leave
     name: Server operations policy
     approver: Managing director
@@ -218,68 +181,56 @@ policies:
 
 controlObjectives:
   co-act-on-reports:
-    stage: ratified
     statement: Harmful content is removed and every report gets a reasoned decision
     supports: [pol-moderation]
     cites: [inf-dsa, inf-covenant]
   co-continuity:
-    stage: ratified
     statement: The server survives the loss of its data or of any one person, and users can leave before it closes
     supports: [pol-operations]
     cites: [inf-covenant]
 
 standards:
   std-active-moderation:
-    stage: ratified
     statement: Active moderation against racism, sexism, homophobia and transphobia
     addresses: [co-act-on-reports]
   std-notice-and-action:
-    stage: ratified
     statement: Every report gets a decision and a statement of reasons to the affected user
     addresses: [co-act-on-reports]
   std-daily-backups:
-    stage: ratified
     statement: Daily backups
     addresses: [co-continuity]
   std-emergency-access:
-    stage: ratified
     statement: At least one other person has emergency access to the server
     addresses: [co-continuity]
   std-shutdown-notice:
-    stage: ratified
     statement: At least three months' notice before shutting down
     addresses: [co-continuity]
 
 guidelines:
   gl-server-rules:
-    stage: ratified
     description: The published server rules users agree to
     augments: [std-active-moderation]
 
 controls:
   moderation:
-    stage: ratified
     statement: Moderators review reports and act on content that breaks the server rules
     owner: Head of trust and safety
     safeguard: administrative
     enforces: [std-active-moderation, std-notice-and-action]
     achieves: [co-act-on-reports]
   backups:
-    stage: ratified
     statement: The database and media are backed up daily to separate storage
     owner: Infrastructure lead
     safeguard: technical
     enforces: [std-daily-backups]
     achieves: [co-continuity]
   emergency-access:
-    stage: ratified
     statement: A second named person holds credentials to the server
     owner: Managing director
     safeguard: administrative
     enforces: [std-emergency-access]
     achieves: [co-continuity]
   shutdown-notice:
-    stage: ratified
     statement: Any shutdown is announced to users at least three months ahead
     owner: Managing director
     safeguard: administrative
@@ -288,21 +239,18 @@ controls:
 
 procedures:
   proc-report-triage:
-    stage: ratified
     steps: "1. Open the report queue. 2. Check the reported content against the server rules. 3. Decide and act. 4. Send the affected user a statement of reasons."
     owner: Moderation team lead
     overseer: Head of trust and safety
     operationalizes: moderation
     implements: [adopt-moderation-social]
   proc-emergency-access:
-    stage: ratified
     steps: "1. Keep server credentials in a shared vault. 2. Review who holds them every quarter."
     owner: Infrastructure lead
     overseer: Managing director
     operationalizes: emergency-access
     implements: [adopt-emergency-social]
   proc-shutdown:
-    stage: ratified
     steps: "1. Announce the shutdown date. 2. Remind users to export and migrate their accounts. 3. Shut down no sooner than three months after the announcement."
     owner: Managing director
     overseer: Board
@@ -310,59 +258,55 @@ procedures:
     implements: [adopt-shutdown-social]
 
 assessmentObjectives:
-  ao-moderation: {stage: ratified, assesses: moderation, verifies: [std-active-moderation, std-notice-and-action], examines: [proc-report-triage], methods: [examine, interview], evidence: "Report queue history showing reports actioned and moderator interviews on the triage process"}
-  ao-backups: {stage: ratified, assesses: backups, verifies: [std-daily-backups], methods: [examine, test], evidence: "Backup job log for the last 30 days and the result of a test restore"}
-  ao-emergency: {stage: ratified, assesses: emergency-access, verifies: [std-emergency-access], examines: [proc-emergency-access], methods: [examine, interview], evidence: "Emergency access log entries and the admin interview on when access was used"}
-  ao-shutdown: {stage: ratified, assesses: shutdown-notice, verifies: [std-shutdown-notice], examines: [proc-shutdown], methods: [examine], evidence: "Shutdown procedure and the user notice template with its notice period"}
+  ao-moderation: {assesses: moderation, verifies: [std-active-moderation, std-notice-and-action], examines: [proc-report-triage], methods: [examine, interview], evidence: "Report queue history showing reports actioned and moderator interviews on the triage process"}
+  ao-backups: {assesses: backups, verifies: [std-daily-backups], methods: [examine, test], evidence: "Backup job log for the last 30 days and the result of a test restore"}
+  ao-emergency: {assesses: emergency-access, verifies: [std-emergency-access], examines: [proc-emergency-access], methods: [examine, interview], evidence: "Emergency access log entries and the admin interview on when access was used"}
+  ao-shutdown: {assesses: shutdown-notice, verifies: [std-shutdown-notice], examines: [proc-shutdown], methods: [examine], evidence: "Shutdown procedure and the user notice template with its notice period"}
 
 profiles:
   mastodon-controls:
-    stage: ratified
     name: Mastodon control profile
 
 selections:
-  sel-moderation: {stage: ratified, in: mastodon-controls, choice: include, names: moderation}
-  sel-backups: {stage: ratified, in: mastodon-controls, choice: include, names: backups}
-  sel-emergency-access: {stage: ratified, in: mastodon-controls, choice: include, names: emergency-access}
-  sel-shutdown-notice: {stage: ratified, in: mastodon-controls, choice: include, names: shutdown-notice}
+  sel-moderation: {in: mastodon-controls, choice: include, names: moderation}
+  sel-backups: {in: mastodon-controls, choice: include, names: backups}
+  sel-emergency-access: {in: mastodon-controls, choice: include, names: emergency-access}
+  sel-shutdown-notice: {in: mastodon-controls, choice: include, names: shutdown-notice}
 
 adoptions:
-  adopt-moderation-social: {stage: ratified, mode: procedure, adopts: moderation, governs: mastodon-social, owner: Moderation team lead}
-  adopt-backups-social: {stage: ratified, mode: system, adopts: backups, governs: mastodon-social, owner: Infrastructure lead}
-  adopt-emergency-social: {stage: ratified, mode: procedure, adopts: emergency-access, governs: mastodon-social, owner: Infrastructure lead}
-  adopt-shutdown-social: {stage: ratified, mode: procedure, adopts: shutdown-notice, governs: mastodon-social, owner: Managing director}
-  adopt-moderation-sw: {stage: ratified, mode: system, adopts: moderation, governs: mastodon, owner: Mastodon gGmbH engineering}
-  adopt-backups-sw: {stage: ratified, mode: delegated, adopts: backups, governs: mastodon, delegatedTo: Server operator, rationale: The covenant binds server operators; the software ships no backup tooling of its own}
-  adopt-emergency-sw: {stage: ratified, mode: delegated, adopts: emergency-access, governs: mastodon, delegatedTo: Server operator, rationale: The covenant binds server operators}
-  adopt-shutdown-sw: {stage: ratified, mode: delegated, adopts: shutdown-notice, governs: mastodon, delegatedTo: Server operator, rationale: The covenant binds server operators}
+  adopt-moderation-social: {mode: procedure, adopts: moderation, governs: mastodon-social, owner: Moderation team lead}
+  adopt-backups-social: {mode: system, adopts: backups, governs: mastodon-social, owner: Infrastructure lead}
+  adopt-emergency-social: {mode: procedure, adopts: emergency-access, governs: mastodon-social, owner: Infrastructure lead}
+  adopt-shutdown-social: {mode: procedure, adopts: shutdown-notice, governs: mastodon-social, owner: Managing director}
+  adopt-moderation-sw: {mode: system, adopts: moderation, governs: mastodon, owner: Mastodon gGmbH engineering}
+  adopt-backups-sw: {mode: delegated, adopts: backups, governs: mastodon, delegatedTo: Server operator, rationale: The covenant binds server operators; the software ships no backup tooling of its own}
+  adopt-emergency-sw: {mode: delegated, adopts: emergency-access, governs: mastodon, delegatedTo: Server operator, rationale: The covenant binds server operators}
+  adopt-shutdown-sw: {mode: delegated, adopts: shutdown-notice, governs: mastodon, delegatedTo: Server operator, rationale: The covenant binds server operators}
 
 people:
-  user: {stage: ratified, name: User, description: Posts, follows and reads timelines, plays: [social-user]}
-  moderator: {stage: ratified, name: Moderator or admin, description: Handles reports and server settings, plays: [community-admin]}
+  user: {name: User, description: Posts, follows and reads timelines, plays: [social-user]}
+  moderator: {name: Moderator or admin, description: Handles reports and server settings, plays: [community-admin]}
 
 systems:
   mastodon-system:
-    stage: ratified
     name: Mastodon
     description: Mastodon server software
     owner: Mastodon gGmbH engineering
     external: false
     realizes: [mastodon, mastodon-social]
-  fediverse: {stage: ratified, name: Other fediverse servers, description: Mastodon and other ActivityPub servers, owner: Their operators, external: true}
-  client-apps: {stage: ratified, name: Third-party apps, description: Mobile and desktop clients built on the REST API, owner: Their developers, external: true}
-  object-storage: {stage: ratified, name: Object storage, description: S3-compatible storage for media, owner: Storage provider, external: true}
-  smtp: {stage: ratified, name: Email provider, description: Sends confirmation and notification email, owner: Email provider, external: true}
+  fediverse: {name: Other fediverse servers, description: Mastodon and other ActivityPub servers, owner: Their operators, external: true}
+  client-apps: {name: Third-party apps, description: Mobile and desktop clients built on the REST API, owner: Their developers, external: true}
+  object-storage: {name: Object storage, description: S3-compatible storage for media, owner: Storage provider, external: true}
+  smtp: {name: Email provider, description: Sends confirmation and notification email, owner: Email provider, external: true}
 
 containers:
   web-ui:
-    stage: ratified
     in: mastodon-system
     name: Web interface
     description: Single-page app for users and moderators
     kind: application
     technology: React
   web:
-    stage: ratified
     in: mastodon-system
     name: Web and API
     description: REST API, ActivityPub inbox and outbox, admin pages
@@ -370,7 +314,6 @@ containers:
     technology: Ruby on Rails, Puma
     satisfies: [chronological-timelines, account-migration, reports-and-moderation, domain-blocks, horizontal-scaling, documented-upgrades]
   sidekiq:
-    stage: ratified
     in: mastodon-system
     name: Background workers
     description: Federation delivery, media processing, email and scheduled jobs
@@ -378,7 +321,6 @@ containers:
     technology: Ruby, Sidekiq
     satisfies: [activitypub-federation, horizontal-scaling]
   streaming:
-    stage: ratified
     in: mastodon-system
     name: Streaming API
     description: Pushes live timeline updates to clients
@@ -386,7 +328,6 @@ containers:
     technology: Node.js
     satisfies: [horizontal-scaling]
   postgres:
-    stage: ratified
     in: mastodon-system
     name: Database
     description: Accounts, posts, follows and reports
@@ -394,14 +335,12 @@ containers:
     technology: PostgreSQL
     satisfies: [daily-backups]
   redis:
-    stage: ratified
     in: mastodon-system
     name: Redis
     description: Home feeds, job queues and streaming pub/sub
     kind: data-store
     technology: Redis
   search:
-    stage: ratified
     in: mastodon-system
     name: Search index
     description: Optional full-text index of opted-in posts
@@ -410,86 +349,82 @@ containers:
     satisfies: [search-and-hashtags]
 
 components:
-  rest-api: {stage: ratified, in: web, name: REST API, description: Client API used by the web UI and apps, technology: Rails}
-  activitypub: {stage: ratified, in: web, name: ActivityPub, description: Inbox and outbox for federation, technology: Rails, satisfies: [activitypub-federation]}
-  admin: {stage: ratified, in: web, name: Admin and moderation, description: Report queue, account and domain actions, technology: Rails}
+  rest-api: {in: web, name: REST API, description: Client API used by the web UI and apps, technology: Rails}
+  activitypub: {in: web, name: ActivityPub, description: Inbox and outbox for federation, technology: Rails, satisfies: [activitypub-federation]}
+  admin: {in: web, name: Admin and moderation, description: Report queue, account and domain actions, technology: Rails}
 
 relationships:
-  user-uses-web-ui: {stage: ratified, leaves: user, enters: web-ui, description: Reads timelines and posts}
-  moderator-uses-web-ui: {stage: ratified, leaves: moderator, enters: web-ui, description: Handles reports and domain blocks}
-  user-uses-apps: {stage: ratified, leaves: user, enters: client-apps, description: Reads timelines and posts}
-  web-ui-calls-api: {stage: ratified, leaves: web-ui, enters: web, description: Calls the REST API, technology: HTTPS}
-  web-ui-streams: {stage: ratified, leaves: web-ui, enters: streaming, description: Subscribes to live updates, technology: WebSocket}
-  apps-call-api: {stage: ratified, leaves: client-apps, enters: web, description: Calls the REST API, technology: HTTPS, OAuth 2}
-  apps-stream: {stage: ratified, leaves: client-apps, enters: streaming, description: Subscribes to live updates, technology: WebSocket}
-  fediverse-delivers: {stage: ratified, leaves: fediverse, enters: web, description: Delivers activities to the inbox, technology: HTTPS, ActivityPub, HTTP signatures}
-  sidekiq-delivers: {stage: ratified, leaves: sidekiq, enters: fediverse, description: Delivers activities to remote inboxes, technology: HTTPS, ActivityPub, HTTP signatures}
-  web-uses-postgres: {stage: ratified, leaves: web, enters: postgres, description: Reads and writes data, technology: SQL}
-  web-uses-redis: {stage: ratified, leaves: web, enters: redis, description: Reads feeds and enqueues jobs, technology: Redis protocol}
-  web-uses-search: {stage: ratified, leaves: web, enters: search, description: Runs searches, technology: HTTP}
-  web-uses-storage: {stage: ratified, leaves: web, enters: object-storage, description: Uploads media, technology: S3 API}
-  sidekiq-uses-postgres: {stage: ratified, leaves: sidekiq, enters: postgres, description: Reads and writes data, technology: SQL}
-  sidekiq-uses-redis: {stage: ratified, leaves: sidekiq, enters: redis, description: Takes jobs and writes feeds, technology: Redis protocol}
-  sidekiq-indexes: {stage: ratified, leaves: sidekiq, enters: search, description: Indexes posts, technology: HTTP}
-  sidekiq-uses-storage: {stage: ratified, leaves: sidekiq, enters: object-storage, description: Stores processed media, technology: S3 API}
-  sidekiq-sends-email: {stage: ratified, leaves: sidekiq, enters: smtp, description: Sends email, technology: SMTP}
-  streaming-uses-redis: {stage: ratified, leaves: streaming, enters: redis, description: Subscribes to timeline events, technology: Redis pub/sub}
-  streaming-uses-postgres: {stage: ratified, leaves: streaming, enters: postgres, description: Checks access tokens and filters, technology: SQL}
-  web-ui-calls-rest: {stage: ratified, leaves: web-ui, enters: rest-api, description: Reads timelines and posts, technology: HTTPS}
-  web-ui-moderates: {stage: ratified, leaves: web-ui, enters: admin, description: Handles reports and domain blocks, technology: HTTPS}
-  apps-call-rest: {stage: ratified, leaves: client-apps, enters: rest-api, description: Reads timelines and posts, technology: HTTPS, OAuth 2}
-  fediverse-posts-inbox: {stage: ratified, leaves: fediverse, enters: activitypub, description: Delivers activities to the inbox, technology: HTTPS, ActivityPub, HTTP signatures}
-  rest-api-uses-postgres: {stage: ratified, leaves: rest-api, enters: postgres, description: Reads and writes accounts and posts, technology: SQL}
-  activitypub-uses-postgres: {stage: ratified, leaves: activitypub, enters: postgres, description: Reads actors and stores remote posts, technology: SQL}
-  admin-uses-postgres: {stage: ratified, leaves: admin, enters: postgres, description: Reads reports and writes moderation actions, technology: SQL}
-  rest-api-uses-redis: {stage: ratified, leaves: rest-api, enters: redis, description: Reads feeds and enqueues jobs, technology: Redis protocol}
-  activitypub-enqueues: {stage: ratified, leaves: activitypub, enters: redis, description: Enqueues inbox processing jobs, technology: Redis protocol}
-  rest-api-searches: {stage: ratified, leaves: rest-api, enters: search, description: Runs searches, technology: HTTP}
-  rest-api-uploads: {stage: ratified, leaves: rest-api, enters: object-storage, description: Uploads media, technology: S3 API}
+  user-uses-web-ui: {leaves: user, enters: web-ui, description: Reads timelines and posts}
+  moderator-uses-web-ui: {leaves: moderator, enters: web-ui, description: Handles reports and domain blocks}
+  user-uses-apps: {leaves: user, enters: client-apps, description: Reads timelines and posts}
+  web-ui-calls-api: {leaves: web-ui, enters: web, description: Calls the REST API, technology: HTTPS}
+  web-ui-streams: {leaves: web-ui, enters: streaming, description: Subscribes to live updates, technology: WebSocket}
+  apps-call-api: {leaves: client-apps, enters: web, description: Calls the REST API, technology: HTTPS, OAuth 2}
+  apps-stream: {leaves: client-apps, enters: streaming, description: Subscribes to live updates, technology: WebSocket}
+  fediverse-delivers: {leaves: fediverse, enters: web, description: Delivers activities to the inbox, technology: HTTPS, ActivityPub, HTTP signatures}
+  sidekiq-delivers: {leaves: sidekiq, enters: fediverse, description: Delivers activities to remote inboxes, technology: HTTPS, ActivityPub, HTTP signatures}
+  web-uses-postgres: {leaves: web, enters: postgres, description: Reads and writes data, technology: SQL}
+  web-uses-redis: {leaves: web, enters: redis, description: Reads feeds and enqueues jobs, technology: Redis protocol}
+  web-uses-search: {leaves: web, enters: search, description: Runs searches, technology: HTTP}
+  web-uses-storage: {leaves: web, enters: object-storage, description: Uploads media, technology: S3 API}
+  sidekiq-uses-postgres: {leaves: sidekiq, enters: postgres, description: Reads and writes data, technology: SQL}
+  sidekiq-uses-redis: {leaves: sidekiq, enters: redis, description: Takes jobs and writes feeds, technology: Redis protocol}
+  sidekiq-indexes: {leaves: sidekiq, enters: search, description: Indexes posts, technology: HTTP}
+  sidekiq-uses-storage: {leaves: sidekiq, enters: object-storage, description: Stores processed media, technology: S3 API}
+  sidekiq-sends-email: {leaves: sidekiq, enters: smtp, description: Sends email, technology: SMTP}
+  streaming-uses-redis: {leaves: streaming, enters: redis, description: Subscribes to timeline events, technology: Redis pub/sub}
+  streaming-uses-postgres: {leaves: streaming, enters: postgres, description: Checks access tokens and filters, technology: SQL}
+  web-ui-calls-rest: {leaves: web-ui, enters: rest-api, description: Reads timelines and posts, technology: HTTPS}
+  web-ui-moderates: {leaves: web-ui, enters: admin, description: Handles reports and domain blocks, technology: HTTPS}
+  apps-call-rest: {leaves: client-apps, enters: rest-api, description: Reads timelines and posts, technology: HTTPS, OAuth 2}
+  fediverse-posts-inbox: {leaves: fediverse, enters: activitypub, description: Delivers activities to the inbox, technology: HTTPS, ActivityPub, HTTP signatures}
+  rest-api-uses-postgres: {leaves: rest-api, enters: postgres, description: Reads and writes accounts and posts, technology: SQL}
+  activitypub-uses-postgres: {leaves: activitypub, enters: postgres, description: Reads actors and stores remote posts, technology: SQL}
+  admin-uses-postgres: {leaves: admin, enters: postgres, description: Reads reports and writes moderation actions, technology: SQL}
+  rest-api-uses-redis: {leaves: rest-api, enters: redis, description: Reads feeds and enqueues jobs, technology: Redis protocol}
+  activitypub-enqueues: {leaves: activitypub, enters: redis, description: Enqueues inbox processing jobs, technology: Redis protocol}
+  rest-api-searches: {leaves: rest-api, enters: search, description: Runs searches, technology: HTTP}
+  rest-api-uploads: {leaves: rest-api, enters: object-storage, description: Uploads media, technology: S3 API}
 
 environments:
-  social-production: {stage: ratified, name: mastodon.social production, serves: [mastodon-social]}
+  social-production: {name: mastodon.social production, serves: [mastodon-social]}
 
 deploymentNodes:
   cloud-region:
-    stage: ratified
     name: Cloud region
     technology: Managed Kubernetes
     belongs: social-production
   app-pool:
-    stage: ratified
     in: cloud-region
     name: Application node pool
     technology: Kubernetes
   data-nodes:
-    stage: ratified
     in: cloud-region
     name: Data nodes
     technology: Managed PostgreSQL, Redis and OpenSearch
 
 containerInstances:
-  web-instance: {stage: ratified, in: app-pool, instantiates: web}
-  sidekiq-instance: {stage: ratified, in: app-pool, instantiates: sidekiq}
-  streaming-instance: {stage: ratified, in: app-pool, instantiates: streaming}
-  postgres-instance: {stage: ratified, in: data-nodes, instantiates: postgres}
-  redis-instance: {stage: ratified, in: data-nodes, instantiates: redis}
-  search-instance: {stage: ratified, in: data-nodes, instantiates: search}
+  web-instance: {in: app-pool, instantiates: web}
+  sidekiq-instance: {in: app-pool, instantiates: sidekiq}
+  streaming-instance: {in: app-pool, instantiates: streaming}
+  postgres-instance: {in: data-nodes, instantiates: postgres}
+  redis-instance: {in: data-nodes, instantiates: redis}
+  search-instance: {in: data-nodes, instantiates: search}
 
 infrastructureNodes:
-  ingress: {stage: ratified, in: cloud-region, name: Ingress and CDN, technology: nginx, CDN}
+  ingress: {in: cloud-region, name: Ingress and CDN, technology: nginx, CDN}
 
 deploymentDiagrams:
   deploy-social:
-    stage: ratified
     depicts: [mastodon-system]
     covers: social-production
     notDeployed:
       web-ui: Served by the web container and runs in the user's browser
 
 dataElements:
-  account: {stage: ratified, classification: confidential, description: Email, password hash, IP addresses and settings, triggers: [inf-dsa]}
-  post: {stage: ratified, classification: public, description: Posts and their visibility; direct messages are not end-to-end encrypted}
-  report: {stage: ratified, classification: confidential, description: Report, reporter and moderation decision, triggers: [inf-dsa]}
+  account: {classification: confidential, description: Email, password hash, IP addresses and settings, triggers: [inf-dsa]}
+  post: {classification: public, description: Posts and their visibility; direct messages are not end-to-end encrypted}
+  report: {classification: confidential, description: Report, reporter and moderation decision, triggers: [inf-dsa]}
 
 # Couldn't express
 # - Software versus server. Both influencers scope only mastodon.social, but the

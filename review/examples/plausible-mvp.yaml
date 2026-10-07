@@ -4,56 +4,48 @@
 intentSpec: "0.1"
 id: plausible
 version: 1.0.0
+stage: ratified
 
 products:
   plausible:
-    stage: ratified
     name: Plausible Analytics
     description: Simple, lightweight website analytics that needs no cookies.
     targets: [understand-traffic]
 
 jobExecutors:
   site-owner:
-    stage: ratified
     description: Independent site owner (blogger, indie maker, small business) checking how their site is doing
 
 jobs:
   understand-traffic:
-    stage: ratified
     statement: Understand how many people visit my site and where they come from
     motivates: site-owner
     cites: [beta-feedback]
 
 outcomes:
   traffic-at-a-glance:
-    stage: ratified
     in: understand-traffic
     statement: Minimize the time it takes to see how traffic is trending
     cites: [beta-feedback]
   know-sources:
-    stage: ratified
     in: understand-traffic
     statement: Minimize the effort to see which sites send me visitors
     cites: [beta-feedback]
   no-consent-banner:
-    stage: ratified
     in: understand-traffic
     statement: Minimize the need to ask visitors for consent before measuring traffic
     cites: [beta-feedback]
   fast-pages:
-    stage: ratified
     in: understand-traffic
     statement: Minimize the page weight that analytics adds
     cites: [beta-feedback]
   campaign-conversions:
-    stage: ratified
     in: understand-traffic
     statement: Minimize the time it takes to see which campaigns lead to sign-ups
     cites: [beta-feedback]
     disposition: deferred
     rationale: Goals and conversions come after launch; we're validating the basic dashboard first
   individual-journeys:
-    stage: ratified
     in: understand-traffic
     statement: Minimize the effort to follow one visitor's path through the site
     cites: [beta-feedback]
@@ -62,58 +54,48 @@ outcomes:
 
 requirements:
   one-page-dashboard:
-    stage: ratified
     statement: Every metric for a site fits on one dashboard page with a date-range picker
     verification: Design review; no metric sits behind a second page
     serves: [traffic-at-a-glance]
   referrer-list:
-    stage: ratified
     statement: The dashboard lists top referrers by domain
     verification: Integration test with known referrers
     serves: [know-sources]
   no-cookies:
-    stage: ratified
     statement: The tracker sets no cookies and uses no persistent identifiers
     verification: Browser test confirms no cookies or local storage are written
     serves: [no-consent-banner]
   daily-salted-visitor-hash:
-    stage: ratified
     statement: Unique visitors are counted using a hash of IP, user agent and a salt that rotates and is deleted daily
     verification: Code review and unit test of salt rotation
     serves: [no-consent-banner]
   small-script:
-    stage: ratified
     statement: The tracking script stays under 1 KB gzipped
     verification: Size check in CI
     serves: [fast-pages]
 
 metrics:
   script-size:
-    stage: ratified
     target: Under 1 KB gzipped
     frequency: Every release
     measures: [fast-pages]
 
 externalReferences:
   beta-feedback:
-    stage: ratified
     title: Feedback from site owners using the pre-launch beta
     party: Plausible founding team
 
 people:
   site-owner-person:
-    stage: ratified
     name: Site owner
     description: Customer who reads the dashboard
     plays: [site-owner]
   visitor:
-    stage: ratified
     name: Visitor
     description: Someone browsing a customer's site
 
 systems:
   plausible-system:
-    stage: ratified
     name: Plausible
     description: Hosted analytics service
     owner: Founding team
@@ -123,7 +105,6 @@ systems:
 
 containers:
   tracker:
-    stage: ratified
     in: plausible-system
     name: Tracker script
     description: JavaScript that runs on customers' sites and sends pageviews
@@ -131,7 +112,6 @@ containers:
     technology: JavaScript
     satisfies: [no-cookies, small-script]
   web-app:
-    stage: ratified
     in: plausible-system
     name: Web app
     description: Receives events and serves the dashboard
@@ -139,7 +119,6 @@ containers:
     technology: Elixir, Phoenix
     satisfies: [one-page-dashboard, referrer-list, daily-salted-visitor-hash]
   database:
-    stage: ratified
     in: plausible-system
     name: Database
     description: Accounts, sites and pageview events
@@ -147,10 +126,10 @@ containers:
     technology: PostgreSQL
 
 relationships:
-  visitor-loads-tracker: {stage: ratified, leaves: visitor, enters: tracker, description: Loads the tracker while browsing a customer site, technology: HTTPS}
-  tracker-sends-events: {stage: ratified, leaves: tracker, enters: web-app, description: Sends pageview events, technology: HTTPS}
-  owner-views-dashboard: {stage: ratified, leaves: site-owner-person, enters: web-app, description: Views the dashboard, technology: HTTPS}
-  web-app-stores: {stage: ratified, leaves: web-app, enters: database, description: Reads and writes accounts and events, technology: Ecto/SQL}
+  visitor-loads-tracker: {leaves: visitor, enters: tracker, description: Loads the tracker while browsing a customer site, technology: HTTPS}
+  tracker-sends-events: {leaves: tracker, enters: web-app, description: Sends pageview events, technology: HTTPS}
+  owner-views-dashboard: {leaves: site-owner-person, enters: web-app, description: Views the dashboard, technology: HTTPS}
+  web-app-stores: {leaves: web-app, enters: database, description: Reads and writes accounts and events, technology: Ecto/SQL}
 
 # Couldn't express
 # - What the MVP is for: "get the first 100 paying customers and learn whether

@@ -3,114 +3,94 @@
 intentSpec: "0.1"
 id: shiftly
 version: 0.1.0
+stage: proposed
 
 products:
   shiftly:
-    stage: proposed
     name: Shiftly
     description: Helps small food banks fill volunteer shifts without a coordinator phoning people.
     targets: [fill-shifts, sign-up-for-shift, choose-scheduling-tool]
 
 jobExecutors:
   volunteer-coordinator:
-    stage: proposed
     description: Volunteer coordinator at a small food bank, planning next week's distribution shifts
   volunteer:
-    stage: proposed
     description: Community volunteer deciding when they can help this week
   food-bank-director:
-    stage: proposed
     description: Food bank director deciding whether to pay for a scheduling tool
 
 jobs:
   fill-shifts:
-    stage: proposed
     statement: Make sure every distribution shift has enough people to run
     motivates: volunteer-coordinator
     cites: [coordinator-interviews]
   sign-up-for-shift:
-    stage: proposed
     statement: Commit to helping at a time that fits my week
     motivates: volunteer
     cites: [coordinator-interviews]
   choose-scheduling-tool:
-    stage: proposed
     kind: purchase
     statement: Decide whether Shiftly is worth paying for
     motivates: food-bank-director
 
 outcomes:
   fewer-short-shifts:
-    stage: proposed
     in: fill-shifts
     statement: Minimize the number of shifts that start short-staffed
     cites: [coordinator-interviews]
   less-time-chasing:
-    stage: proposed
     in: fill-shifts
     statement: Minimize the time spent contacting volunteers to cover gaps
     cites: [coordinator-interviews]
   know-who-is-coming:
-    stage: proposed
     in: fill-shifts
     statement: Minimize the likelihood of not knowing who will turn up the day before a shift
     cites: [coordinator-interviews]
   quick-to-commit:
-    stage: proposed
     in: sign-up-for-shift
     statement: Minimize the time it takes to find and commit to a shift that fits
     cites: [coordinator-interviews]
   easy-to-drop:
-    stage: proposed
     in: sign-up-for-shift
     statement: Minimize the effort to drop a shift I can no longer make
     cites: [coordinator-interviews]
   not-forgotten:
-    stage: proposed
     in: sign-up-for-shift
     statement: Minimize the likelihood of forgetting a shift I committed to
     cites: [coordinator-interviews]
   low-cost:
-    stage: proposed
     in: choose-scheduling-tool
     statement: Minimize the monthly cost of Shiftly for the food bank
 
 requirements:
   open-shift-board:
-    stage: proposed
     statement: Volunteers see every open shift for the next four weeks on one page
     verification: Usability test with five volunteers; each finds and books a shift in under two minutes
     serves: [quick-to-commit, fewer-short-shifts]
   sign-up-without-account:
-    stage: proposed
     statement: A volunteer can book a shift with only a name and phone number
     verification: Booking flow has no password or account step
     serves: [quick-to-commit]
   sms-reminders:
-    stage: proposed
     statement: Volunteers get a text reminder 24 hours before a shift and can reply to cancel
     verification: End-to-end test with a test phone number
     serves: [not-forgotten, easy-to-drop, know-who-is-coming]
   gap-alerts:
-    stage: proposed
     statement: The coordinator is alerted 48 hours ahead when a shift is short, with a one-tap message to past volunteers
     verification: Scenario test with a short-staffed shift
     serves: [less-time-chasing, fewer-short-shifts]
   coordinator-adds-bookings:
-    stage: proposed
     statement: The coordinator can book a volunteer who phoned in, so non-smartphone volunteers stay included
     verification: Coordinator walkthrough
     serves: [fewer-short-shifts]
     executes: [keep-phone-sign-up]
   minimal-volunteer-data:
-    stage: proposed
     statement: Store only name, phone number and shift history; delete volunteers inactive for 12 months
     verification: Data inventory review before launch
     executes: [minimise-volunteer-data]
 
 metrics:
   short-shift-rate:
-    stage: proposed
     description: Share of shifts that start with fewer volunteers than planned
     target: Under 5% of shifts
     frequency: Monthly
@@ -118,41 +98,34 @@ metrics:
 
 externalReferences:
   coordinator-interviews:
-    stage: proposed
     title: Interviews with three food bank volunteer coordinators
     party: Shiftly founders
 
 risks:
   low-uptake:
-    stage: proposed
     description: Older volunteers keep phoning the coordinator instead of using the board, so the coordinator's workload doesn't fall
     endangers: [less-time-chasing, fewer-short-shifts]
   phone-number-exposure:
-    stage: proposed
     description: Volunteers' phone numbers are exposed through a breach or misuse
     endangers: []
   sms-cost:
-    stage: proposed
     description: Text-message costs exceed what a small food bank can pay
     endangers: []
 
 treatments:
   keep-phone-sign-up:
-    stage: proposed
     strategy: reduce
     owner: Product lead
     reviewBy: 2027-03-01
     treats: [low-uptake]
     scopes: [shiftly]
   minimise-volunteer-data:
-    stage: proposed
     strategy: reduce
     owner: Product lead
     reviewBy: 2027-03-01
     treats: [phone-number-exposure]
     scopes: [shiftly]
   accept-sms-cost:
-    stage: proposed
     strategy: accept
     owner: Founder
     reviewBy: 2027-01-15
