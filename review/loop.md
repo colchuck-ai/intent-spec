@@ -78,8 +78,9 @@ You are given one accepted finding.
 ## Summarize
 
 1. Claim the step. Count this round's findings by priority (`round:<n>`) and by decision, and compare them with the previous round.
+   Also count the model's size in `../erd.md` (entities, links and rule IDs) and the lines in `examples/*.yaml`, at this round's last commit and the previous round's, and report the change. Growth should be visible when deciding whether to stop.
 2. Apply the stopping rule: stop when a round has no new P1 findings and fewer P2 findings than the round before.
-3. Write the summary to the step's notes: counts, the stopping-rule result, notable rejections and open deferrals. Close the step and reply with the stopping-rule result.
+3. Write the summary to the step's notes: counts, size and its change, the stopping-rule result, notable rejections and open deferrals. Close the step and reply with the stopping-rule result.
 
 ## Human
 
