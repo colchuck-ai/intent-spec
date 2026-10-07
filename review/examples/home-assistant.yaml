@@ -8,8 +8,12 @@ stage: ratified
 
 products:
   home-assistant:
-    name: Home Assistant
-    description: Local-first home automation platform with apps for every household member.
+    name: Home Assistant OS
+    description: Local-first home automation platform with apps for every household member, installed as an appliance OS that manages its own updates.
+    targets: [run-home-together, check-on-home]
+  home-assistant-container:
+    name: Home Assistant Container
+    description: The same platform run as a container on the user's own Docker host, without the Supervisor, add-ons or managed updates.
     targets: [run-home-together, check-on-home]
 
 jobExecutors:
@@ -42,6 +46,9 @@ outcomes:
   safe-to-update:
     in: run-home-together
     statement: Minimize the likelihood that an update breaks my home
+    disposition: out-of-scope
+    scopes: [home-assistant-container]
+    rationale: Container installs leave updates and backups to the user's own Docker tooling
   multi-home:
     in: run-home-together
     statement: Minimize the effort to manage several homes from one place
@@ -95,11 +102,13 @@ requirements:
     statement: The Supervisor installs only signed Home Assistant images
     verification: Supervisor rejects an unsigned test image
     serves: [safe-to-update]
+    scopes: [home-assistant]
     executes: [reduce-update-supply-chain]
   backups-before-update:
     statement: Updates offer a backup first, and backups can be restored from the onboarding screen
     verification: Release checklist
     serves: [safe-to-update]
+    scopes: [home-assistant]
   custom-integration-warning:
     statement: Custom integrations are flagged in logs and repairs as untested by the project
     verification: Load a custom integration and check the warning
@@ -161,7 +170,7 @@ systems:
     name: Home Assistant
     description: Core, frontend, Supervisor and companion apps
     owner: Home Assistant project
-    realizes: [home-assistant]
+    realizes: [home-assistant, home-assistant-container]
   devices: {name: Local devices, description: Lights, sensors and hubs reached over Zigbee, Z-Wave, Matter, Wi-Fi or Bluetooth, owner: Device makers, external: true}
   vendor-clouds: {name: Vendor clouds, description: Cloud APIs for cloud-only devices, owner: Device vendors, external: true}
   ha-cloud: {name: Home Assistant Cloud, description: Paid remote access and voice assistant bridge, owner: Nabu Casa, external: true, satisfies: [remote-access-options]}
@@ -259,7 +268,7 @@ dynamicSteps:
 
 environments:
   haos-install: {name: Home Assistant OS install, serves: [home-assistant], operator: Household}
-  container-install: {name: Container install (no Supervisor), serves: [home-assistant], operator: Household}
+  container-install: {name: Container install (no Supervisor), serves: [home-assistant-container], operator: Household}
 
 deploymentNodes:
   ha-device:
@@ -391,21 +400,23 @@ threatReviews:
   r-spoof-devices: {reviews: t-spoofed-party, inspects: [ee-devices], disposition: not-applicable, rationale: Device pairing security is set by each protocol (Zigbee, Z-Wave, Matter) and outside our design}
   r-spoof-clouds: {reviews: t-spoofed-party, inspects: [ee-vendor-clouds], disposition: not-applicable, rationale: Vendor APIs are reached over HTTPS with certificate validation}
   r-spoof-ha-cloud: {reviews: t-spoofed-party, inspects: [ee-ha-cloud], disposition: covered, cites: [remote-access-options]}
-  r-spoof-registry: {reviews: t-spoofed-party, inspects: [ee-registry], disposition: covered, cites: [signed-images]}
-  r-spoof-versions: {reviews: t-spoofed-party, inspects: [ee-version-service], disposition: covered, cites: [signed-images]}
+  r-spoof-registry: {reviews: t-spoofed-party, inspects: [ee-registry], disposition: risk, raises: update-supply-chain}
+  r-spoof-versions: {reviews: t-spoofed-party, inspects: [ee-version-service], disposition: risk, raises: update-supply-chain}
   r-store-recorder: {reviews: t-store-disclosure, inspects: [ds-recorder], disposition: covered, cites: [local-history, role-based-users]}
   r-store-config: {reviews: t-store-disclosure, inspects: [ds-config], disposition: risk, raises: custom-code}
   r-tamper-core: {reviews: t-process-tampering, inspects: [p-core], disposition: risk, raises: custom-code}
   r-tamper-supervisor: {reviews: t-process-tampering, inspects: [p-supervisor], disposition: risk, raises: update-supply-chain}
-  r-tamper-frontend: {reviews: t-process-tampering, inspects: [p-frontend], disposition: covered, cites: [signed-images]}
+  r-tamper-frontend: {reviews: t-process-tampering, inspects: [p-frontend], disposition: risk, raises: update-supply-chain}
   r-tamper-companion: {reviews: t-process-tampering, inspects: [p-companion], disposition: not-applicable, rationale: Distributed through the app stores, which sign and review builds}
 
 # Couldn't express
-# - Installation methods. Home Assistant OS, Container, Supervised and Core
-#   installs are really product variants with different capabilities: no
-#   Supervisor, no add-ons, no signed updates. I modelled two of them as
-#   household-run environments, but requirements like signed-images can't say
-#   "only on HAOS".
+# - Installation methods. Home Assistant OS and Container are modelled as
+#   products so signed-images can apply only to HAOS, but both share one system
+#   and one DFD, so a threat review can't be covered on HAOS and a risk on
+#   Container: the registry, version-service and frontend-tampering reviews
+#   fall back to risk for both, which leaves process tampering with no review
+#   that cites a safeguard (RISK-2 warns).
+#   Supervised and Core installs are left out.
 # - Add-ons and custom integrations. Third-party code runs inside our trust
 #   boundary. They're neither our containers nor an external system, and there are
 #   thousands of them.
