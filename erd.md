@@ -165,6 +165,18 @@ erDiagram
   PROCEDURE }o--o{ ADOPTION: implements
   %% rule: a procedure implementing an adoption operationalizes the adopted control
 
+  PROFILE
+  PROFILE ||--|{ SELECTION: has
+  PRODUCT }o--o{ PROFILE: selects
+  %% a profile is a company-level selection of controls (OSCAL profile); a product selects the profiles that apply to it
+
+  SELECTION {
+    enum choice "include | exclude"
+    string rationale "required when exclude"
+  }
+  SELECTION }o--|| CONTROL: names
+  %% rule: at most one selection per (profile, control) pair
+
   ADOPTION {
     enum mode "system | procedure | inherited | excepted | not-applicable"
     string rationale "required when not-applicable"
@@ -174,7 +186,7 @@ erDiagram
   ADOPTION }o--|| PRODUCT: governs
   ADOPTION }o--o| ADOPTION: inherits
   %% rule: at most one adoption per (product, control) pair
-  %% rule: a product has an adoption for every control in this document and its imports (coverage)
+  %% rule: a product has an adoption for every control that a profile it selects includes (coverage)
   %% rule: a system adoption is implemented by at least one requirement, a procedure adoption by at least one procedure, other modes by neither
   %% rule: when mode is inherited, inherits exactly one target; otherwise none
   %% rule: an external reference that an adoption inherits has a party

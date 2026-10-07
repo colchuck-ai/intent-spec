@@ -10,6 +10,7 @@ products:
     name: Vaultwarden
     description: Self-hosted Bitwarden-compatible server that runs on small hardware.
     targets: [keep-passwords-in-sync]
+    selects: [vaultwarden-controls]
 
 jobExecutors:
   self-hoster:
@@ -233,6 +234,15 @@ assessmentObjectives:
   ao-rate-limit: {stage: ratified, assesses: rate-limiting, verifies: [std-rate-limited-auth]}
   ao-tls: {stage: ratified, assesses: tls-termination, verifies: [std-tls-only]}
   ao-disclosure: {stage: ratified, assesses: vulnerability-disclosure, verifies: [std-private-disclosure], examines: [proc-advisory-triage]}
+
+profiles:
+  vaultwarden-controls:
+    stage: ratified
+    name: Vaultwarden control profile
+    selections:
+      sel-rate-limiting: {stage: ratified, choice: include, names: rate-limiting}
+      sel-tls-termination: {stage: ratified, choice: include, names: tls-termination}
+      sel-vulnerability-disclosure: {stage: ratified, choice: include, names: vulnerability-disclosure}
 
 adoptions:
   adopt-rate-limit: {stage: ratified, mode: system, adopts: rate-limiting, governs: vaultwarden}

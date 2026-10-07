@@ -9,11 +9,13 @@ products:
     name: Mastodon
     description: Free software anyone can run to host a social network server that federates with others.
     targets: [stay-connected, run-a-community]
+    selects: [mastodon-controls]
   mastodon-social:
     stage: ratified
     name: mastodon.social
     description: The flagship general-purpose server, operated by the Mastodon non-profit.
     targets: [stay-connected]
+    selects: [mastodon-controls]
 
 jobExecutors:
   social-user:
@@ -282,6 +284,16 @@ assessmentObjectives:
   ao-backups: {stage: ratified, assesses: backups, verifies: [std-daily-backups]}
   ao-emergency: {stage: ratified, assesses: emergency-access, verifies: [std-emergency-access], examines: [proc-emergency-access]}
   ao-shutdown: {stage: ratified, assesses: shutdown-notice, verifies: [std-shutdown-notice], examines: [proc-shutdown]}
+
+profiles:
+  mastodon-controls:
+    stage: ratified
+    name: Mastodon control profile
+    selections:
+      sel-moderation: {stage: ratified, choice: include, names: moderation}
+      sel-backups: {stage: ratified, choice: include, names: backups}
+      sel-emergency-access: {stage: ratified, choice: include, names: emergency-access}
+      sel-shutdown-notice: {stage: ratified, choice: include, names: shutdown-notice}
 
 adoptions:
   adopt-moderation-social: {stage: ratified, mode: procedure, adopts: moderation, governs: mastodon-social}

@@ -9,11 +9,13 @@ products:
     name: Plausible Cloud
     description: Hosted, paid analytics service run by the Plausible team in the EU.
     targets: [understand-traffic, report-to-clients]
+    selects: [plausible-controls]
   plausible-ce:
     stage: ratified
     name: Plausible Community Edition
     description: Free self-hosted release of the same software, run by the operator.
     targets: [understand-traffic]
+    selects: [plausible-controls]
 
 jobExecutors:
   site-owner:
@@ -249,6 +251,15 @@ assessmentObjectives:
     assesses: account-deletion
     verifies: [std-deletion-30-days]
     examines: [proc-account-deletion]
+
+profiles:
+  plausible-controls:
+    stage: ratified
+    name: Plausible control profile
+    selections:
+      sel-visitor-hashing: {stage: ratified, choice: include, names: visitor-hashing}
+      sel-eu-hosting: {stage: ratified, choice: include, names: eu-hosting}
+      sel-account-deletion: {stage: ratified, choice: include, names: account-deletion}
 
 adoptions:
   adopt-hashing-cloud: {stage: ratified, mode: system, adopts: visitor-hashing, governs: plausible-cloud}

@@ -11,11 +11,13 @@ products:
     name: OpenEMR
     description: Certified EHR and practice management software that clinics install and run.
     targets: [run-patient-care, get-paid, access-my-care]
+    selects: [openemr-controls]
   openemr-cloud:
     stage: ratified
     name: OpenEMR Cloud
     description: OpenEMR packaged for one-click deployment on AWS.
     targets: [run-patient-care, get-paid, access-my-care]
+    selects: [openemr-controls]
 
 jobExecutors:
   clinician:
@@ -298,6 +300,20 @@ assessmentObjectives:
   ao-vuln: {stage: ratified, assesses: vulnerability-management, verifies: [std-disclosure], examines: [proc-vuln-triage, proc-patch-release]}
   ao-physical: {stage: ratified, assesses: physical-security, verifies: [std-physical]}
   ao-partner: {stage: ratified, assesses: partner-validation, verifies: [std-unique-users]}
+
+profiles:
+  openemr-controls:
+    stage: ratified
+    name: OpenEMR control profile
+    selections:
+      sel-access-control: {stage: ratified, choice: include, names: access-control}
+      sel-mfa: {stage: ratified, choice: include, names: mfa}
+      sel-audit-logging: {stage: ratified, choice: include, names: audit-logging}
+      sel-transport-encryption: {stage: ratified, choice: include, names: transport-encryption}
+      sel-document-encryption-control: {stage: ratified, choice: include, names: document-encryption-control}
+      sel-vulnerability-management: {stage: ratified, choice: include, names: vulnerability-management}
+      sel-physical-security: {stage: ratified, choice: include, names: physical-security}
+      sel-partner-validation: {stage: ratified, choice: include, names: partner-validation}
 
 adoptions:
   # OpenEMR (self-installed)
