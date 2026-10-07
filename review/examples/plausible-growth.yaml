@@ -260,19 +260,27 @@ assessmentObjectives:
     stage: ratified
     assesses: visitor-hashing
     verifies: [std-no-persistent-ids]
+    methods: [examine, test]
+    evidence: Event schema and a sample of stored events showing no persistent visitor identifier, and the daily salt rotation log
   ao-eu-hosting:
     stage: ratified
     assesses: eu-hosting
     verifies: [std-eu-processing]
+    methods: [examine]
+    evidence: Hosting and subprocessor contracts showing EU data-centre locations
   ao-deletion:
     stage: ratified
     assesses: account-deletion
     verifies: [std-deletion-30-days]
     examines: [proc-account-deletion]
+    methods: [examine, test]
+    evidence: Deletion ticket log showing each request completed within 30 days and a database check that a deleted account left no data
   ao-host-hardening:
     stage: ratified
     assesses: host-hardening
     verifies: [std-host-baseline]
+    methods: [examine, test]
+    evidence: Baseline compliance scan of each host against the secure baseline
 
 profiles:
   plausible-controls:

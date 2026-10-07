@@ -318,15 +318,15 @@ procedures:
     implements: [adopt-vuln-emr]
 
 assessmentObjectives:
-  ao-access: {stage: ratified, assesses: access-control, verifies: [std-unique-users]}
-  ao-mfa: {stage: ratified, assesses: mfa, verifies: [std-mfa]}
-  ao-audit: {stage: ratified, assesses: audit-logging, verifies: [std-audit-log]}
-  ao-tls: {stage: ratified, assesses: transport-encryption, verifies: [std-tls]}
-  ao-doc-encryption: {stage: ratified, assesses: document-encryption-control, verifies: [std-encrypt-at-rest]}
-  ao-vuln: {stage: ratified, assesses: vulnerability-management, verifies: [std-disclosure], examines: [proc-vuln-triage, proc-patch-release]}
-  ao-physical: {stage: ratified, assesses: physical-security, verifies: [std-physical]}
-  ao-partner: {stage: ratified, assesses: partner-validation, verifies: [std-partner-auth]}
-  ao-host-hardening: {stage: ratified, assesses: host-hardening, verifies: [std-host-baseline]}
+  ao-access: {stage: ratified, assesses: access-control, verifies: [std-unique-users], methods: [examine, test], evidence: "User list with assigned roles and a test login attempting access outside the assigned role"}
+  ao-mfa: {stage: ratified, assesses: mfa, verifies: [std-mfa], methods: [examine, test], evidence: "MFA enrollment report for staff accounts and a test login without a second factor being refused"}
+  ao-audit: {stage: ratified, assesses: audit-logging, verifies: [std-audit-log], methods: [examine, test], evidence: "Audit log sample for ePHI actions, the weekly integrity-check output and the ONC certification test report"}
+  ao-tls: {stage: ratified, assesses: transport-encryption, verifies: [std-tls], methods: [test], evidence: "TLS scan of every ePHI endpoint showing only TLS 1.2 or later"}
+  ao-doc-encryption: {stage: ratified, assesses: document-encryption-control, verifies: [std-encrypt-at-rest], methods: [examine, test], evidence: "Encryption configuration for document storage and a raw read of a stored document showing ciphertext"}
+  ao-vuln: {stage: ratified, assesses: vulnerability-management, verifies: [std-disclosure], examines: [proc-vuln-triage, proc-patch-release], methods: [examine, interview], evidence: "Security report tracker showing triage within 7 days and the patch release notes that shipped each fix"}
+  ao-physical: {stage: ratified, assesses: physical-security, verifies: [std-physical], methods: [examine], evidence: "Hosting provider physical security attestation such as a SOC 2 report"}
+  ao-partner: {stage: ratified, assesses: partner-validation, verifies: [std-partner-auth], methods: [examine, test], evidence: "Partner credential inventory and a test connection without partner credentials being refused"}
+  ao-host-hardening: {stage: ratified, assesses: host-hardening, verifies: [std-host-baseline], methods: [examine, test], evidence: "Baseline compliance scan of each host against the secure baseline"}
 
 profiles:
   openemr-controls:

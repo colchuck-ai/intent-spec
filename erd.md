@@ -172,7 +172,10 @@ erDiagram
   GUIDELINE
   GUIDELINE }o--|{ STANDARD: augments
 
-  ASSESSMENT_OBJECTIVE
+  ASSESSMENT_OBJECTIVE {
+    enum methods "examine | interview | test; one or more"
+    string evidence "what an assessor should look for; required"
+  }
   ASSESSMENT_OBJECTIVE }o--o{ STANDARD: verifies
   ASSESSMENT_OBJECTIVE }o--|| CONTROL: assesses
   ASSESSMENT_OBJECTIVE }o--o{ PROCEDURE: examines

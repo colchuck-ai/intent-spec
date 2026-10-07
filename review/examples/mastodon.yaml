@@ -282,10 +282,10 @@ procedures:
     implements: [adopt-shutdown-social]
 
 assessmentObjectives:
-  ao-moderation: {stage: ratified, assesses: moderation, verifies: [std-active-moderation, std-notice-and-action], examines: [proc-report-triage]}
-  ao-backups: {stage: ratified, assesses: backups, verifies: [std-daily-backups]}
-  ao-emergency: {stage: ratified, assesses: emergency-access, verifies: [std-emergency-access], examines: [proc-emergency-access]}
-  ao-shutdown: {stage: ratified, assesses: shutdown-notice, verifies: [std-shutdown-notice], examines: [proc-shutdown]}
+  ao-moderation: {stage: ratified, assesses: moderation, verifies: [std-active-moderation, std-notice-and-action], examines: [proc-report-triage], methods: [examine, interview], evidence: "Report queue history showing reports actioned and moderator interviews on the triage process"}
+  ao-backups: {stage: ratified, assesses: backups, verifies: [std-daily-backups], methods: [examine, test], evidence: "Backup job log for the last 30 days and the result of a test restore"}
+  ao-emergency: {stage: ratified, assesses: emergency-access, verifies: [std-emergency-access], examines: [proc-emergency-access], methods: [examine, interview], evidence: "Emergency access log entries and the admin interview on when access was used"}
+  ao-shutdown: {stage: ratified, assesses: shutdown-notice, verifies: [std-shutdown-notice], examines: [proc-shutdown], methods: [examine], evidence: "Shutdown procedure and the user notice template with its notice period"}
 
 profiles:
   mastodon-controls:

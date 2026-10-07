@@ -243,9 +243,9 @@ procedures:
     implements: [adopt-disclosure]
 
 assessmentObjectives:
-  ao-rate-limit: {stage: ratified, assesses: rate-limiting, verifies: [std-rate-limited-auth]}
-  ao-tls: {stage: ratified, assesses: tls-termination, verifies: [std-tls-only]}
-  ao-disclosure: {stage: ratified, assesses: vulnerability-disclosure, verifies: [std-private-disclosure], examines: [proc-advisory-triage]}
+  ao-rate-limit: {stage: ratified, assesses: rate-limiting, verifies: [std-rate-limited-auth], methods: [test], evidence: "Repeated failed login attempts being throttled by the server"}
+  ao-tls: {stage: ratified, assesses: tls-termination, verifies: [std-tls-only], methods: [test], evidence: "TLS scan showing no plaintext HTTP endpoint serves vault data"}
+  ao-disclosure: {stage: ratified, assesses: vulnerability-disclosure, verifies: [std-private-disclosure], examines: [proc-advisory-triage], methods: [examine], evidence: "Private advisory history showing reports triaged before public disclosure"}
 
 profiles:
   vaultwarden-controls:
