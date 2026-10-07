@@ -204,6 +204,7 @@ influencers:
 policies:
   pol-privacy:
     stage: ratified
+    statement: We collect no personal data we do not need, keep what we hold in the EU and delete it when asked
     name: Data protection policy
     approver: Founders
     satisfies: [inf-gdpr, inf-dpa]
@@ -211,61 +212,69 @@ policies:
 controlObjectives:
   co-minimise-personal-data:
     stage: ratified
+    statement: Analytics work without collecting personal data about visitors
     supports: [pol-privacy]
     cites: [inf-gdpr]
     clauses: [GDPR Art. 5(1)(c), GDPR Art. 25]
   co-eu-residency:
     stage: ratified
+    statement: Customer and visitor data never leaves the EU
     supports: [pol-privacy]
     cites: [inf-dpa]
   co-honour-deletion:
     stage: ratified
+    statement: Customer data is erased when the customer asks or leaves
     supports: [pol-privacy]
     cites: [inf-gdpr, inf-dpa]
     clauses: [GDPR Art. 17]
   co-hardened-hosts:
     stage: ratified
+    statement: Production servers resist compromise
     supports: [pol-privacy]
 
 standards:
   std-no-persistent-ids:
     stage: ratified
-    description: No identifier that can follow a visitor across days or sites is stored or sent
+    statement: No identifier that can follow a visitor across days or sites is stored or sent
     addresses: [co-minimise-personal-data]
   std-eu-processing:
     stage: ratified
-    description: Personal data is processed and stored only in the EU, by EU-owned providers
+    statement: Personal data is processed and stored only in the EU, by EU-owned providers
     addresses: [co-eu-residency]
   std-deletion-30-days:
     stage: ratified
-    description: Customer data is deleted within 30 days of account closure
+    statement: Customer data is deleted within 30 days of account closure
     addresses: [co-honour-deletion]
   std-host-baseline:
     stage: ratified
-    description: Servers follow the secure baseline before they enter production
+    statement: Servers follow the secure baseline before they enter production
     addresses: [co-hardened-hosts]
 
 controls:
   visitor-hashing:
     stage: ratified
+    statement: Visitors are counted by a daily-rotating salted hash of IP address and user agent; the raw values are never stored
     owner: Engineering lead
     safeguard: technical
     enforces: [std-no-persistent-ids]
     achieves: [co-minimise-personal-data]
   eu-hosting:
     stage: ratified
+    statement: Only EU-owned providers with EU data centres are contracted for hosting and processing
     owner: Operations lead
     safeguard: administrative
     enforces: [std-eu-processing]
     achieves: [co-eu-residency]
   account-deletion:
     stage: ratified
+    statement: Support deletes a closed account's sites and stats within 30 days
     owner: Support lead
     safeguard: administrative
     enforces: [std-deletion-30-days]
     achieves: [co-honour-deletion]
   host-hardening:
     stage: ratified
+    statement: Servers are configured to the secure baseline before they enter production
     owner: Operations lead
     safeguard: technical
     enforces: [std-host-baseline]
@@ -274,6 +283,7 @@ controls:
 procedures:
   proc-account-deletion:
     stage: ratified
+    steps: "1. Confirm the closure request. 2. Delete the account's sites and stats. 3. Confirm to the customer that the data is gone within 30 days."
     owner: Support lead
     overseer: Founders
     operationalizes: account-deletion

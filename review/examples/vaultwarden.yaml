@@ -186,6 +186,7 @@ influencers:
 policies:
   pol-security:
     stage: ratified
+    statement: We keep users' vaults safe and fix security issues promptly
     name: Security policy (SECURITY.md)
     approver: Maintainers
     satisfies: [inf-user-trust]
@@ -193,26 +194,29 @@ policies:
 controlObjectives:
   co-prevent-unauthorised-access:
     stage: ratified
+    statement: Only the vault owner can sign in to their account
     supports: [pol-security]
   co-protect-in-transit:
     stage: ratified
+    statement: Vault traffic cannot be read or altered in transit
     supports: [pol-security]
   co-fix-vulnerabilities:
     stage: ratified
+    statement: Reported vulnerabilities are fixed before they are widely exploited
     supports: [pol-security]
 
 standards:
   std-rate-limited-auth:
     stage: ratified
-    description: Authentication endpoints are rate-limited
+    statement: Authentication endpoints are rate-limited
     addresses: [co-prevent-unauthorised-access]
   std-tls-only:
     stage: ratified
-    description: Clients reach the server only over TLS
+    statement: Clients reach the server only over TLS
     addresses: [co-protect-in-transit]
   std-private-disclosure:
     stage: ratified
-    description: Vulnerabilities can be reported privately and are acknowledged within 7 days
+    statement: Vulnerabilities can be reported privately and are acknowledged within 7 days
     addresses: [co-fix-vulnerabilities]
 
 guidelines:
@@ -224,18 +228,21 @@ guidelines:
 controls:
   rate-limiting:
     stage: ratified
+    statement: Login and admin endpoints reject requests above a configured rate
     owner: Maintainers
     safeguard: technical
     enforces: [std-rate-limited-auth]
     achieves: [co-prevent-unauthorised-access]
   tls-termination:
     stage: ratified
+    statement: The server is reachable only over TLS, terminated by a reverse proxy or by Rocket's built-in TLS
     owner: Maintainers
     safeguard: technical
     enforces: [std-tls-only]
     achieves: [co-protect-in-transit]
   vulnerability-disclosure:
     stage: ratified
+    statement: Vulnerabilities are reported privately through GitHub security advisories and acknowledged within 7 days
     owner: Maintainers
     safeguard: administrative
     enforces: [std-private-disclosure]
@@ -244,6 +251,7 @@ controls:
 procedures:
   proc-advisory-triage:
     stage: ratified
+    steps: "1. Acknowledge the advisory within 7 days. 2. Reproduce and fix it privately. 3. Release the fix and publish the advisory."
     owner: Maintainers
     overseer: Maintainers
     operationalizes: vulnerability-disclosure

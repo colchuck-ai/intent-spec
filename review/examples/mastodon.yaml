@@ -205,11 +205,13 @@ influencers:
 policies:
   pol-moderation:
     stage: ratified
+    statement: We moderate actively and act on every report, as the Server Covenant and the DSA require
     name: Content moderation policy
     approver: Managing director
     satisfies: [inf-covenant, inf-dsa]
   pol-operations:
     stage: ratified
+    statement: We run the server reliably and never leave users without notice or a way to leave
     name: Server operations policy
     approver: Managing director
     satisfies: [inf-covenant]
@@ -217,33 +219,35 @@ policies:
 controlObjectives:
   co-act-on-reports:
     stage: ratified
+    statement: Harmful content is removed and every report gets a reasoned decision
     supports: [pol-moderation]
     cites: [inf-dsa, inf-covenant]
   co-continuity:
     stage: ratified
+    statement: The server survives the loss of its data or of any one person, and users can leave before it closes
     supports: [pol-operations]
     cites: [inf-covenant]
 
 standards:
   std-active-moderation:
     stage: ratified
-    description: Active moderation against racism, sexism, homophobia and transphobia
+    statement: Active moderation against racism, sexism, homophobia and transphobia
     addresses: [co-act-on-reports]
   std-notice-and-action:
     stage: ratified
-    description: Every report gets a decision and a statement of reasons to the affected user
+    statement: Every report gets a decision and a statement of reasons to the affected user
     addresses: [co-act-on-reports]
   std-daily-backups:
     stage: ratified
-    description: Daily backups
+    statement: Daily backups
     addresses: [co-continuity]
   std-emergency-access:
     stage: ratified
-    description: At least one other person has emergency access to the server
+    statement: At least one other person has emergency access to the server
     addresses: [co-continuity]
   std-shutdown-notice:
     stage: ratified
-    description: At least three months' notice before shutting down
+    statement: At least three months' notice before shutting down
     addresses: [co-continuity]
 
 guidelines:
@@ -255,24 +259,28 @@ guidelines:
 controls:
   moderation:
     stage: ratified
+    statement: Moderators review reports and act on content that breaks the server rules
     owner: Head of trust and safety
     safeguard: administrative
     enforces: [std-active-moderation, std-notice-and-action]
     achieves: [co-act-on-reports]
   backups:
     stage: ratified
+    statement: The database and media are backed up daily to separate storage
     owner: Infrastructure lead
     safeguard: technical
     enforces: [std-daily-backups]
     achieves: [co-continuity]
   emergency-access:
     stage: ratified
+    statement: A second named person holds credentials to the server
     owner: Managing director
     safeguard: administrative
     enforces: [std-emergency-access]
     achieves: [co-continuity]
   shutdown-notice:
     stage: ratified
+    statement: Any shutdown is announced to users at least three months ahead
     owner: Managing director
     safeguard: administrative
     enforces: [std-shutdown-notice]
@@ -281,18 +289,21 @@ controls:
 procedures:
   proc-report-triage:
     stage: ratified
+    steps: "1. Open the report queue. 2. Check the reported content against the server rules. 3. Decide and act. 4. Send the affected user a statement of reasons."
     owner: Moderation team lead
     overseer: Head of trust and safety
     operationalizes: moderation
     implements: [adopt-moderation-social]
   proc-emergency-access:
     stage: ratified
+    steps: "1. Keep server credentials in a shared vault. 2. Review who holds them every quarter."
     owner: Infrastructure lead
     overseer: Managing director
     operationalizes: emergency-access
     implements: [adopt-emergency-social]
   proc-shutdown:
     stage: ratified
+    steps: "1. Announce the shutdown date. 2. Remind users to export and migrate their accounts. 3. Shut down no sooner than three months after the announcement."
     owner: Managing director
     overseer: Board
     operationalizes: shutdown-notice

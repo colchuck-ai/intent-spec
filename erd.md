@@ -174,12 +174,14 @@ erDiagram
   %% derived GRC-27: an influencer applies to the products it scopes, or to every product in the document when it scopes none
 
   POLICY {
+    string statement "management intent; required"
     string approver "executive leadership; required"
   }
   POLICY }o--o{ INFLUENCER: satisfies
   %% rule GRC-2 (should): every policy satisfies at least one influencer
 
   CONTROL_OBJECTIVE {
+    string statement "the desired result; required"
     string clauses "sections or clauses of the cited influencers' sources it answers, e.g. 45 CFR 164.312(b); zero or more"
   }
   CONTROL_OBJECTIVE }o--|{ POLICY: supports
@@ -187,7 +189,9 @@ erDiagram
   %% rule GRC-29: a control objective has clauses only when it cites at least one influencer
   %% rule GRC-22 (should): every control objective is achieved by at least one control
 
-  STANDARD
+  STANDARD {
+    string statement "the mandatory, measurable requirement; required"
+  }
   STANDARD }o--|{ CONTROL_OBJECTIVE: addresses
   %% rule GRC-23 (should): every standard is enforced by at least one control
 
@@ -206,6 +210,7 @@ erDiagram
   %% rule GRC-5 (should): every control is assessed by at least one assessment objective
 
   CONTROL {
+    string statement "the safeguard; required"
     string owner "stakeholder; required"
     enum safeguard "technical | administrative | physical"
   }
@@ -215,6 +220,7 @@ erDiagram
   %% derived GRC-6: a control's influencers are those its control objectives cite, or that the policies they support satisfy
 
   PROCEDURE {
+    string steps "what is done, in order; required"
     string owner "process owner / asset custodian; required"
     string overseer "stakeholder oversight; required"
   }

@@ -276,43 +276,45 @@ influencers:
 policies:
   pol-security:
     stage: ratified
+    statement: We protect the confidentiality, integrity and availability of patient health information
     name: Information security policy
     approver: OpenEMR Foundation board
     satisfies: [inf-onc, inf-hipaa]
 
 controlObjectives:
-  co-access-control: {stage: ratified, supports: [pol-security], cites: [inf-hipaa, inf-onc], clauses: [45 CFR 164.312(a)(1), 45 CFR 164.312(d), 45 CFR 170.315(d)(1)]}
-  co-audit: {stage: ratified, supports: [pol-security], cites: [inf-hipaa, inf-onc], clauses: [45 CFR 164.312(b), 45 CFR 170.315(d)(2)]}
-  co-transmission: {stage: ratified, supports: [pol-security], cites: [inf-hipaa], clauses: [45 CFR 164.312(e)(1)]}
-  co-data-at-rest: {stage: ratified, supports: [pol-security], cites: [inf-onc], clauses: [45 CFR 170.315(d)(7)]}
-  co-vulnerabilities: {stage: ratified, supports: [pol-security]}
-  co-physical: {stage: ratified, supports: [pol-security], cites: [inf-hipaa], clauses: [45 CFR 164.310]}
+  co-access-control: {stage: ratified, statement: "Only authenticated, authorised users reach ePHI", supports: [pol-security], cites: [inf-hipaa, inf-onc], clauses: [45 CFR 164.312(a)(1), 45 CFR 164.312(d), 45 CFR 170.315(d)(1)]}
+  co-audit: {stage: ratified, statement: "Every action on ePHI can be traced to a user", supports: [pol-security], cites: [inf-hipaa, inf-onc], clauses: [45 CFR 164.312(b), 45 CFR 170.315(d)(2)]}
+  co-transmission: {stage: ratified, statement: "ePHI cannot be read or altered in transit", supports: [pol-security], cites: [inf-hipaa], clauses: [45 CFR 164.312(e)(1)]}
+  co-data-at-rest: {stage: ratified, statement: "Stored patient documents cannot be read without the key", supports: [pol-security], cites: [inf-onc], clauses: [45 CFR 170.315(d)(7)]}
+  co-vulnerabilities: {stage: ratified, statement: "Known vulnerabilities are fixed before they are exploited", supports: [pol-security]}
+  co-physical: {stage: ratified, statement: "Only authorised people can physically reach systems holding ePHI", supports: [pol-security], cites: [inf-hipaa], clauses: [45 CFR 164.310]}
 
 standards:
-  std-unique-users: {stage: ratified, description: Every user has a unique login and least-privilege role, addresses: [co-access-control]}
-  std-mfa: {stage: ratified, description: Staff accounts use multi-factor authentication, addresses: [co-access-control]}
-  std-audit-log: {stage: ratified, description: Actions on ePHI are logged and the log is tamper-evident, addresses: [co-audit]}
-  std-tls: {stage: ratified, description: ePHI is encrypted in transit with TLS 1.2 or later, addresses: [co-transmission]}
-  std-encrypt-at-rest: {stage: ratified, description: Stored patient documents are encrypted, addresses: [co-data-at-rest]}
-  std-disclosure: {stage: ratified, description: Security reports are triaged within 7 days and fixed in a patch release, addresses: [co-vulnerabilities]}
-  std-physical: {stage: ratified, description: Servers are in physically secured facilities, addresses: [co-physical]}
-  std-host-baseline: {stage: ratified, description: Hosts are hardened to the secure baseline, addresses: [co-access-control]}
-  std-partner-auth: {stage: ratified, description: Partner systems authenticate with their own credentials over TLS, addresses: [co-access-control]}
+  std-unique-users: {stage: ratified, statement: Every user has a unique login and least-privilege role, addresses: [co-access-control]}
+  std-mfa: {stage: ratified, statement: Staff accounts use multi-factor authentication, addresses: [co-access-control]}
+  std-audit-log: {stage: ratified, statement: Actions on ePHI are logged and the log is tamper-evident, addresses: [co-audit]}
+  std-tls: {stage: ratified, statement: ePHI is encrypted in transit with TLS 1.2 or later, addresses: [co-transmission]}
+  std-encrypt-at-rest: {stage: ratified, statement: Stored patient documents are encrypted, addresses: [co-data-at-rest]}
+  std-disclosure: {stage: ratified, statement: Security reports are triaged within 7 days and fixed in a patch release, addresses: [co-vulnerabilities]}
+  std-physical: {stage: ratified, statement: Servers are in physically secured facilities, addresses: [co-physical]}
+  std-host-baseline: {stage: ratified, statement: Hosts are hardened to the secure baseline, addresses: [co-access-control]}
+  std-partner-auth: {stage: ratified, statement: Partner systems authenticate with their own credentials over TLS, addresses: [co-access-control]}
 
 guidelines:
   gl-acl-setup: {stage: ratified, description: Wiki guidance on setting up ACL roles for a clinic, augments: [std-unique-users]}
 
 controls:
-  access-control: {stage: ratified, owner: Security lead, safeguard: technical, enforces: [std-unique-users], achieves: [co-access-control]}
-  mfa: {stage: ratified, owner: Security lead, safeguard: technical, enforces: [std-mfa], achieves: [co-access-control]}
-  audit-logging: {stage: ratified, owner: Security lead, safeguard: technical, enforces: [std-audit-log], achieves: [co-audit]}
-  transport-encryption: {stage: ratified, owner: Infrastructure lead, safeguard: technical, enforces: [std-tls], achieves: [co-transmission], executes: [reduce-tls-cloud]}
-  document-encryption-control: {stage: ratified, owner: Security lead, safeguard: technical, enforces: [std-encrypt-at-rest], achieves: [co-data-at-rest]}
-  vulnerability-management: {stage: ratified, owner: Security lead, safeguard: administrative, enforces: [std-disclosure], achieves: [co-vulnerabilities]}
-  physical-security: {stage: ratified, owner: Infrastructure lead, safeguard: physical, enforces: [std-physical], achieves: [co-physical]}
-  host-hardening: {stage: ratified, owner: Infrastructure lead, safeguard: technical, enforces: [std-host-baseline], achieves: [co-access-control]}
+  access-control: {stage: ratified, statement: "Each user logs in with a unique account and gets only the ACL role their job needs", owner: Security lead, safeguard: technical, enforces: [std-unique-users], achieves: [co-access-control]}
+  mfa: {stage: ratified, statement: "Staff accounts require a second factor (TOTP or U2F) at login", owner: Security lead, safeguard: technical, enforces: [std-mfa], achieves: [co-access-control]}
+  audit-logging: {stage: ratified, statement: "The audit log records every access to and change of ePHI, with checksums that reveal tampering", owner: Security lead, safeguard: technical, enforces: [std-audit-log], achieves: [co-audit]}
+  transport-encryption: {stage: ratified, statement: "Every connection carrying ePHI uses TLS 1.2 or later", owner: Infrastructure lead, safeguard: technical, enforces: [std-tls], achieves: [co-transmission], executes: [reduce-tls-cloud]}
+  document-encryption-control: {stage: ratified, statement: "Patient documents are encrypted on disk with a site key", owner: Security lead, safeguard: technical, enforces: [std-encrypt-at-rest], achieves: [co-data-at-rest]}
+  vulnerability-management: {stage: ratified, statement: "Security reports are triaged and fixed through patch releases", owner: Security lead, safeguard: administrative, enforces: [std-disclosure], achieves: [co-vulnerabilities]}
+  physical-security: {stage: ratified, statement: "Hosting facilities restrict and log physical access", owner: Infrastructure lead, safeguard: physical, enforces: [std-physical], achieves: [co-physical]}
+  host-hardening: {stage: ratified, statement: "Hosts are configured to the secure baseline before use", owner: Infrastructure lead, safeguard: technical, enforces: [std-host-baseline], achieves: [co-access-control]}
   partner-validation:
     stage: ratified
+    statement: Partner systems authenticate with their own credentials over TLS, and their requests are validated
     owner: Security lead
     safeguard: technical
     enforces: [std-partner-auth]
@@ -322,12 +324,14 @@ controls:
 procedures:
   proc-vuln-triage:
     stage: ratified
+    steps: "1. Acknowledge the report. 2. Reproduce it and rate its severity. 3. Assign a fix within 7 days."
     owner: Security lead
     overseer: Project lead
     operationalizes: vulnerability-management
     implements: [adopt-vuln-emr]
   proc-patch-release:
     stage: ratified
+    steps: "1. Backport the fix to supported releases. 2. Publish a patch release. 3. Announce it to users."
     owner: Release manager
     overseer: Project lead
     operationalizes: vulnerability-management
