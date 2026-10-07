@@ -56,14 +56,21 @@ You are given one review step. Its description names your persona and examples.
      - create, change or delete an invariant in `../README.md`,
      - contradict an invariant, or
      - change the review process (personas, prompt, formula, this file).
-4. When no untriaged findings remain, close the step. Reply with counts for each decision.
+4. **Plan the fixes.** Compare the open accepted findings for overlap: the same entity, link, rule or example section.
+   - **One fix builds on another:** run `bd dep add <later> <earlier>`, then comment on the later finding with "after <earlier>: <why>". Put structural changes (renames, flattening, removed or moved entities, edits across every example) before additive ones.
+   - **Same area, no order:** run `bd dep add <a> <b> --type related`.
+   - **Same change:** treat them as duplicates (step 3).
+   - Don't create cycles. Two findings that conflict need one decision, so record it, or open a human gate if an invariant is involved.
+
+   Planning must be safe to rerun, so skip dependencies that already exist.
+5. When no untriaged findings remain and the plan is done, close the step. Reply with counts for each decision and the number of dependencies added.
 
 ## Fix
 
 You are given one accepted finding.
 
 1. Claim it. Check `git log --grep <id>`: if a commit already exists, close the finding with the reason "fixed in <sha>" and stop.
-2. Read the finding, its comments and any resolved gate. A human's decision is recorded as a comment on the finding, and it overrides the proposal.
+2. Read the finding, its comments, any resolved gate, and every finding it depends on or is related to (`bd dep list <id>` and `bd dep list <id> --direction=up`), including the commits that fixed them. A human's decision is recorded as a comment on the finding, and it overrides the proposal. Build on earlier fixes and never undo them. If this finding has become obsolete, close it with a reason instead of committing.
 3. Make the smallest change that resolves the finding across `../erd.md`, `examples/` and, only when a gate approved it, `../README.md`. Keep the examples consistent with the ERD.
 4. If the change turns out to touch an invariant or the review process, create a human gate on the finding as Triage step 3 describes and reply "escalated". Leave any edits you've already made uncommitted; the orchestrator will see the dirty tree and bring in the human.
 5. Commit on main with the message `<id>: <summary>`, then close the finding with the reason "fixed in <sha>". Reply with "fixed" or "escalated".
