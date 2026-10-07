@@ -115,7 +115,7 @@ erDiagram
   REQUIREMENT }o--o{ TREATMENT: executes
   REQUIREMENT }o--o{ ADOPTION: implements
   REQUIREMENT }o--o{ PRODUCT: scopes
-  %% derived PRODUCT-8: a requirement applies to the products it scopes, or to every product that targets the job of an outcome it serves when it scopes none
+  %% derived PRODUCT-8: a requirement applies to the products it scopes; when it scopes none, it applies to every product that targets the job of an outcome it serves, every product governed by an adoption it implements, and every product a treatment it executes applies to [RISK-17]
   %% rule PRODUCT-6: every requirement serves an outcome, executes a treatment, implements an adoption or is cited by a threat review
 
   %% Measurement (shared by product and governance)
@@ -162,7 +162,7 @@ erDiagram
   %% rule RISK-7: cites at least one control or requirement when disposition is covered; otherwise none
   %% derived RISK-8: a DFD's products are those realized by the system it depicts, or by the system containing the container it depicts
   %% derived RISK-9: a review's products are the products [RISK-8] of every DFD that includes, or shows [DFD-20], an element it inspects
-  %% rule RISK-10: when disposition is covered, for every product of the review [RISK-9], at least one cited control is adopted in mode system, procedure or inherited by that product, or at least one cited requirement is satisfied by a system that realizes that product, or by a container or component in one
+  %% rule RISK-10: when disposition is covered, for every product of the review [RISK-9], at least one cited control is adopted in mode system, procedure or inherited by that product, or at least one cited requirement applies to that product [PRODUCT-8] and is satisfied by a system that realizes that product, or by a container or component in one
   %% derived RISK-11: a threat poses every risk raised by a review of it
 
   RISK
@@ -288,7 +288,7 @@ erDiagram
   %% rule GRC-7: an adoption follows only procedures that operationalize the adopted control
   %% rule GRC-9: at most one adoption per (product, control) pair
   %% rule GRC-10: a product has an adoption for every control that a profile it selects includes [GRC-31] (coverage)
-  %% rule GRC-11: a system adoption is implemented by at least one requirement, a procedure adoption follows at least one procedure, and other modes do neither
+  %% rule GRC-11: a system adoption is implemented by at least one requirement, every requirement implementing an adoption applies to the adoption's product [PRODUCT-8], a procedure adoption follows at least one procedure, and other modes do neither
   %% rule GRC-12: when mode is inherited, inherits exactly one target; otherwise none
   %% rule GRC-13: an external reference that an adoption inherits has a party
   %% inherited means the control is provided upstream, by a party the product relies on, e.g. a cloud provider; it is coverage
