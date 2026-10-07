@@ -368,7 +368,7 @@ trustBoundaries:
     label: Home Assistant host
     crossing: Authenticated WebSocket and REST on port 8123; Supervisor API only from Core and add-ons
     encloses: [p-core, p-supervisor, ds-recorder, ds-config]
-    relies: [core, supervisor]
+    relies: [ha-device, docker-host, core, supervisor]
 
 dataFlowDiagrams:
   dfd-ha:
