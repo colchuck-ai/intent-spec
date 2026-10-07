@@ -37,7 +37,7 @@ erDiagram
   %% An item id, the document id and an import alias match ^[a-z0-9]+(-[a-z0-9]+)*$, so a pointer needs no ~0 or ~1 escaping.
   %% A reference is an id or alias:id; the colon tells them apart because no id contains one.
   %% A link is a field on its source item named after its verb, containment included (in). A to-one link (|| or o| at the target) holds one reference; a to-many link (|{ or o{) holds a list.
-  %% An attribute marked "one or more" or "zero or more" is a list; any other attribute holds one value of its type.
+  %% An attribute whose type ends in [] is a list of values of that type; its description says "one or more" (minItems 1) or "zero or more". Any other attribute holds one value of its type.
 
   %% References
   %% Every link below is a reference. Its target is a local item id or an imported alias:id.
@@ -133,7 +133,7 @@ erDiagram
 
   THREAT {
     enum category "spoofing | tampering | repudiation | information-disclosure | denial-of-service | elevation-of-privilege | other; required"
-    enum appliesTo "external-entity | process | data-store | data-flow; zero or more; empty means not reviewed per DFD element"
+    enum[] appliesTo "external-entity | process | data-store | data-flow; zero or more; empty means not reviewed per DFD element"
     string rationale "required when appliesTo is outside the STRIDE-per-element set"
   }
   THREAT }o--o{ CONTROL: threatens
@@ -186,7 +186,7 @@ erDiagram
   %% GRC (HCGF)
 
   INFLUENCER {
-    enum kinds "statutory | regulatory | contractual | internal; one or more"
+    enum[] kinds "statutory | regulatory | contractual | internal; one or more"
     string scopeRationale "why it applies; required"
   }
   INFLUENCER }o--o| EXTERNAL_REFERENCE: cites
@@ -208,7 +208,7 @@ erDiagram
 
   CONTROL_OBJECTIVE {
     string statement "the desired result; required"
-    string clauses "sections or clauses of the cited influencers' sources it answers, e.g. 45 CFR 164.312(b); zero or more"
+    string[] clauses "sections or clauses of the cited influencers' sources it answers, e.g. 45 CFR 164.312(b); zero or more"
   }
   CONTROL_OBJECTIVE }o--|{ POLICY: supports
   CONTROL_OBJECTIVE }o--o{ INFLUENCER: cites
@@ -226,7 +226,7 @@ erDiagram
   GUIDELINE }o--|{ STANDARD: augments
 
   ASSESSMENT_OBJECTIVE {
-    enum methods "examine | interview | test; one or more"
+    enum[] methods "examine | interview | test; one or more"
     string evidence "what an assessor should look for; required"
   }
   ASSESSMENT_OBJECTIVE }o--o{ STANDARD: verifies
@@ -379,12 +379,13 @@ erDiagram
   %% the system or container a dynamic diagram depicts sets its C4 level; with neither it is a landscape-level diagram
 
   DYNAMIC_STEP {
-    int order "unique within the diagram; required"
+    int order "position of the step in its diagram; required"
     string description "optional; overrides the relationship's description"
     enum direction "request | response; optional, default request; a response runs from the relationship's destination back to its source"
   }
   DYNAMIC_STEP }|--|| DYNAMIC_DIAGRAM: in
   DYNAMIC_STEP }o--|| RELATIONSHIP: follows
+  %% rule C4-26: step order is unique among the steps in one dynamic diagram
   %% rule C4-19: a step is drawn between its relationship's ends lifted to the diagram's level [C4-12]: a component stays when the diagram depicts its container and otherwise lifts to its container; a container stays when the diagram depicts its system or any container and otherwise lifts to its system; the two drawn ends differ
 
   DEPLOYMENT_DIAGRAM {
