@@ -229,13 +229,14 @@ erDiagram
   ADOPTION {
     enum mode "system | procedure | inherited | delegated | excepted | not-applicable"
     string rationale "required when delegated or not-applicable"
-    string decidedBy "required when not-applicable"
+    string decidedBy "who made the governance decision; required when inherited, excepted or not-applicable"
     string delegatedTo "the downstream party that must implement the control, e.g. the deploying customer; required when delegated, otherwise none"
   }
   ADOPTION }o--|| CONTROL: adopts
   ADOPTION }o--|| PRODUCT: governs
   ADOPTION }o--o| ADOPTION: inherits
   ADOPTION }o--o| EXTERNAL_REFERENCE: inherits
+  ADOPTION }o--o| TREATMENT: invokes
   %% rule GRC-9: at most one adoption per (product, control) pair
   %% rule GRC-10: a product has an adoption for every control that a profile it selects includes (coverage)
   %% rule GRC-11: a system adoption is implemented by at least one requirement, a procedure adoption by at least one procedure, other modes by neither
@@ -245,7 +246,7 @@ erDiagram
   %% rule GRC-15: an inheritance chain ends at a system or procedure adoption or an external reference (no cycles)
   %% guidance: not-applicable means the control's influencers [GRC-6] do not apply to the product
   %% delegated means the control applies but whoever runs or deploys the product must implement it; it is not coverage
-  %% rule GRC-16: an excepted adoption's product is scoped by an accept treatment that waives every standard the adopted control enforces
+  %% rule GRC-16: when mode is excepted, invokes exactly one treatment, which is an accept treatment that scopes the adoption's product and waives every standard the adopted control enforces; otherwise none
 
   SECURE_BASELINE
   SECURE_BASELINE }o--|{ STANDARD: encodes

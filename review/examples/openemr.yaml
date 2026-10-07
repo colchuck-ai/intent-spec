@@ -372,14 +372,14 @@ adoptions:
   adopt-partner-emr: {stage: ratified, mode: system, adopts: partner-validation, governs: openemr}
   adopt-host-emr: {stage: ratified, mode: delegated, adopts: host-hardening, governs: openemr, delegatedTo: Deploying practice, rationale: The practice builds and patches its own server}
   # OpenEMR Cloud
-  adopt-rbac-cloud: {stage: ratified, mode: inherited, adopts: access-control, governs: openemr-cloud, inherits: adopt-rbac-emr}
-  adopt-mfa-cloud: {stage: ratified, mode: excepted, adopts: mfa, governs: openemr-cloud}
-  adopt-audit-cloud: {stage: ratified, mode: inherited, adopts: audit-logging, governs: openemr-cloud, inherits: adopt-audit-emr}
+  adopt-rbac-cloud: {stage: ratified, mode: inherited, adopts: access-control, governs: openemr-cloud, inherits: adopt-rbac-emr, decidedBy: Security lead}
+  adopt-mfa-cloud: {stage: ratified, mode: excepted, adopts: mfa, governs: openemr-cloud, decidedBy: Project lead, invokes: accept-cloud-mfa-gap}
+  adopt-audit-cloud: {stage: ratified, mode: inherited, adopts: audit-logging, governs: openemr-cloud, inherits: adopt-audit-emr, decidedBy: Security lead}
   adopt-tls-cloud: {stage: ratified, mode: system, adopts: transport-encryption, governs: openemr-cloud}
-  adopt-doc-encryption-cloud: {stage: ratified, mode: inherited, adopts: document-encryption-control, governs: openemr-cloud, inherits: adopt-doc-encryption-emr}
-  adopt-vuln-cloud: {stage: ratified, mode: inherited, adopts: vulnerability-management, governs: openemr-cloud, inherits: adopt-vuln-emr}
-  adopt-physical-cloud: {stage: ratified, mode: inherited, adopts: physical-security, governs: openemr-cloud, inherits: aws-physical}
-  adopt-partner-cloud: {stage: ratified, mode: inherited, adopts: partner-validation, governs: openemr-cloud, inherits: adopt-partner-emr}
+  adopt-doc-encryption-cloud: {stage: ratified, mode: inherited, adopts: document-encryption-control, governs: openemr-cloud, inherits: adopt-doc-encryption-emr, decidedBy: Security lead}
+  adopt-vuln-cloud: {stage: ratified, mode: inherited, adopts: vulnerability-management, governs: openemr-cloud, inherits: adopt-vuln-emr, decidedBy: Security lead}
+  adopt-physical-cloud: {stage: ratified, mode: inherited, adopts: physical-security, governs: openemr-cloud, inherits: aws-physical, decidedBy: Infrastructure lead}
+  adopt-partner-cloud: {stage: ratified, mode: inherited, adopts: partner-validation, governs: openemr-cloud, inherits: adopt-partner-emr, decidedBy: Security lead}
   adopt-host-cloud: {stage: ratified, mode: system, adopts: host-hardening, governs: openemr-cloud}
 
 secureBaselines:

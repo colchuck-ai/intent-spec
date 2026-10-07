@@ -308,11 +308,11 @@ adoptions:
   adopt-hashing-cloud: {stage: ratified, mode: system, adopts: visitor-hashing, governs: plausible-cloud}
   adopt-hashing-ce: {stage: ratified, mode: system, adopts: visitor-hashing, governs: plausible-ce}
   adopt-eu-hosting-cloud: {stage: ratified, mode: system, adopts: eu-hosting, governs: plausible-cloud}
-  adopt-eu-hosting-ce: {stage: ratified, mode: inherited, adopts: eu-hosting, governs: plausible-ce, inherits: self-host-operator}
+  adopt-eu-hosting-ce: {stage: ratified, mode: inherited, adopts: eu-hosting, governs: plausible-ce, inherits: self-host-operator, decidedBy: Operations lead}
   adopt-deletion-cloud: {stage: ratified, mode: procedure, adopts: account-deletion, governs: plausible-cloud}
-  adopt-deletion-ce: {stage: ratified, mode: inherited, adopts: account-deletion, governs: plausible-ce, inherits: self-host-operator}
+  adopt-deletion-ce: {stage: ratified, mode: inherited, adopts: account-deletion, governs: plausible-ce, inherits: self-host-operator, decidedBy: Operations lead}
   adopt-host-cloud: {stage: ratified, mode: system, adopts: host-hardening, governs: plausible-cloud}
-  adopt-host-ce: {stage: ratified, mode: inherited, adopts: host-hardening, governs: plausible-ce, inherits: self-host-operator}
+  adopt-host-ce: {stage: ratified, mode: inherited, adopts: host-hardening, governs: plausible-ce, inherits: self-host-operator, decidedBy: Operations lead}
 
 secureBaselines:
   host-baseline:
