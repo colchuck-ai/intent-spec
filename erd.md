@@ -2,8 +2,9 @@
 erDiagram
 
   %% References
-  %% Every link below is a reference. Its target is a local item id, an imported alias:id,
-  %% or the id of an external reference for things outside intent-spec.
+  %% Every link below is a reference. Its target is a local item id or an imported alias:id.
+  %% Only a link drawn to EXTERNAL_REFERENCE may instead target the id of an external reference
+  %% for things outside intent-spec: adoption inherits, influencer cites, secure baseline derives.
 
   EXTERNAL_REFERENCE {
     string title "free text; required"
@@ -12,7 +13,8 @@ erDiagram
     string version "edition or date; optional"
   }
   %% Every item has a document-unique id and a stage: proposed | ratified | deprecated; a deprecated item names its replacement.
-  %% rule: an external reference satisfies a link's cardinality; rules that inspect the target skip it
+  %% rule: a link not drawn to EXTERNAL_REFERENCE resolves to a local or imported item; an external reference there is a type error
+  %% rule: where allowed, an external reference satisfies a link's cardinality; rules that inspect the target skip it
   %% rule: a ratified item does not link to a proposed item
   %% rule (should): a ratified item does not link to a deprecated item, except a review of a deprecated target
   %% rule: coverage rules apply only to items declared in this document; an imported or external system is treated as external
@@ -185,6 +187,7 @@ erDiagram
   ADOPTION }o--|| CONTROL: adopts
   ADOPTION }o--|| PRODUCT: governs
   ADOPTION }o--o| ADOPTION: inherits
+  ADOPTION }o--o| EXTERNAL_REFERENCE: inherits
   %% rule: at most one adoption per (product, control) pair
   %% rule: a product has an adoption for every control that a profile it selects includes (coverage)
   %% rule: a system adoption is implemented by at least one requirement, a procedure adoption by at least one procedure, other modes by neither
