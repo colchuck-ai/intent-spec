@@ -17,6 +17,7 @@ products:
     description: The flagship general-purpose server, operated by the Mastodon non-profit.
     targets: [stay-connected]
     selects: [mastodon-controls]
+    answers: [inf-covenant, inf-dsa]
 
 jobExecutors:
   social-user:
@@ -160,12 +161,10 @@ influencers:
     kinds: [contractual]
     scopeRationale: Servers listed on joinmastodon.org must commit to the covenant, and mastodon.social is listed
     cites: server-covenant
-    scopes: [mastodon-social]
   inf-dsa:
     kinds: [regulatory]
     scopeRationale: mastodon.social is an online platform offered to users in the EU
     cites: dsa
-    scopes: [mastodon-social]
 
 policies:
   pol-moderation:
@@ -243,19 +242,16 @@ procedures:
     owner: Moderation team lead
     overseer: Head of trust and safety
     operationalizes: moderation
-    implements: [adopt-moderation-social]
   proc-emergency-access:
     steps: "1. Keep server credentials in a shared vault. 2. Review who holds them every quarter."
     owner: Infrastructure lead
     overseer: Managing director
     operationalizes: emergency-access
-    implements: [adopt-emergency-social]
   proc-shutdown:
     steps: "1. Announce the shutdown date. 2. Remind users to export and migrate their accounts. 3. Shut down no sooner than three months after the announcement."
     owner: Managing director
     overseer: Board
     operationalizes: shutdown-notice
-    implements: [adopt-shutdown-social]
 
 assessmentObjectives:
   ao-moderation: {assesses: moderation, verifies: [std-active-moderation, std-notice-and-action], examines: [proc-report-triage], methods: [examine, interview], evidence: "Report queue history showing reports actioned and moderator interviews on the triage process"}
@@ -274,10 +270,10 @@ selections:
   sel-shutdown-notice: {in: mastodon-controls, choice: include, names: shutdown-notice}
 
 adoptions:
-  adopt-moderation-social: {mode: procedure, adopts: moderation, governs: mastodon-social, owner: Moderation team lead}
+  adopt-moderation-social: {mode: procedure, adopts: moderation, governs: mastodon-social, follows: [proc-report-triage], owner: Moderation team lead}
   adopt-backups-social: {mode: system, adopts: backups, governs: mastodon-social, owner: Infrastructure lead}
-  adopt-emergency-social: {mode: procedure, adopts: emergency-access, governs: mastodon-social, owner: Infrastructure lead}
-  adopt-shutdown-social: {mode: procedure, adopts: shutdown-notice, governs: mastodon-social, owner: Managing director}
+  adopt-emergency-social: {mode: procedure, adopts: emergency-access, governs: mastodon-social, follows: [proc-emergency-access], owner: Infrastructure lead}
+  adopt-shutdown-social: {mode: procedure, adopts: shutdown-notice, governs: mastodon-social, follows: [proc-shutdown], owner: Managing director}
   adopt-moderation-sw: {mode: system, adopts: moderation, governs: mastodon, owner: Mastodon gGmbH engineering}
   adopt-backups-sw: {mode: delegated, adopts: backups, governs: mastodon, delegatedTo: Server operator, rationale: The covenant binds server operators; the software ships no backup tooling of its own}
   adopt-emergency-sw: {mode: delegated, adopts: emergency-access, governs: mastodon, delegatedTo: Server operator, rationale: The covenant binds server operators}

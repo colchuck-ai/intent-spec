@@ -277,13 +277,11 @@ procedures:
     owner: Security lead
     overseer: Project lead
     operationalizes: vulnerability-management
-    implements: [adopt-vuln-emr]
   proc-patch-release:
     steps: "1. Backport the fix to supported releases. 2. Publish a patch release. 3. Announce it to users."
     owner: Release manager
     overseer: Project lead
     operationalizes: vulnerability-management
-    implements: [adopt-vuln-emr]
 
 assessmentObjectives:
   ao-access: {assesses: access-control, verifies: [std-unique-users], methods: [examine, test], evidence: "User list with assigned roles and a test login attempting access outside the assigned role"}
@@ -318,7 +316,7 @@ adoptions:
   adopt-audit-emr: {mode: system, adopts: audit-logging, governs: openemr, owner: Security lead}
   adopt-tls-emr: {mode: delegated, adopts: transport-encryption, governs: openemr, delegatedTo: Deploying practice, rationale: The practice terminates TLS on its own server or proxy}
   adopt-doc-encryption-emr: {mode: system, adopts: document-encryption-control, governs: openemr, owner: Security lead}
-  adopt-vuln-emr: {mode: procedure, adopts: vulnerability-management, governs: openemr, owner: Security lead}
+  adopt-vuln-emr: {mode: procedure, adopts: vulnerability-management, governs: openemr, follows: [proc-vuln-triage, proc-patch-release], owner: Security lead}
   adopt-physical-emr: {mode: delegated, adopts: physical-security, governs: openemr, delegatedTo: Deploying practice, rationale: The practice hosts the server on its own premises or provider}
   adopt-partner-emr: {mode: system, adopts: partner-validation, governs: openemr, owner: Security lead}
   adopt-host-emr: {mode: delegated, adopts: host-hardening, governs: openemr, delegatedTo: Deploying practice, rationale: The practice builds and patches its own server}

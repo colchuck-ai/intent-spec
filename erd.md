@@ -172,11 +172,11 @@ erDiagram
   }
   INFLUENCER }o--o| EXTERNAL_REFERENCE: cites
   INFLUENCER }o--o{ SYSTEM: binds
-  INFLUENCER }o--o{ PRODUCT: scopes
+  PRODUCT }o--o{ INFLUENCER: answers
   %% rule GRC-1: a statutory, regulatory or contractual influencer cites exactly one source
   %% rule GRC-24: only a contractual influencer binds, and only external systems; binds names the counterparty, e.g. a BAA or DPA sub-processor
   %% rule GRC-25 (should): an external system is bound by at least one contractual influencer when an external entity representing it connects a data flow carrying a data element that triggers a statutory or regulatory influencer
-  %% derived GRC-27: an influencer applies to the products it scopes, or to every product in the document when it scopes none
+  %% derived GRC-27: an influencer applies to the products that answer it; a local influencer that no product answers applies to every product in the document, and an imported one to none
 
   POLICY {
     string statement "management intent; required"
@@ -230,8 +230,6 @@ erDiagram
     string overseer "stakeholder oversight; required"
   }
   PROCEDURE }o--|| CONTROL: operationalizes
-  PROCEDURE }o--o{ ADOPTION: implements
-  %% rule GRC-7: a procedure implementing an adoption operationalizes the adopted control
 
   PROFILE
   PROFILE ||--|{ SELECTION: has
@@ -257,9 +255,11 @@ erDiagram
   ADOPTION }o--o| ADOPTION: inherits
   ADOPTION }o--o| EXTERNAL_REFERENCE: inherits
   ADOPTION }o--o| TREATMENT: invokes
+  ADOPTION }o--o{ PROCEDURE: follows
+  %% rule GRC-7: an adoption follows only procedures that operationalize the adopted control
   %% rule GRC-9: at most one adoption per (product, control) pair
   %% rule GRC-10: a product has an adoption for every control that a profile it selects includes (coverage)
-  %% rule GRC-11: a system adoption is implemented by at least one requirement, a procedure adoption by at least one procedure, other modes by neither
+  %% rule GRC-11: a system adoption is implemented by at least one requirement, a procedure adoption follows at least one procedure, and other modes do neither
   %% rule GRC-12: when mode is inherited, inherits exactly one target; otherwise none
   %% rule GRC-13: an external reference that an adoption inherits has a party
   %% rule GRC-14: an inherited adoption adopts the same control as the adoption it inherits

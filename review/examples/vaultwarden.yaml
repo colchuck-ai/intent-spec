@@ -213,7 +213,6 @@ procedures:
     owner: Maintainers
     overseer: Maintainers
     operationalizes: vulnerability-disclosure
-    implements: [adopt-disclosure]
 
 assessmentObjectives:
   ao-rate-limit: {assesses: rate-limiting, verifies: [std-rate-limited-auth], methods: [test], evidence: "Repeated failed login attempts being throttled by the server"}
@@ -232,7 +231,7 @@ selections:
 adoptions:
   adopt-rate-limit: {mode: system, adopts: rate-limiting, governs: vaultwarden, owner: Maintainers}
   adopt-tls: {mode: delegated, adopts: tls-termination, governs: vaultwarden, delegatedTo: Self-hoster, rationale: The self-hoster terminates TLS at their own reverse proxy}
-  adopt-disclosure: {mode: procedure, adopts: vulnerability-disclosure, governs: vaultwarden, owner: Maintainers}
+  adopt-disclosure: {mode: procedure, adopts: vulnerability-disclosure, governs: vaultwarden, follows: [proc-advisory-triage], owner: Maintainers}
 
 people:
   household-member: {name: Household member, description: Uses the Bitwarden apps to store and fill passwords}
