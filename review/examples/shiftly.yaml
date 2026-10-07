@@ -88,6 +88,10 @@ requirements:
     statement: Store only name, phone number and shift history; delete volunteers inactive for 12 months
     verification: Data inventory review before launch
     executes: [minimise-volunteer-data]
+  free-for-small-food-banks:
+    statement: Shiftly is free for food banks with fewer than 50 active volunteers
+    verification: Pricing page and billing plans reviewed before launch
+    serves: [low-cost]
 
 metrics:
   short-shift-rate:

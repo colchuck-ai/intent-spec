@@ -90,6 +90,7 @@ erDiagram
   }
   %% a core job is what the product is hired for; a related job is done alongside it; a consumption job is about living with the product (setting up, upgrading, running it); a purchase job is choosing and paying for it, and its executor is the buyer
   %% guidance: the statement of a core or related job, and of its outcomes, is solution-free; a consumption or purchase job and its outcomes may name the product
+  %% a purchase job's outcomes are usually served by commercial commitments (pricing, terms, procurement paperwork): requirements with a verification that no system, container or component satisfies [C4-8]
   JOB }o--|| JOB_EXECUTOR: motivates
   JOB }o--o{ EXTERNAL_REFERENCE: cites
 
@@ -339,7 +340,7 @@ erDiagram
   SYSTEM }o--o{ REQUIREMENT: satisfies
   CONTAINER }o--o{ REQUIREMENT: satisfies
   COMPONENT }o--o{ REQUIREMENT: satisfies
-  %% rule C4-8: every ratified requirement is satisfied by at least one system, container or component
+  %% rule C4-8: every ratified requirement is satisfied by at least one system, container or component, unless it serves only outcomes of purchase jobs and executes no treatment and implements no adoption
 
   RELATIONSHIP {
     string description "specific, consistent with direction; avoid bare 'uses'"
