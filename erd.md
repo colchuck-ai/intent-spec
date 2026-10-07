@@ -321,7 +321,7 @@ erDiagram
   PERSON }o--o{ JOB_EXECUTOR: plays
 
   SYSTEM {
-    string owner "team that builds and runs it; required"
+    string owner "team that builds and runs it; required on an internal system, optional on an external one"
     boolean external "not built and owned by the team that owns this document; optional, default false"
   }
   SYSTEM }o--o{ PRODUCT: realizes

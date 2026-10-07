@@ -165,7 +165,6 @@ systems:
     name: Home Assistant
     description: Core, frontend, Supervisor and companion apps
     owner: Home Assistant project
-    external: false
     realizes: [home-assistant]
   devices: {name: Local devices, description: Lights, sensors and hubs reached over Zigbee, Z-Wave, Matter, Wi-Fi or Bluetooth, owner: Device makers, external: true}
   vendor-clouds: {name: Vendor clouds, description: Cloud APIs for cloud-only devices, owner: Device vendors, external: true}

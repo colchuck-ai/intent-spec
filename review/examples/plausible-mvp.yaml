@@ -99,7 +99,6 @@ systems:
     name: Plausible
     description: Hosted analytics service
     owner: Founding team
-    external: false
     realizes: [plausible]
     satisfies: [one-page-dashboard]
 

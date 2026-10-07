@@ -298,12 +298,11 @@ systems:
     name: Mastodon
     description: Mastodon server software
     owner: Mastodon gGmbH engineering
-    external: false
     realizes: [mastodon, mastodon-social]
-  fediverse: {name: Other fediverse servers, description: Mastodon and other ActivityPub servers, owner: Their operators, external: true}
-  client-apps: {name: Third-party apps, description: Mobile and desktop clients built on the REST API, owner: Their developers, external: true}
+  fediverse: {name: Other fediverse servers, description: Mastodon and other ActivityPub servers, external: true}
+  client-apps: {name: Third-party apps, description: Mobile and desktop clients built on the REST API, external: true}
   object-storage: {name: Object storage, description: S3-compatible storage for media, owner: Storage provider, external: true}
-  smtp: {name: Email provider, description: Sends confirmation and notification email, owner: Email provider, external: true}
+  smtp: {name: Email provider, description: Sends confirmation and notification email, external: true}
 
 containers:
   web-ui:

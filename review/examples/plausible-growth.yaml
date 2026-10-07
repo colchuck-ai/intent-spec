@@ -304,7 +304,6 @@ systems:
     name: Plausible
     description: Analytics service; the same code runs Cloud and Community Edition
     owner: Plausible engineering
-    external: false
     realizes: [plausible-cloud, plausible-ce]
     satisfies: [host-in-eu]
   billing-provider: {name: Paddle, description: Merchant of record for subscriptions, owner: Paddle, external: true}

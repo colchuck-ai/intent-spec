@@ -248,12 +248,11 @@ systems:
     name: Vaultwarden
     description: Bitwarden-compatible server
     owner: Vaultwarden maintainers
-    external: false
     realizes: [vaultwarden]
   bitwarden-clients: {name: Bitwarden clients, description: Official desktop, mobile, browser and CLI apps, owner: Bitwarden Inc., external: true, satisfies: [client-side-encryption]}
   push-relay: {name: Bitwarden push relay, description: Forwards push notifications to mobile apps, owner: Bitwarden Inc., external: true}
   smtp-server: {name: SMTP server, description: Sends invitations and two-factor codes, owner: Self-hoster's provider, external: true}
-  websites: {name: Websites, description: Sites whose icons are fetched, owner: Anyone, external: true}
+  websites: {name: Websites, description: Sites whose icons are fetched, external: true}
 
 containers:
   api-server:

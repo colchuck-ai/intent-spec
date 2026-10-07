@@ -362,7 +362,6 @@ systems:
     name: OpenEMR
     description: EHR and practice management web application
     owner: OpenEMR project
-    external: false
     realizes: [openemr, openemr-cloud]
     satisfies: [cloud-tls]
   erx-network: {name: E-prescribing network, description: Routes prescriptions to pharmacies, owner: E-prescribing vendor, external: true}
