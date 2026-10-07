@@ -14,10 +14,10 @@ Keep your own context small. Subagents return one-line receipts, and bead conten
 
 On every start or resume, check these in order:
 
-1. **Working tree has uncommitted changes:** stop and ask the human. Never discard changes.
+1. **Working tree has uncommitted changes outside `.beads/` and `.obsidian/`:** stop and ask the human. Never discard changes. Beads and Obsidian update their own files.
 2. **`bd gate list` shows an open human gate:** stop and show the human the gates and the findings they block.
 3. **Your context is nearing 30%:** pause and ask the human whether to stop. Resuming in a fresh session loses nothing.
-4. **Otherwise, run `bd mol current <round>` and act on the first match:**
+4. **Otherwise, run `bd mol current <round>` and act on the first match.** Read step state from the molecule, not from `phase:` labels: findings inherit their parent step's labels, so a label query returns findings too.
    - **Review steps ready or in progress:** dispatch one subagent per step, in parallel. Give it the step ID and tell it to follow the Review section below.
    - **Triage ready:** dispatch one subagent with the Triage section.
    - **Fix ready:** run `bd ready --label triage:accept`, then dispatch one fixer at a time, each with one bead ID and the Fix section. When no open finding labelled `triage:accept` remains, close the fix step.
