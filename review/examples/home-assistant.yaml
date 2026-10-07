@@ -243,7 +243,7 @@ systems:
   vendor-clouds: {stage: ratified, name: Vendor clouds, description: Cloud APIs for cloud-only devices, owner: Device vendors, external: true}
   ha-cloud: {stage: ratified, name: Home Assistant Cloud, description: Paid remote access and voice assistant bridge, owner: Nabu Casa, external: true}
   image-registry: {stage: ratified, name: Container registry, description: Hosts signed images, owner: GitHub, external: true}
-  version-service: {stage: ratified, name: Version service, description: Publishes which versions are current, owner: Home Assistant project, external: true}
+  version-service: {stage: ratified, name: Version service, description: Publishes which versions are current, owner: Home Assistant project}
 
 relationships:
   tinkerer-configures: {stage: ratified, leaves: tinkerer, enters: frontend, description: Configures integrations and automations}

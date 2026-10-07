@@ -249,7 +249,7 @@ erDiagram
   }
   SYSTEM ||--o{ CONTAINER: contains
   SYSTEM }o--o{ PRODUCT: realizes
-  %% rule: an internal system contains at least one container
+  %% rule: an internal system that realizes a product contains at least one container
   %% rule: an external system contains no containers
   %% rule: only an internal system realizes a product
 
@@ -293,7 +293,7 @@ erDiagram
 
   %% derived: the document has one system landscape: every system and person, and the relationships between them
   %% derived: each internal system has a system context diagram: the system plus every person and system joined to it
-  %% derived: each internal system has a container diagram: its containers plus the people and systems joined to them
+  %% derived: each internal system with containers has a container diagram: its containers plus the people and systems joined to them
   %% derived: each application container with components has a component diagram: its components plus the containers, people and systems joined to them
 
   DYNAMIC_DIAGRAM
