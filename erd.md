@@ -269,6 +269,8 @@ erDiagram
   %% rule GRC-11: a system adoption is implemented by at least one requirement, a procedure adoption follows at least one procedure, and other modes do neither
   %% rule GRC-12: when mode is inherited, inherits exactly one target; otherwise none
   %% rule GRC-13: an external reference that an adoption inherits has a party
+  %% inherited means the control is provided upstream, by a party the product relies on, e.g. a cloud provider; it is coverage
+  %% rule GRC-30 (should): an adoption does not inherit an external reference whose party is the operator of an environment that serves the adoption's product; that operator is downstream, so the adoption is delegated
   %% rule GRC-14: an inherited adoption adopts the same control as the adoption it inherits
   %% rule GRC-15: an inheritance chain ends at a system or procedure adoption or an external reference (no cycles)
   %% rule GRC-28: when mode is not-applicable, none of the adopted control's influencers [GRC-6] applies [GRC-27] to the adoption's product

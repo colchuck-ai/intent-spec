@@ -154,7 +154,6 @@ metrics:
 externalReferences:
   gdpr: {title: "Regulation (EU) 2016/679 (GDPR)", url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj", party: European Union}
   customer-dpa: {title: Plausible data processing agreement, party: Plausible customers}
-  self-host-operator: {title: Operator's own hosting and data-handling controls, party: Self-hosting operator}
   cis-ubuntu: {title: CIS Ubuntu Linux Benchmark, url: "https://www.cisecurity.org/benchmark/ubuntu_linux", party: Center for Internet Security}
 
 influencers:
@@ -279,11 +278,11 @@ adoptions:
   adopt-hashing-cloud: {mode: system, adopts: visitor-hashing, governs: plausible-cloud, owner: Engineering lead}
   adopt-hashing-ce: {mode: system, adopts: visitor-hashing, governs: plausible-ce, owner: Engineering lead}
   adopt-eu-hosting-cloud: {mode: system, adopts: eu-hosting, governs: plausible-cloud, owner: Operations lead}
-  adopt-eu-hosting-ce: {mode: inherited, adopts: eu-hosting, governs: plausible-ce, inherits: self-host-operator, decidedBy: Operations lead}
+  adopt-eu-hosting-ce: {mode: delegated, adopts: eu-hosting, governs: plausible-ce, delegatedTo: Self-hosting operator, decidedBy: Operations lead, rationale: The operator chooses where to host Community Edition}
   adopt-deletion-cloud: {mode: procedure, adopts: account-deletion, governs: plausible-cloud, follows: [proc-account-deletion], owner: Support lead}
-  adopt-deletion-ce: {mode: inherited, adopts: account-deletion, governs: plausible-ce, inherits: self-host-operator, decidedBy: Operations lead}
+  adopt-deletion-ce: {mode: delegated, adopts: account-deletion, governs: plausible-ce, delegatedTo: Self-hosting operator, decidedBy: Operations lead, rationale: The operator handles deletion requests from its own users}
   adopt-host-cloud: {mode: system, adopts: host-hardening, governs: plausible-cloud, owner: Operations lead}
-  adopt-host-ce: {mode: inherited, adopts: host-hardening, governs: plausible-ce, inherits: self-host-operator, decidedBy: Operations lead}
+  adopt-host-ce: {mode: delegated, adopts: host-hardening, governs: plausible-ce, delegatedTo: Self-hosting operator, decidedBy: Operations lead, rationale: The operator builds and patches its own host}
 
 secureBaselines:
   host-baseline:
@@ -443,9 +442,6 @@ deploymentDiagrams:
 #   nodes, not as an external system, so the DPA influencer can't bind it.
 # - Data retention periods. Retention is a property of a data element or data
 #   store, and there's no field for it, so I made it a standard.
-# - The adoptions for Community Edition. GDPR applies to the operator, not to
-#   Plausible. "Not applicable" didn't fit because the influencer does apply, just
-#   to someone else, so I used "inherited" from an external reference.
 # - An uptime or availability target for Cloud. A metric must measure a control or
 #   outcome, and no outcome is about availability.
 # - How the product changed since the MVP. The deprecated requirement is the only
