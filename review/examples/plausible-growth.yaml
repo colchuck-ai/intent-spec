@@ -178,6 +178,7 @@ influencers:
     kinds: [contractual]
     scopeRationale: Every Cloud customer signs the DPA, which commits Plausible to EU processing and deletion on request
     cites: customer-dpa
+    binds: [billing-provider, email-provider]
 
 policies:
   pol-privacy:
@@ -462,9 +463,8 @@ deploymentDiagrams:
 # - Plans and pricing tiers, and which features each plan includes.
 # - That Community Edition gets features later than Cloud, or is a release cut of
 #   the same code.
-# - Sub-processors. The DPA has to list Paddle, the email provider and the hosting
-#   provider, but I can't mark an external system as a sub-processor or link it to
-#   the DPA influencer.
+# - The hosting provider as a DPA sub-processor. It appears only as deployment
+#   nodes, not as an external system, so the DPA influencer can't bind it.
 # - Data retention periods. Retention is a property of a data element or data
 #   store, and there's no field for it, so I made it a standard.
 # - The adoptions for Community Edition. GDPR applies to the operator, not to

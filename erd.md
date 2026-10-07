@@ -152,7 +152,10 @@ erDiagram
     string scopeRationale "why it applies; required"
   }
   INFLUENCER }o--o| EXTERNAL_REFERENCE: cites
+  INFLUENCER }o--o{ SYSTEM: binds
   %% rule GRC-1: a statutory, regulatory or contractual influencer cites exactly one source
+  %% rule GRC-24: only a contractual influencer binds, and only external systems; binds names the counterparty, e.g. a BAA or DPA sub-processor
+  %% rule GRC-25 (should): an external system is bound by at least one contractual influencer when an external entity representing it connects a data flow carrying a data element that triggers a statutory or regulatory influencer
 
   POLICY {
     string approver "executive leadership; required"

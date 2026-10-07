@@ -244,6 +244,7 @@ externalReferences:
   hipaa-security: {stage: ratified, title: "45 CFR Part 164 Subpart C (HIPAA Security Rule)", url: "https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C", party: HHS}
   aws-physical: {stage: ratified, title: AWS SOC 2 Type II report, party: AWS}
   cis-amazon-linux: {stage: ratified, title: CIS Amazon Linux 2023 Benchmark, party: Center for Internet Security}
+  partner-baas: {stage: ratified, title: Business associate agreements with ePHI exchange partners, party: E-prescribing network, lab and clearinghouse}
 
 influencers:
   inf-onc:
@@ -256,6 +257,12 @@ influencers:
     kinds: [statutory]
     scopeRationale: Deploying practices are covered entities and must protect ePHI that OpenEMR stores
     cites: hipaa-security
+  inf-baa:
+    stage: ratified
+    kinds: [contractual]
+    scopeRationale: Every partner that receives ePHI from OpenEMR must be under a business associate agreement
+    cites: partner-baas
+    binds: [erx-network, lab, clearinghouse]
 
 policies:
   pol-security:
@@ -586,9 +593,10 @@ threatReviews:
 # - The deploying practice's shared responsibility. It's spread across inherited
 #   adoptions, a transfer treatment and free-text owners. A clinic reading this
 #   can't easily get "what you must do yourself" out of it.
-# - Business associate agreements. OpenEMR Cloud on AWS needs a BAA with AWS and
-#   with every partner that touches ePHI. External systems can't carry contractual
-#   obligations.
+# - The BAA with AWS. AWS hosts OpenEMR Cloud as deployment nodes, not as an
+#   external system, so the BAA influencer can't bind it.
+# - Patient-chosen SMART apps receive ePHI but aren't business associates, so no
+#   BAA binds them. GRC-25 still warns, and there's no way to record why.
 # - Configuration that changes compliance. Document encryption is optional, and
 #   MFA is available but not enforced by default on self-installs. The system
 #   adoption claims the control, but whether a given clinic has it switched on is
