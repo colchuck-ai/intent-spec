@@ -447,7 +447,8 @@ erDiagram
   PROCESS }o--o| SYSTEM: represents
   PROCESS }o--o| CONTAINER: represents
   PROCESS }o--o| COMPONENT: represents
-  %% any running code under your control
+  PROCESS }o--o| INFRASTRUCTURE_NODE: represents
+  %% any running code under your control, including a proxy, load balancer or ingress that terminates TLS
   %% rule DFD-4: a system a process represents is internal, and a container it represents is an application container
 
   DATA_STORE {
@@ -512,7 +513,7 @@ erDiagram
   %% unlike C4 diagrams, a DFD lists its elements: DFD elements need not map onto C4
   %% a context-level DFD is optional
   %% rule DFD-17: a context-level DFD depicts a system and includes exactly one process, which represents that system
-  %% rule DFD-18 (should): in a detail DFD, every process represents a container of the depicted system or a component of the depicted container, or connects a shown [DFD-20] data flow to a process that does
+  %% rule DFD-18 (should): in a detail DFD, every process represents a container of the depicted system, a component of the depicted container, or an infrastructure node on a node of an environment [C4-22] hosting an instance of the depicted system or the depicted container's system, or of one of that system's containers; or it connects a shown [DFD-20] data flow to a process that does
   %% rule DFD-19 (should): every data store and external entity in a DFD connects at least one data flow the DFD shows [DFD-20]
   %% derived DFD-20: a DFD shows every data flow whose two ends it includes, and every trust boundary enclosing an included element
 ```

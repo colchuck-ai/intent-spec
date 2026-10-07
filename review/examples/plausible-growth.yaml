@@ -359,6 +359,7 @@ externalEntities:
 processes:
   p-tracker: {label: Tracker, represents: tracker}
   p-web-app: {label: Web app, represents: web-app}
+  p-load-balancer: {label: Load balancer, represents: load-balancer}
 
 dataStores:
   ds-events: {label: ClickHouse, represents: events-db, stores: [pageview-event]}
@@ -371,9 +372,10 @@ dataElements:
 
 dataFlows:
   df-visitor-tracker: {label: Page load, connects: [ee-visitor, p-tracker], leaves: ee-visitor, carries: [pageview-event], represents: [visitor-loads-tracker]}
-  df-tracker-web: {label: Events, connects: [p-tracker, p-web-app], leaves: p-tracker, carries: [pageview-event], represents: [tracker-sends-events]}
-  df-owner-web: {label: Dashboard, connects: [ee-site-owner, p-web-app], leaves: ee-site-owner, carries: [account, pageview-event], represents: [owner-views-dashboard]}
-  df-agency-web: {label: Client dashboards, connects: [ee-agency, p-web-app], leaves: ee-agency, carries: [account, pageview-event], represents: [agency-views-dashboard]}
+  df-tracker-web: {label: Events, connects: [p-tracker, p-load-balancer], leaves: p-tracker, carries: [pageview-event]}
+  df-owner-web: {label: Dashboard, connects: [ee-site-owner, p-load-balancer], leaves: ee-site-owner, carries: [account, pageview-event]}
+  df-agency-web: {label: Client dashboards, connects: [ee-agency, p-load-balancer], leaves: ee-agency, carries: [account, pageview-event]}
+  df-lb-web: {label: Plain HTTP after TLS termination, connects: [p-load-balancer, p-web-app], leaves: p-load-balancer, carries: [account, pageview-event]}
   df-web-events: {label: Event writes and queries, connects: [p-web-app, ds-events], leaves: p-web-app, carries: [pageview-event], represents: [web-app-writes-events]}
   df-web-app-db: {label: SQL, connects: [p-web-app, ds-app], leaves: p-web-app, carries: [account, billing-status], represents: [web-app-uses-app-db]}
   df-web-billing: {label: Billing API and webhooks, connects: [p-web-app, ee-billing], carries: [billing-status], represents: [web-app-to-billing, billing-webhooks]}
@@ -383,14 +385,14 @@ trustBoundaries:
   tb-hosting:
     label: Plausible Cloud hosting
     crossing: HTTPS to the public event endpoint, the logged-in dashboard, shared links and billing webhooks
-    encloses: [p-web-app, ds-events, ds-app]
+    encloses: [p-load-balancer, p-web-app, ds-events, ds-app]
     relies: [load-balancer, eu-hosting]
 
 dataFlowDiagrams:
   dfd-plausible:
     level: detail
     depicts: plausible-system
-    includes: [ee-visitor, ee-site-owner, ee-agency, ee-billing, ee-email, p-tracker, p-web-app, ds-events, ds-app]
+    includes: [ee-visitor, ee-site-owner, ee-agency, ee-billing, ee-email, p-tracker, p-web-app, p-load-balancer, ds-events, ds-app]
 
 environments:
   production: {name: Cloud production, serves: [plausible-cloud]}
@@ -452,3 +454,5 @@ deploymentDiagrams:
 # - host-in-eu is satisfied by where we deploy, not by any container. Deployment
 #   nodes can't satisfy requirements, so I attached it to the whole system.
 # - The release pipeline (Docker images on a public registry).
+# - Flows through the load balancer can't represent the C4 relationships they
+#   carry, because the balancer is not an end of them [DFD-8].
