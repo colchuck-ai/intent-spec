@@ -75,9 +75,9 @@ requirements:
     serves: [fast-pages]
 
 metrics:
-  script-size:
-    target: Under 1 KB gzipped
-    frequency: Every release
+  added-page-weight:
+    target: Analytics adds under 1 KB to the pages of a sample of live customer sites
+    frequency: Monthly
     measures: [fast-pages]
 
 externalReferences:

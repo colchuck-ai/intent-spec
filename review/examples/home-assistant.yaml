@@ -106,8 +106,8 @@ requirements:
     executes: [reduce-custom-code]
 
 metrics:
-  local-integration-share:
-    target: Over 60% of integrations are local push or local polling
+  offline-automation-loss:
+    target: Under 10% of a home's automations stop when the internet is down, from opt-in analytics
     frequency: Quarterly
     measures: [works-offline]
   update-rollback-rate:

@@ -81,9 +81,9 @@ requirements:
     executes: [reduce-icon-ssrf]
 
 metrics:
-  idle-memory:
-    target: Under 100 MB resident when idle
-    frequency: Every release
+  host-hardware:
+    target: Over half of surveyed self-hosters run the server on a Raspberry Pi or a VPS with 1 GB of RAM or less
+    frequency: Yearly
     measures: [low-resources]
   advisory-response:
     target: Every security report acknowledged within 7 days

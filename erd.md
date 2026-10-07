@@ -127,6 +127,7 @@ erDiagram
   METRIC }o--o{ CONTROL: measures
   METRIC }o--o{ OUTCOME: measures
   %% rule METRIC-1: every metric measures at least one control or outcome
+  %% guidance: a metric that measures an outcome tracks that outcome's own measure from the executor's side (time to see a trend, automations lost offline); a product-side threshold such as script size or load time belongs in a requirement's statement or verification
 
   %% Risk
 
