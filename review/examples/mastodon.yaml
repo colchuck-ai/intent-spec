@@ -194,11 +194,13 @@ influencers:
     kinds: [contractual]
     scopeRationale: Servers listed on joinmastodon.org must commit to the covenant, and mastodon.social is listed
     cites: server-covenant
+    scopes: [mastodon-social]
   inf-dsa:
     stage: ratified
     kinds: [regulatory]
     scopeRationale: mastodon.social is an online platform offered to users in the EU
     cites: dsa
+    scopes: [mastodon-social]
 
 policies:
   pol-moderation:
@@ -479,9 +481,10 @@ dataElements:
   report: {stage: ratified, classification: confidential, description: Report, reporter and moderation decision, triggers: [inf-dsa]}
 
 # Couldn't express
-# - Software versus server. Most governance here belongs to the server operator,
-#   not the software. "Not applicable" was the closest fit, but the rule says it
-#   means the influencer doesn't apply to the product, and that's only roughly true.
+# - Software versus server. Both influencers scope only mastodon.social, but the
+#   covenant still reaches the software's users: every listed server must meet it.
+#   I used "delegated" to the server operator; there's no way to say the obligation
+#   passes through to whoever runs the software.
 # - Other servers adopting our rules. The covenant is a governance package that
 #   thousands of independent servers adopt. That's exactly the "define once, adopt
 #   many times" case, but it lives across organisations I don't control and can't

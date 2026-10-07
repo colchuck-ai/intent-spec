@@ -167,9 +167,11 @@ erDiagram
   }
   INFLUENCER }o--o| EXTERNAL_REFERENCE: cites
   INFLUENCER }o--o{ SYSTEM: binds
+  INFLUENCER }o--o{ PRODUCT: scopes
   %% rule GRC-1: a statutory, regulatory or contractual influencer cites exactly one source
   %% rule GRC-24: only a contractual influencer binds, and only external systems; binds names the counterparty, e.g. a BAA or DPA sub-processor
   %% rule GRC-25 (should): an external system is bound by at least one contractual influencer when an external entity representing it connects a data flow carrying a data element that triggers a statutory or regulatory influencer
+  %% derived GRC-27: an influencer applies to the products it scopes, or to every product in the document when it scopes none
 
   POLICY {
     string approver "executive leadership; required"
@@ -248,7 +250,7 @@ erDiagram
   %% rule GRC-13: an external reference that an adoption inherits has a party
   %% rule GRC-14: an inherited adoption adopts the same control as the adoption it inherits
   %% rule GRC-15: an inheritance chain ends at a system or procedure adoption or an external reference (no cycles)
-  %% guidance: not-applicable means the control's influencers [GRC-6] do not apply to the product
+  %% rule GRC-28: when mode is not-applicable, none of the adopted control's influencers [GRC-6] applies [GRC-27] to the adoption's product
   %% delegated means the control applies but whoever runs or deploys the product must implement it; it is not coverage
   %% rule GRC-26 (should): a system or procedure adoption has an owner
   %% rule GRC-16: when mode is excepted, invokes exactly one treatment, which is an accept treatment that scopes the adoption's product and waives every standard the adopted control enforces; otherwise none
