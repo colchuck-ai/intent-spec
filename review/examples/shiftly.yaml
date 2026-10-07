@@ -58,6 +58,9 @@ outcomes:
     in: sign-up-for-shift
     statement: Minimize the likelihood of forgetting a shift I committed to
     cites: [coordinator-interviews]
+  number-stays-private:
+    in: sign-up-for-shift
+    statement: Minimize the likelihood that my phone number reaches people I didn't give it to
   low-cost:
     in: choose-scheduling-tool
     statement: Minimize the monthly cost of Shiftly for the food bank
@@ -87,6 +90,7 @@ requirements:
   minimal-volunteer-data:
     statement: Store only name, phone number and shift history; delete volunteers inactive for 12 months
     verification: Data inventory review before launch
+    serves: [number-stays-private]
     executes: [minimise-volunteer-data]
   free-for-small-food-banks:
     statement: Shiftly is free for food banks with fewer than 50 active volunteers
@@ -111,10 +115,10 @@ risks:
     endangers: [less-time-chasing, fewer-short-shifts]
   phone-number-exposure:
     description: Volunteers' phone numbers are exposed through a breach or misuse
-    endangers: []
+    endangers: [number-stays-private]
   sms-cost:
     description: Text-message costs exceed what a small food bank can pay
-    endangers: []
+    endangers: [low-cost]
 
 treatments:
   keep-phone-sign-up:
@@ -147,9 +151,6 @@ treatments:
 #   they would switch.
 # - Product-level non-goals, such as "not a general volunteer CRM". Outcome
 #   dispositions only work for outcomes of jobs we already target.
-# - Risks that harm people rather than an outcome. Phone-number exposure hurts
-#   volunteers and SMS cost hurts the food bank's budget, but neither endangers
-#   an outcome, so `endangers` is empty.
 # - How likely or how bad a risk is. A risk has no fields at all, so there's no
 #   statement other than the description I added.
 # - A rough stage for the product as a whole ("concept"). Only items have stages.

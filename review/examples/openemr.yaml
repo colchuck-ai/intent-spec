@@ -47,6 +47,9 @@ outcomes:
   complete-history:
     in: run-patient-care
     statement: Minimize the likelihood of missing relevant history, medications or allergies
+  safe-medication:
+    in: run-patient-care
+    statement: Minimize the likelihood of a medication error reaching the patient
   send-prescriptions:
     in: run-patient-care
     statement: Minimize the time it takes to get a prescription to the pharmacy
@@ -65,6 +68,9 @@ outcomes:
   use-my-apps:
     in: access-my-care
     statement: Minimize the effort to use my own health apps with my records
+  records-stay-private:
+    in: access-my-care
+    statement: Minimize the likelihood that people outside my care see my records
   message-clinic:
     in: access-my-care
     statement: Minimize the time to get an answer from my clinic
@@ -82,7 +88,7 @@ requirements:
   e-prescribing:
     statement: Prescriptions are sent electronically through an e-prescribing network
     verification: Certification test of electronic prescribing
-    serves: [send-prescriptions]
+    serves: [send-prescriptions, safe-medication]
   lab-interface:
     statement: Lab orders and results are exchanged over HL7 v2
     verification: Interface test with a lab sandbox
@@ -102,6 +108,7 @@ requirements:
   role-based-access:
     statement: Access to every function is controlled by role-based access control lists
     verification: ACL test suite
+    serves: [records-stay-private]
     implements: [adopt-rbac-emr]
   multi-factor-login:
     statement: Staff can log in with TOTP or U2F as a second factor
@@ -144,19 +151,19 @@ risks:
     endangers: [see-records, message-clinic]
   acl-misconfiguration:
     description: A clinic misconfigures ACLs and staff see records they shouldn't
-    endangers: [complete-history]
+    endangers: [records-stay-private]
   unpatched-installs:
     description: Clinics run old versions with known vulnerabilities
-    endangers: []
+    endangers: [records-stay-private, safe-medication]
   partner-compromise:
     description: An e-prescribing, lab or clearinghouse partner is compromised and sends bad data
     endangers: [send-prescriptions, lab-results-back, clean-claims]
   mfa-not-enforced-cloud:
     description: OpenEMR Cloud deployments run without enforced MFA for staff
-    endangers: [complete-history]
+    endangers: [records-stay-private]
   no-tls:
     description: ePHI travels without TLS and is modified in transit
-    endangers: [complete-history]
+    endangers: [safe-medication]
 
 treatments:
   reduce-portal-takeover:
@@ -555,11 +562,6 @@ threatReviews:
 # - The excepted MFA adoption needed an accept treatment that waives std-mfa. It
 #   works, but the risk "MFA isn't enforced" restates the exception rather than a
 #   real cause and consequence.
-# - The unpatched-installs risk endangers patients' safety and privacy, not an
-#   outcome of any job in this document.
-# - Clinical safety risks, such as a wrong medication from a data error, have no
-#   home. RISK only endangers outcomes, and patient harm isn't an outcome of
-#   these jobs.
 # - 14 threat reviews cover 29 (threat, target) pairs on a deliberately small DFD,
 #   one review per decision. A real deployment would still need many more.
 # - The project's governance: OpenEMR Foundation, volunteer contributors and

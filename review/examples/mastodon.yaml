@@ -58,6 +58,11 @@ outcomes:
     statement: Minimize the effort to discover popular content I didn't know to look for
     disposition: out-of-scope
     rationale: Engagement-ranked feeds go against the product's purpose; trends and hashtags are the limit
+  private-messages:
+    in: stay-connected
+    statement: Minimize the likelihood that someone other than the recipient reads my private messages
+    disposition: out-of-scope
+    rationale: Direct messages are not end-to-end encrypted, so server admins can read them; users are told to use an encrypted messenger for anything sensitive
   enforce-rules:
     in: run-a-community
     statement: Minimize the time it takes to act on a report
@@ -444,7 +449,5 @@ dataElements:
 #   I had no way to say who decides to defederate or on what grounds.
 # - Funding and sustainability (donations, Patreon, sponsors). This is the
 #   project's biggest real risk, but it doesn't endanger any user outcome directly.
-# - Direct messages aren't end-to-end encrypted. It's a known, deliberate limit
-#   users should understand, and I could only say it in a data element description.
 # - The software product's roadmap: features in progress for the next release,
 #   like quote posts.
