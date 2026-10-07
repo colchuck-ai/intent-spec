@@ -430,7 +430,7 @@ dynamicDiagrams:
       s3: {stage: ratified, order: 3, follows: fhir-uses-db, description: API reads the records and logs the access}
 
 environments:
-  cloud-production: {stage: ratified, name: OpenEMR Cloud on AWS}
+  cloud-production: {stage: ratified, name: OpenEMR Cloud on AWS, serves: [openemr-cloud]}
 
 deploymentNodes:
   aws-region:

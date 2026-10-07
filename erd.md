@@ -289,7 +289,11 @@ erDiagram
   DEPLOYMENT_DIAGRAM }o--|| ENVIRONMENT: depicts
   %% derived: a deployment diagram shows the environment's nodes that host instances of its systems or their containers
 
-  ENVIRONMENT
+  ENVIRONMENT {
+    string operator "who runs it, e.g. self-hosting operator; omit when the team that owns the document runs it"
+  }
+  ENVIRONMENT }o--|{ PRODUCT: serves
+  %% an operator-run environment describes the reference topology the project ships, e.g. a Docker Compose host
 
   DEPLOYMENT_NODE {
     string technology

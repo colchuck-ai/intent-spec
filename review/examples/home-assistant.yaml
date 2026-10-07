@@ -268,8 +268,8 @@ dynamicDiagrams:
       s3: {stage: ratified, order: 3, follows: core-records, description: The recorder stores both state changes}
 
 environments:
-  haos-install: {stage: ratified, name: Home Assistant OS install}
-  container-install: {stage: ratified, name: Container install (no Supervisor)}
+  haos-install: {stage: ratified, name: Home Assistant OS install, serves: [home-assistant], operator: Household}
+  container-install: {stage: ratified, name: Container install (no Supervisor), serves: [home-assistant], operator: Household}
 
 deploymentNodes:
   ha-device:
@@ -413,8 +413,8 @@ threatReviews:
 # - Installation methods. Home Assistant OS, Container, Supervised and Core
 #   installs are really product variants with different capabilities: no
 #   Supervisor, no add-ons, no signed updates. I modelled two of them as
-#   environments, but they aren't environments in the dev/staging/prod sense, and
-#   requirements like signed-images can't say "only on HAOS".
+#   household-run environments, but requirements like signed-images can't say
+#   "only on HAOS".
 # - Add-ons and custom integrations. Third-party code runs inside our trust
 #   boundary. They're neither our containers nor an external system, and there are
 #   thousands of them.

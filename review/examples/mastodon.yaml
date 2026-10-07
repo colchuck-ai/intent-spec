@@ -397,7 +397,7 @@ relationships:
   streaming-uses-postgres: {stage: ratified, leaves: streaming, enters: postgres, description: Checks access tokens and filters, technology: SQL}
 
 environments:
-  social-production: {stage: ratified, name: mastodon.social production}
+  social-production: {stage: ratified, name: mastodon.social production, serves: [mastodon-social]}
 
 deploymentNodes:
   cloud-region:

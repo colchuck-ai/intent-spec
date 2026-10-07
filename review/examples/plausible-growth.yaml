@@ -378,7 +378,8 @@ dataFlowDiagrams:
     includes: [ee-visitor, ee-site-owner, ee-agency, ee-billing, ee-email, p-tracker, p-web-app, ds-events, ds-app]
 
 environments:
-  production: {stage: ratified, name: Cloud production}
+  production: {stage: ratified, name: Cloud production, serves: [plausible-cloud]}
+  ce-compose: {stage: ratified, name: CE reference install, serves: [plausible-ce], operator: Self-hosting operator}
 
 deploymentNodes:
   eu-region:
@@ -402,11 +403,23 @@ deploymentNodes:
         containerInstances:
           events-db-instance: {stage: ratified, instantiates: events-db}
           app-db-instance: {stage: ratified, instantiates: app-db}
+  compose-host:
+    stage: ratified
+    name: Operator's server
+    technology: Docker Compose
+    belongs: ce-compose
+    containerInstances:
+      ce-web-app-instance: {stage: ratified, instantiates: web-app}
+      ce-events-db-instance: {stage: ratified, instantiates: events-db}
+      ce-app-db-instance: {stage: ratified, instantiates: app-db}
 
 deploymentDiagrams:
   deploy-production:
     stage: ratified
     depicts: [plausible-system, production]
+  deploy-ce:
+    stage: ratified
+    depicts: [plausible-system, ce-compose]
 
 # Couldn't express
 # - Which requirements belong to which product. Cloud has billing, shared links
@@ -435,5 +448,4 @@ deploymentDiagrams:
 #   process sits outside the hosting boundary, but nothing says where it runs.
 # - host-in-eu is satisfied by where we deploy, not by any container. Deployment
 #   nodes can't satisfy requirements, so I attached it to the whole system.
-# - Self-hosting and the release pipeline (Docker images on a public registry).
-#   There's no environment for "operator-hosted".
+# - The release pipeline (Docker images on a public registry).

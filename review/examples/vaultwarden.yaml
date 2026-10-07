@@ -332,7 +332,7 @@ dynamicDiagrams:
       s4: {stage: ratified, order: 4, follows: clients-sync, description: Other clients fetch the change}
 
 environments:
-  home-install: {stage: ratified, name: Typical home install}
+  home-install: {stage: ratified, name: Typical home install, serves: [vaultwarden], operator: Self-hosting operator}
 
 deploymentNodes:
   home-server:
