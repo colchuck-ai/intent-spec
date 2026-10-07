@@ -531,8 +531,8 @@ threatReviews:
   r-privilege-other: {reviews: t-privilege, inspects: [p-billing, p-portal], disposition: covered, cites: [access-control]}
   r-privilege-fhir: {reviews: t-privilege, inspects: [p-fhir], disposition: covered, cites: [fhir-patient-access, access-control]}
   r-tamper-external: {reviews: t-flow-tampering, inspects: [df-clinician-clinical, df-biller-billing, df-patient-portal, df-apps-fhir, df-clinical-erx, df-clinical-lab, df-billing-clearinghouse], disposition: risk, raises: no-tls}
-  r-tamper-db: {reviews: t-flow-tampering, inspects: [df-clinical-db, df-billing-db, df-portal-db, df-fhir-db], disposition: not-applicable, rationale: Same host or private network inside the data tier boundary}
-  r-tamper-clinical-docs: {reviews: t-flow-tampering, inspects: [df-clinical-docs], disposition: not-applicable, rationale: Local file system}
+  r-tamper-db: {reviews: t-flow-tampering, inspects: [df-clinical-db, df-billing-db, df-portal-db, df-fhir-db], disposition: risk, raises: no-tls}
+  r-tamper-clinical-docs: {reviews: t-flow-tampering, inspects: [df-clinical-docs], disposition: covered, cites: [document-encryption-control]}
 
 # Couldn't express
 # - HIPAA applies to the clinic, not to OpenEMR. The whole security program exists

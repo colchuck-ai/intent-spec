@@ -160,6 +160,7 @@ erDiagram
   %% rule RISK-5: a deprecated target keeps its reviews
   %% rule RISK-6: raises exactly one risk when disposition is risk; otherwise none
   %% rule RISK-7: cites at least one control or requirement when disposition is covered; otherwise none
+  %% rule RISK-18 (should): a review whose disposition is not-applicable inspects no data flow that crosses a trust boundary [DFD-11]
   %% derived RISK-8: a DFD's products are those realized by the system it depicts, or by the system containing the container it depicts
   %% derived RISK-9: a review's products are the products [RISK-8] of every DFD that includes, or shows [DFD-20], an element it inspects
   %% rule RISK-10: when disposition is covered, for every product of the review [RISK-9], at least one cited control is adopted in mode system, procedure or inherited by that product, or at least one cited requirement applies to that product [PRODUCT-8] and is satisfied by a system that realizes that product, or by a container or component in one
