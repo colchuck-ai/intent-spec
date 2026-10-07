@@ -19,6 +19,7 @@ products:
     description: OpenEMR packaged for one-click deployment on AWS.
     targets: [run-patient-care, get-paid, access-my-care]
     selects: [openemr-controls]
+    answers: [inf-aws-baa]
 
 jobExecutors:
   clinician:
@@ -209,6 +210,7 @@ externalReferences:
   aws-physical: {title: AWS SOC 2 Type II report, party: AWS}
   cis-amazon-linux: {title: CIS Amazon Linux 2023 Benchmark, party: Center for Internet Security}
   partner-baas: {title: Business associate agreements with ePHI exchange partners, party: E-prescribing network, lab and clearinghouse}
+  aws-baa: {title: AWS Business Associate Addendum, party: AWS}
 
 influencers:
   inf-onc:
@@ -224,6 +226,11 @@ influencers:
     scopeRationale: Every partner that receives ePHI from OpenEMR must be under a business associate agreement
     cites: partner-baas
     binds: [erx-network, lab, clearinghouse]
+  inf-aws-baa:
+    kinds: [contractual]
+    scopeRationale: AWS stores OpenEMR Cloud's ePHI on its database and host nodes, so it is a business associate
+    cites: aws-baa
+    binds: [aws-physical]
 
 policies:
   pol-security:
@@ -535,8 +542,6 @@ threatReviews:
 # - The deploying practice's shared responsibility. It's spread across inherited
 #   adoptions, a transfer treatment and free-text owners. A clinic reading this
 #   can't easily get "what you must do yourself" out of it.
-# - The BAA with AWS. AWS hosts OpenEMR Cloud as deployment nodes, not as an
-#   external system, so the BAA influencer can't bind it.
 # - Patient-chosen SMART apps receive ePHI but aren't business associates, so no
 #   BAA binds them. GRC-25 still warns, and there's no way to record why.
 # - Configuration that changes compliance. Document encryption is optional, and
