@@ -312,10 +312,28 @@ deploymentNodes:
       core-container: {stage: ratified, instantiates: core}
       recorder-container: {stage: ratified, instantiates: recorder-db}
       config-container: {stage: ratified, instantiates: config-store}
+  container-phone:
+    stage: ratified
+    name: Household member's phone
+    technology: iOS or Android
+    belongs: container-install
+    containerInstances:
+      companion-container: {stage: ratified, instantiates: companion}
+  container-browser:
+    stage: ratified
+    name: Web browser
+    technology: Any modern browser
+    belongs: container-install
+    containerInstances:
+      frontend-container: {stage: ratified, instantiates: frontend}
 
 deploymentDiagrams:
   deploy-haos: {stage: ratified, depicts: [ha-system, haos-install]}
-  deploy-container: {stage: ratified, depicts: [ha-system, container-install]}
+  deploy-container:
+    stage: ratified
+    depicts: [ha-system, container-install]
+    notDeployed:
+      supervisor: Container installs have no Supervisor
 
 externalEntities:
   ee-tinkerer: {stage: ratified, label: Home admin, represents: tinkerer}

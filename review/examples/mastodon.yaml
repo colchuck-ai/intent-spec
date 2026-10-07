@@ -428,7 +428,11 @@ deploymentNodes:
           search-instance: {stage: ratified, instantiates: search}
 
 deploymentDiagrams:
-  deploy-social: {stage: ratified, depicts: [mastodon-system, social-production]}
+  deploy-social:
+    stage: ratified
+    depicts: [mastodon-system, social-production]
+    notDeployed:
+      web-ui: Served by the web container and runs in the user's browser
 
 dataElements:
   account: {stage: ratified, classification: confidential, description: Email, password hash, IP addresses and settings, triggers: [inf-dsa]}

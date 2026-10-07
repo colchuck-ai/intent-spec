@@ -317,10 +317,14 @@ erDiagram
   DYNAMIC_STEP }o--|| RELATIONSHIP: follows
   %% rule C4-19: each end of a step's relationship is a person or a system, a container when the diagram depicts its system or any container, or a component when the diagram depicts its container
 
-  DEPLOYMENT_DIAGRAM
+  DEPLOYMENT_DIAGRAM {
+    map notDeployed "container id to why it has no instance in the environment, e.g. runs in the visitor's browser; optional"
+  }
   DEPLOYMENT_DIAGRAM }o--|{ SYSTEM: depicts
   DEPLOYMENT_DIAGRAM }o--|| ENVIRONMENT: depicts
   %% derived C4-20: a deployment diagram shows the environment's nodes that host instances of its systems or their containers
+  %% rule C4-23 (should): every container of a system a deployment diagram depicts has an instance on a node in the diagram's environment [C4-22], or is listed in its notDeployed
+  %% rule C4-24: a notDeployed key is a container of a system the diagram depicts that has no instance in the diagram's environment [C4-22]
 
   ENVIRONMENT {
     string operator "who runs it, e.g. self-hosting operator; omit when the team that owns the document runs it"

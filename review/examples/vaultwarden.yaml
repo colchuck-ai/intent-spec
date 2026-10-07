@@ -353,6 +353,8 @@ deploymentDiagrams:
   deploy-home:
     stage: ratified
     depicts: [vaultwarden-system, home-install]
+    notDeployed:
+      web-vault: Served by the API server and runs in the member's browser
 
 externalEntities:
   ee-clients: {stage: ratified, label: Bitwarden clients, represents: bitwarden-clients}

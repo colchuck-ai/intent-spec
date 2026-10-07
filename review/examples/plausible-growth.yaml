@@ -423,9 +423,13 @@ deploymentDiagrams:
   deploy-production:
     stage: ratified
     depicts: [plausible-system, production]
+    notDeployed:
+      tracker: Runs in the visitor's browser on customers' sites
   deploy-ce:
     stage: ratified
     depicts: [plausible-system, ce-compose]
+    notDeployed:
+      tracker: Runs in the visitor's browser on customers' sites
 
 # Couldn't express
 # - Plans and pricing tiers, and which features each plan includes.
@@ -443,8 +447,6 @@ deploymentDiagrams:
 #   outcome, and no outcome is about availability.
 # - How the product changed since the MVP. The deprecated requirement is the only
 #   trace; there's no change history or reason for the change.
-# - The tracker running in the visitor's browser, outside our control. Its
-#   process sits outside the hosting boundary, but nothing says where it runs.
 # - host-in-eu is satisfied by where we deploy, not by any container. Deployment
 #   nodes can't satisfy requirements, so I attached it to the whole system.
 # - The release pipeline (Docker images on a public registry).
