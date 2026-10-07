@@ -119,19 +119,20 @@ erDiagram
     string rationale "required when not-applicable"
   }
   THREAT_REVIEW }o--|| THREAT: reviews
-  THREAT_REVIEW }o--|| EXTERNAL_ENTITY: inspects
-  THREAT_REVIEW }o--|| PROCESS: inspects
-  THREAT_REVIEW }o--|| DATA_STORE: inspects
-  THREAT_REVIEW }o--|| DATA_FLOW: inspects
+  THREAT_REVIEW }o--o{ EXTERNAL_ENTITY: inspects
+  THREAT_REVIEW }o--o{ PROCESS: inspects
+  THREAT_REVIEW }o--o{ DATA_STORE: inspects
+  THREAT_REVIEW }o--o{ DATA_FLOW: inspects
   THREAT_REVIEW }o--o| RISK: raises
   THREAT_REVIEW }o--o{ CONTROL: cites
   THREAT_REVIEW }o--o{ REQUIREMENT: cites
-  %% rule RISK-4: every (threat, target) pair where the threat applies to the target's kind has exactly one review
+  %% rule RISK-16: a review inspects at least one target, and all its targets are of one kind
+  %% rule RISK-4: every (threat, target) pair where the threat applies to the target's kind is inspected by exactly one review; one review records one disposition for every target it inspects
   %% rule RISK-5: a deprecated target keeps its reviews
   %% rule RISK-6: raises exactly one risk when disposition is risk; otherwise none
   %% rule RISK-7: cites at least one control or requirement when disposition is covered; otherwise none
   %% derived RISK-8: a DFD's products are those realized by the system it depicts, or by the system containing the container it depicts
-  %% derived RISK-9: a review's products are the products [RISK-8] of every DFD that includes, or shows [DFD-20], the element it inspects
+  %% derived RISK-9: a review's products are the products [RISK-8] of every DFD that includes, or shows [DFD-20], an element it inspects
   %% rule RISK-10: when disposition is covered, for every product of the review [RISK-9], at least one cited control is adopted in mode system, procedure or inherited by that product, or at least one cited requirement is satisfied by a system that realizes that product, or by a container or component in one
   %% derived RISK-11: a threat poses every risk raised by a review of it
 

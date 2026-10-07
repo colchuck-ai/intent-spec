@@ -571,35 +571,20 @@ threats:
   t-flow-tampering: {stage: ratified, category: tampering, appliesTo: [data-flow], description: ePHI is modified in transit, threatens: [transport-encryption]}
 
 threatReviews:
-  r-spoof-clinician: {stage: ratified, reviews: t-spoofing, inspects: ee-clinician, disposition: covered, cites: [access-control, mfa]}
-  r-spoof-biller: {stage: ratified, reviews: t-spoofing, inspects: ee-biller, disposition: covered, cites: [access-control, mfa]}
-  r-spoof-patient: {stage: ratified, reviews: t-spoofing, inspects: ee-patient, disposition: risk, raises: portal-takeover}
-  r-spoof-apps: {stage: ratified, reviews: t-spoofing, inspects: ee-smart-apps, disposition: covered, cites: [fhir-patient-access]}
-  r-spoof-erx: {stage: ratified, reviews: t-spoofing, inspects: ee-erx, disposition: risk, raises: partner-compromise}
-  r-spoof-lab: {stage: ratified, reviews: t-spoofing, inspects: ee-lab, disposition: covered, cites: [partner-validation]}
-  r-spoof-clearinghouse: {stage: ratified, reviews: t-spoofing, inspects: ee-clearinghouse, disposition: covered, cites: [partner-validation]}
-  r-store-db: {stage: ratified, reviews: t-store-disclosure, inspects: ds-database, disposition: covered, cites: [access-control]}
-  r-store-docs: {stage: ratified, reviews: t-store-disclosure, inspects: ds-documents, disposition: covered, cites: [document-encryption-control]}
-  r-repudiate-clinical: {stage: ratified, reviews: t-repudiation, inspects: p-clinical, disposition: covered, cites: [audit-logging]}
-  r-repudiate-billing: {stage: ratified, reviews: t-repudiation, inspects: p-billing, disposition: covered, cites: [audit-logging]}
-  r-repudiate-portal: {stage: ratified, reviews: t-repudiation, inspects: p-portal, disposition: covered, cites: [audit-logging]}
-  r-repudiate-fhir: {stage: ratified, reviews: t-repudiation, inspects: p-fhir, disposition: covered, cites: [audit-logging]}
-  r-privilege-clinical: {stage: ratified, reviews: t-privilege, inspects: p-clinical, disposition: risk, raises: acl-misconfiguration}
-  r-privilege-billing: {stage: ratified, reviews: t-privilege, inspects: p-billing, disposition: covered, cites: [access-control]}
-  r-privilege-portal: {stage: ratified, reviews: t-privilege, inspects: p-portal, disposition: covered, cites: [access-control]}
-  r-privilege-fhir: {stage: ratified, reviews: t-privilege, inspects: p-fhir, disposition: covered, cites: [fhir-patient-access, access-control]}
-  r-tamper-clinician: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinician-clinical, disposition: risk, raises: no-tls}
-  r-tamper-biller: {stage: ratified, reviews: t-flow-tampering, inspects: df-biller-billing, disposition: risk, raises: no-tls}
-  r-tamper-patient: {stage: ratified, reviews: t-flow-tampering, inspects: df-patient-portal, disposition: risk, raises: no-tls}
-  r-tamper-apps: {stage: ratified, reviews: t-flow-tampering, inspects: df-apps-fhir, disposition: risk, raises: no-tls}
-  r-tamper-erx: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinical-erx, disposition: risk, raises: no-tls}
-  r-tamper-lab: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinical-lab, disposition: risk, raises: no-tls}
-  r-tamper-clearinghouse: {stage: ratified, reviews: t-flow-tampering, inspects: df-billing-clearinghouse, disposition: risk, raises: no-tls}
-  r-tamper-clinical-db: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinical-db, disposition: not-applicable, rationale: Same host or private network inside the data tier boundary}
-  r-tamper-clinical-docs: {stage: ratified, reviews: t-flow-tampering, inspects: df-clinical-docs, disposition: not-applicable, rationale: Local file system}
-  r-tamper-billing-db: {stage: ratified, reviews: t-flow-tampering, inspects: df-billing-db, disposition: not-applicable, rationale: Same host or private network inside the data tier boundary}
-  r-tamper-portal-db: {stage: ratified, reviews: t-flow-tampering, inspects: df-portal-db, disposition: not-applicable, rationale: Same host or private network inside the data tier boundary}
-  r-tamper-fhir-db: {stage: ratified, reviews: t-flow-tampering, inspects: df-fhir-db, disposition: not-applicable, rationale: Same host or private network inside the data tier boundary}
+  r-spoof-staff: {stage: ratified, reviews: t-spoofing, inspects: [ee-clinician, ee-biller], disposition: covered, cites: [access-control, mfa]}
+  r-spoof-patient: {stage: ratified, reviews: t-spoofing, inspects: [ee-patient], disposition: risk, raises: portal-takeover}
+  r-spoof-apps: {stage: ratified, reviews: t-spoofing, inspects: [ee-smart-apps], disposition: covered, cites: [fhir-patient-access]}
+  r-spoof-erx: {stage: ratified, reviews: t-spoofing, inspects: [ee-erx], disposition: risk, raises: partner-compromise}
+  r-spoof-partners: {stage: ratified, reviews: t-spoofing, inspects: [ee-lab, ee-clearinghouse], disposition: covered, cites: [partner-validation]}
+  r-store-db: {stage: ratified, reviews: t-store-disclosure, inspects: [ds-database], disposition: covered, cites: [access-control]}
+  r-store-docs: {stage: ratified, reviews: t-store-disclosure, inspects: [ds-documents], disposition: covered, cites: [document-encryption-control]}
+  r-repudiate: {stage: ratified, reviews: t-repudiation, inspects: [p-clinical, p-billing, p-portal, p-fhir], disposition: covered, cites: [audit-logging]}
+  r-privilege-clinical: {stage: ratified, reviews: t-privilege, inspects: [p-clinical], disposition: risk, raises: acl-misconfiguration}
+  r-privilege-other: {stage: ratified, reviews: t-privilege, inspects: [p-billing, p-portal], disposition: covered, cites: [access-control]}
+  r-privilege-fhir: {stage: ratified, reviews: t-privilege, inspects: [p-fhir], disposition: covered, cites: [fhir-patient-access, access-control]}
+  r-tamper-external: {stage: ratified, reviews: t-flow-tampering, inspects: [df-clinician-clinical, df-biller-billing, df-patient-portal, df-apps-fhir, df-clinical-erx, df-clinical-lab, df-billing-clearinghouse], disposition: risk, raises: no-tls}
+  r-tamper-db: {stage: ratified, reviews: t-flow-tampering, inspects: [df-clinical-db, df-billing-db, df-portal-db, df-fhir-db], disposition: not-applicable, rationale: Same host or private network inside the data tier boundary}
+  r-tamper-clinical-docs: {stage: ratified, reviews: t-flow-tampering, inspects: [df-clinical-docs], disposition: not-applicable, rationale: Local file system}
 
 # Couldn't express
 # - HIPAA applies to the clinic, not to OpenEMR. The whole security program exists
@@ -632,8 +617,7 @@ threatReviews:
 # - Clinical safety risks, such as a wrong medication from a data error, have no
 #   home. RISK only endangers outcomes, and patient harm isn't an outcome of
 #   these jobs.
-# - 29 threat reviews for a deliberately small DFD, 5 of them on local database
-#   flows that are obviously out of reach. A real deployment would need several
-#   hundred.
+# - 14 threat reviews cover 29 (threat, target) pairs on a deliberately small DFD,
+#   one review per decision. A real deployment would still need many more.
 # - The project's governance: OpenEMR Foundation, volunteer contributors and
 #   commercial support vendors who each deploy it differently.

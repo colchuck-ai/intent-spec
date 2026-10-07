@@ -467,25 +467,25 @@ threats:
     threatens: [tls-termination]
 
 threatReviews:
-  r-store-db: {stage: ratified, reviews: t-store-disclosure, inspects: ds-database, disposition: covered, cites: [client-side-encryption]}
-  r-store-files: {stage: ratified, reviews: t-store-disclosure, inspects: ds-files, disposition: covered, cites: [client-side-encryption]}
-  r-ssrf-api: {stage: ratified, reviews: t-server-side-request, inspects: p-api, disposition: risk, raises: icon-ssrf}
-  r-ssrf-web-vault: {stage: ratified, reviews: t-server-side-request, inspects: p-web-vault, disposition: not-applicable, rationale: Runs in the user's browser and makes no server-side requests}
-  r-spoof-clients: {stage: ratified, reviews: t-spoofed-party, inspects: ee-clients, disposition: covered, cites: [rate-limiting, two-factor]}
-  r-spoof-admin: {stage: ratified, reviews: t-spoofed-party, inspects: ee-admin, disposition: risk, raises: admin-takeover}
-  r-spoof-member: {stage: ratified, reviews: t-spoofed-party, inspects: ee-member, disposition: covered, cites: [rate-limiting, two-factor]}
-  r-spoof-push: {stage: ratified, reviews: t-spoofed-party, inspects: ee-push-relay, disposition: not-applicable, rationale: The server only sends to the relay; a spoofed relay learns only that a vault changed}
-  r-spoof-smtp: {stage: ratified, reviews: t-spoofed-party, inspects: ee-smtp, disposition: not-applicable, rationale: The server only sends mail and accepts none}
-  r-spoof-websites: {stage: ratified, reviews: t-spoofed-party, inspects: ee-websites, disposition: not-applicable, rationale: Fetched icons are images shown to the user; they carry no authority}
-  r-tamper-clients: {stage: ratified, reviews: t-flow-tampering, inspects: df-clients-api, disposition: risk, raises: no-tls}
-  r-tamper-admin: {stage: ratified, reviews: t-flow-tampering, inspects: df-admin-api, disposition: risk, raises: no-tls}
-  r-tamper-member: {stage: ratified, reviews: t-flow-tampering, inspects: df-member-web-vault, disposition: not-applicable, rationale: Interaction inside the user's own browser}
-  r-tamper-web-vault: {stage: ratified, reviews: t-flow-tampering, inspects: df-web-vault-api, disposition: risk, raises: no-tls}
-  r-tamper-db: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-db, disposition: not-applicable, rationale: Local socket or file on the same host}
-  r-tamper-files: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-files, disposition: not-applicable, rationale: Local file system on the same host}
-  r-tamper-push: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-push, disposition: risk, raises: no-tls}
-  r-tamper-smtp: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-smtp, disposition: risk, raises: no-tls}
-  r-tamper-websites: {stage: ratified, reviews: t-flow-tampering, inspects: df-api-websites, disposition: covered, cites: [icon-fetch-guard]}
+  r-store-db: {stage: ratified, reviews: t-store-disclosure, inspects: [ds-database], disposition: covered, cites: [client-side-encryption]}
+  r-store-files: {stage: ratified, reviews: t-store-disclosure, inspects: [ds-files], disposition: covered, cites: [client-side-encryption]}
+  r-ssrf-api: {stage: ratified, reviews: t-server-side-request, inspects: [p-api], disposition: risk, raises: icon-ssrf}
+  r-ssrf-web-vault: {stage: ratified, reviews: t-server-side-request, inspects: [p-web-vault], disposition: not-applicable, rationale: Runs in the user's browser and makes no server-side requests}
+  r-spoof-clients: {stage: ratified, reviews: t-spoofed-party, inspects: [ee-clients], disposition: covered, cites: [rate-limiting, two-factor]}
+  r-spoof-admin: {stage: ratified, reviews: t-spoofed-party, inspects: [ee-admin], disposition: risk, raises: admin-takeover}
+  r-spoof-member: {stage: ratified, reviews: t-spoofed-party, inspects: [ee-member], disposition: covered, cites: [rate-limiting, two-factor]}
+  r-spoof-push: {stage: ratified, reviews: t-spoofed-party, inspects: [ee-push-relay], disposition: not-applicable, rationale: The server only sends to the relay; a spoofed relay learns only that a vault changed}
+  r-spoof-smtp: {stage: ratified, reviews: t-spoofed-party, inspects: [ee-smtp], disposition: not-applicable, rationale: The server only sends mail and accepts none}
+  r-spoof-websites: {stage: ratified, reviews: t-spoofed-party, inspects: [ee-websites], disposition: not-applicable, rationale: Fetched icons are images shown to the user; they carry no authority}
+  r-tamper-clients: {stage: ratified, reviews: t-flow-tampering, inspects: [df-clients-api], disposition: risk, raises: no-tls}
+  r-tamper-admin: {stage: ratified, reviews: t-flow-tampering, inspects: [df-admin-api], disposition: risk, raises: no-tls}
+  r-tamper-member: {stage: ratified, reviews: t-flow-tampering, inspects: [df-member-web-vault], disposition: not-applicable, rationale: Interaction inside the user's own browser}
+  r-tamper-web-vault: {stage: ratified, reviews: t-flow-tampering, inspects: [df-web-vault-api], disposition: risk, raises: no-tls}
+  r-tamper-db: {stage: ratified, reviews: t-flow-tampering, inspects: [df-api-db], disposition: not-applicable, rationale: Local socket or file on the same host}
+  r-tamper-files: {stage: ratified, reviews: t-flow-tampering, inspects: [df-api-files], disposition: not-applicable, rationale: Local file system on the same host}
+  r-tamper-push: {stage: ratified, reviews: t-flow-tampering, inspects: [df-api-push], disposition: risk, raises: no-tls}
+  r-tamper-smtp: {stage: ratified, reviews: t-flow-tampering, inspects: [df-api-smtp], disposition: risk, raises: no-tls}
+  r-tamper-websites: {stage: ratified, reviews: t-flow-tampering, inspects: [df-api-websites], disposition: covered, cites: [icon-fetch-guard]}
 
 # Couldn't express
 # - Who owns what between the project and the self-hoster. The project ships

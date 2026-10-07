@@ -447,19 +447,19 @@ threats:
     description: Code running in a process is replaced or modified
 
 threatReviews:
-  r-spoof-tinkerer: {stage: ratified, reviews: t-spoofed-party, inspects: ee-tinkerer, disposition: risk, raises: exposed-instances}
-  r-spoof-member: {stage: ratified, reviews: t-spoofed-party, inspects: ee-member, disposition: covered, cites: [multi-factor-auth, role-based-users]}
-  r-spoof-devices: {stage: ratified, reviews: t-spoofed-party, inspects: ee-devices, disposition: not-applicable, rationale: Device pairing security is set by each protocol (Zigbee, Z-Wave, Matter) and outside our design}
-  r-spoof-clouds: {stage: ratified, reviews: t-spoofed-party, inspects: ee-vendor-clouds, disposition: not-applicable, rationale: Vendor APIs are reached over HTTPS with certificate validation}
-  r-spoof-ha-cloud: {stage: ratified, reviews: t-spoofed-party, inspects: ee-ha-cloud, disposition: covered, cites: [remote-access-options]}
-  r-spoof-registry: {stage: ratified, reviews: t-spoofed-party, inspects: ee-registry, disposition: covered, cites: [signed-images]}
-  r-spoof-versions: {stage: ratified, reviews: t-spoofed-party, inspects: ee-version-service, disposition: covered, cites: [signed-images]}
-  r-store-recorder: {stage: ratified, reviews: t-store-disclosure, inspects: ds-recorder, disposition: covered, cites: [local-history, role-based-users]}
-  r-store-config: {stage: ratified, reviews: t-store-disclosure, inspects: ds-config, disposition: risk, raises: custom-code}
-  r-tamper-core: {stage: ratified, reviews: t-process-tampering, inspects: p-core, disposition: covered, cites: [custom-integration-warning]}
-  r-tamper-supervisor: {stage: ratified, reviews: t-process-tampering, inspects: p-supervisor, disposition: risk, raises: update-supply-chain}
-  r-tamper-frontend: {stage: ratified, reviews: t-process-tampering, inspects: p-frontend, disposition: covered, cites: [signed-images]}
-  r-tamper-companion: {stage: ratified, reviews: t-process-tampering, inspects: p-companion, disposition: not-applicable, rationale: Distributed through the app stores, which sign and review builds}
+  r-spoof-tinkerer: {stage: ratified, reviews: t-spoofed-party, inspects: [ee-tinkerer], disposition: risk, raises: exposed-instances}
+  r-spoof-member: {stage: ratified, reviews: t-spoofed-party, inspects: [ee-member], disposition: covered, cites: [multi-factor-auth, role-based-users]}
+  r-spoof-devices: {stage: ratified, reviews: t-spoofed-party, inspects: [ee-devices], disposition: not-applicable, rationale: Device pairing security is set by each protocol (Zigbee, Z-Wave, Matter) and outside our design}
+  r-spoof-clouds: {stage: ratified, reviews: t-spoofed-party, inspects: [ee-vendor-clouds], disposition: not-applicable, rationale: Vendor APIs are reached over HTTPS with certificate validation}
+  r-spoof-ha-cloud: {stage: ratified, reviews: t-spoofed-party, inspects: [ee-ha-cloud], disposition: covered, cites: [remote-access-options]}
+  r-spoof-registry: {stage: ratified, reviews: t-spoofed-party, inspects: [ee-registry], disposition: covered, cites: [signed-images]}
+  r-spoof-versions: {stage: ratified, reviews: t-spoofed-party, inspects: [ee-version-service], disposition: covered, cites: [signed-images]}
+  r-store-recorder: {stage: ratified, reviews: t-store-disclosure, inspects: [ds-recorder], disposition: covered, cites: [local-history, role-based-users]}
+  r-store-config: {stage: ratified, reviews: t-store-disclosure, inspects: [ds-config], disposition: risk, raises: custom-code}
+  r-tamper-core: {stage: ratified, reviews: t-process-tampering, inspects: [p-core], disposition: covered, cites: [custom-integration-warning]}
+  r-tamper-supervisor: {stage: ratified, reviews: t-process-tampering, inspects: [p-supervisor], disposition: risk, raises: update-supply-chain}
+  r-tamper-frontend: {stage: ratified, reviews: t-process-tampering, inspects: [p-frontend], disposition: covered, cites: [signed-images]}
+  r-tamper-companion: {stage: ratified, reviews: t-process-tampering, inspects: [p-companion], disposition: not-applicable, rationale: Distributed through the app stores, which sign and review builds}
 
 # Couldn't express
 # - Installation methods. Home Assistant OS, Container, Supervised and Core
