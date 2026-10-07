@@ -305,7 +305,7 @@ erDiagram
   }
   SYSTEM ||--o{ CONTAINER: contains
   SYSTEM }o--o{ PRODUCT: realizes
-  %% rule C4-3: an internal system that realizes a product contains at least one container
+  %% rule C4-3: a ratified internal system that realizes a product contains at least one container; a proposed one may stop at its system context [DOC-2]
   %% rule C4-4: an external system contains no containers
   %% rule C4-5: only an internal system realizes a product
 
