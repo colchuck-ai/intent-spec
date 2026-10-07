@@ -20,7 +20,7 @@ erDiagram
   DOCUMENT ||--o{ IMPORT: has
 
   IMPORT {
-    string alias "local prefix in alias:id; unique in the document"
+    string alias "local prefix in alias:id; unique in the document; required"
     string source "where the imported document is fetched from; required"
     string version "semver range; required"
   }
@@ -45,6 +45,7 @@ erDiagram
   %% derived DOC-2: an item's stage is its own stage, or else the document's stage; every rule that names a stage means this one
   %% A deprecated item names its replacement (replacedBy) or, when nothing replaces it, gives a deprecationRationale.
   %% Every item may also have a name and a description (free text, optional); they are not repeated in each entity. Rule C4-1 asks for both on C4 elements.
+  %% An attribute is optional unless marked required. An optional attribute without a stated default is absent when omitted; a list attribute marked "one or more" is required and non-empty.
   %% A date is an ISO 8601 calendar date string (YYYY-MM-DD). Loaders parse YAML with the YAML 1.2 JSON or core schema, so an unquoted date stays a string, never a timestamp.
   %% rule REF-1: a link not drawn to EXTERNAL_REFERENCE resolves to a local or imported item; an external reference there is a type error
   %% rule REF-2: where allowed, an external reference satisfies a link's cardinality; rules that inspect the target skip it
@@ -118,7 +119,7 @@ erDiagram
   %% Risk
 
   THREAT {
-    enum category "spoofing | tampering | repudiation | information-disclosure | denial-of-service | elevation-of-privilege | other"
+    enum category "spoofing | tampering | repudiation | information-disclosure | denial-of-service | elevation-of-privilege | other; required"
     enum appliesTo "external-entity | process | data-store | data-flow; zero or more; empty means not reviewed per DFD element"
     string rationale "required when appliesTo is outside the STRIDE-per-element set"
   }
@@ -129,7 +130,7 @@ erDiagram
   %% rule RISK-2 (should): every threat threatens at least one control
 
   THREAT_REVIEW {
-    enum disposition "risk | covered | not-applicable"
+    enum disposition "risk | covered | not-applicable; required"
     string rationale "required when not-applicable"
   }
   THREAT_REVIEW }o--|| THREAT: reviews
@@ -155,7 +156,7 @@ erDiagram
   %% rule RISK-12: every risk has at least one treatment
 
   TREATMENT {
-    enum strategy "avoid | reduce | transfer | accept"
+    enum strategy "avoid | reduce | transfer | accept; required"
     string owner "accountable person; for accept, who accepted; required"
     date reviewBy "required when reduce or accept"
     string rationale "required unless reduce; names the removed feature, the receiving party, or why the risk is accepted"
@@ -221,7 +222,7 @@ erDiagram
   CONTROL {
     string statement "the safeguard; required"
     string owner "stakeholder; required"
-    enum safeguard "technical | administrative | physical"
+    enum safeguard "technical | administrative | physical; required"
   }
   CONTROL }o--|{ STANDARD: enforces
   CONTROL }o--|{ CONTROL_OBJECTIVE: achieves
@@ -241,14 +242,14 @@ erDiagram
   %% a profile is a company-level selection of controls (OSCAL profile); a product selects the profiles that apply to it
 
   SELECTION {
-    enum choice "include | exclude"
+    enum choice "include | exclude; required"
     string rationale "required when exclude"
   }
   SELECTION }o--|| CONTROL: names
   %% rule GRC-8: at most one selection per (profile, control) pair
 
   ADOPTION {
-    enum mode "system | procedure | inherited | delegated | excepted | not-applicable"
+    enum mode "system | procedure | inherited | delegated | excepted | not-applicable; required"
     string rationale "required when delegated or not-applicable"
     string decidedBy "who made the governance decision; required when inherited, excepted or not-applicable"
     string delegatedTo "the downstream party that must implement the control, e.g. the deploying customer; required when delegated, otherwise none"
@@ -296,7 +297,7 @@ erDiagram
 
   SYSTEM {
     string owner "team that builds and runs it; required"
-    boolean external "not built and owned by the team that owns this document"
+    boolean external "not built and owned by the team that owns this document; optional, default false"
   }
   SYSTEM ||--o{ CONTAINER: contains
   SYSTEM }o--o{ PRODUCT: realizes
@@ -305,7 +306,7 @@ erDiagram
   %% rule C4-5: only an internal system realizes a product
 
   CONTAINER {
-    enum kind "application | data-store"
+    enum kind "application | data-store; required"
     string technology
   }
   CONTAINER ||--o{ COMPONENT: contains
@@ -355,7 +356,7 @@ erDiagram
   %% the system or container a dynamic diagram depicts sets its C4 level; with neither it is a landscape-level diagram
 
   DYNAMIC_STEP {
-    int order "unique within the diagram"
+    int order "unique within the diagram; required"
     string description "optional; overrides the relationship's description"
     enum direction "request | response; optional, default request; a response runs from the relationship's destination back to its source"
   }
@@ -429,7 +430,7 @@ erDiagram
   %% rule DFD-5: a data store represents only a container whose kind is data-store
 
   DATA_ELEMENT {
-    enum classification "public | internal | confidential | restricted"
+    enum classification "public | internal | confidential | restricted; required"
   }
   DATA_ELEMENT }o--o{ INFLUENCER: triggers
 
@@ -471,7 +472,7 @@ erDiagram
   %% derived DFD-15: an element is inside a boundary when that boundary, or one it contains, encloses it
 
   DATA_FLOW_DIAGRAM {
-    enum level "context | detail"
+    enum level "context | detail; required"
   }
   DATA_FLOW_DIAGRAM }o--|| SYSTEM: depicts
   DATA_FLOW_DIAGRAM }o--|| CONTAINER: depicts
