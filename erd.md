@@ -127,7 +127,7 @@ erDiagram
   %% threatens is HCGF's sense: the threat can stop the control working as expected (not "the control mitigates the threat")
   %% STRIDE-per-element set: external-entity S,R; process S,T,R,I,D,E; data-store T,R,I,D; data-flow T,I,D. Category other allows any appliesTo.
   %% rule RISK-1 (should): appliesTo is within the STRIDE-per-element set for the category, or the threat gives a rationale
-  %% rule RISK-2 (should): every threat threatens at least one control
+  %% rule RISK-2 (should): every threat threatens at least one control, or some review of it cites a control or requirement
 
   THREAT_REVIEW {
     enum disposition "risk | covered | not-applicable; required"
