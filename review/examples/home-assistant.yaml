@@ -258,9 +258,9 @@ dynamicDiagrams:
     depicts: ha-system
 
 dynamicSteps:
-  dyn-motion-light-1: {in: dyn-motion-light, order: 1, follows: core-controls-devices, direction: response, description: A Zigbee sensor sends a motion event to Core}
-  dyn-motion-light-2: {in: dyn-motion-light, order: 2, follows: core-controls-devices, description: Core runs the automation and sends a turn-on command to the light}
-  dyn-motion-light-3: {in: dyn-motion-light, order: 3, follows: core-records, description: The recorder stores both state changes}
+  dyn-motion-light-1: {in: dyn-motion-light, order: 1, follows: integrations-control-devices, direction: response, description: A Zigbee sensor sends a motion event to Core}
+  dyn-motion-light-2: {in: dyn-motion-light, order: 2, follows: integrations-control-devices, description: Core runs the automation and sends a turn-on command to the light}
+  dyn-motion-light-3: {in: dyn-motion-light, order: 3, follows: recorder-writes-history, description: The recorder stores both state changes}
 
 environments:
   haos-install: {name: Home Assistant OS install, serves: [home-assistant], operator: Household}

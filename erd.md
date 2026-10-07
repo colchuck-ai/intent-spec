@@ -379,7 +379,7 @@ erDiagram
   }
   DYNAMIC_STEP }|--|| DYNAMIC_DIAGRAM: in
   DYNAMIC_STEP }o--|| RELATIONSHIP: follows
-  %% rule C4-19: each end of a step's relationship is a person or a system, a container when the diagram depicts its system or any container, or a component when the diagram depicts its container
+  %% rule C4-19: a step is drawn between its relationship's ends lifted to the diagram's level [C4-12]: a component stays when the diagram depicts its container and otherwise lifts to its container; a container stays when the diagram depicts its system or any container and otherwise lifts to its system; the two drawn ends differ
 
   DEPLOYMENT_DIAGRAM {
     map notDeployed "container id to why it has no instance in the environment, e.g. runs in the visitor's browser; optional"
