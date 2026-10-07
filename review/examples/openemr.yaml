@@ -570,8 +570,8 @@ threats:
   t-flow-tampering: {stage: ratified, category: tampering, appliesTo: [data-flow], description: ePHI is modified in transit, threatens: [transport-encryption]}
 
 threatReviews:
-  r-spoof-clinician: {stage: ratified, reviews: t-spoofing, inspects: ee-clinician, disposition: covered, cites: [access-control]}
-  r-spoof-biller: {stage: ratified, reviews: t-spoofing, inspects: ee-biller, disposition: covered, cites: [access-control]}
+  r-spoof-clinician: {stage: ratified, reviews: t-spoofing, inspects: ee-clinician, disposition: covered, cites: [access-control, mfa]}
+  r-spoof-biller: {stage: ratified, reviews: t-spoofing, inspects: ee-biller, disposition: covered, cites: [access-control, mfa]}
   r-spoof-patient: {stage: ratified, reviews: t-spoofing, inspects: ee-patient, disposition: risk, raises: portal-takeover}
   r-spoof-apps: {stage: ratified, reviews: t-spoofing, inspects: ee-smart-apps, disposition: covered, cites: [fhir-patient-access]}
   r-spoof-erx: {stage: ratified, reviews: t-spoofing, inspects: ee-erx, disposition: risk, raises: partner-compromise}
@@ -619,10 +619,6 @@ threatReviews:
 #   MFA is available but not enforced by default on self-installs. The system
 #   adoption claims the control, but whether a given clinic has it switched on is
 #   deployment state, which is out of scope.
-# - The spoofing reviews for clinicians and billers can't cite MFA. A review
-#   covers every product of its DFD at once, and MFA is excepted on OpenEMR Cloud,
-#   so citing it breaks the adoption rule. I can't say "covered by MFA on OpenEMR,
-#   by access control alone on Cloud".
 # - cloud-tls is satisfied by the AWS load balancer, an infrastructure node.
 #   Those can't satisfy requirements, so I attached it to the whole system.
 # - The ACL-misconfiguration risk is caused by the clinic, not an attacker, but it
