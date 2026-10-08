@@ -10,21 +10,30 @@ Beads hold all the state. The orchestrating session dispatches subagents and rea
 
 ## Orchestrator
 
-Keep your own context small. Subagents return one-line receipts, and bead content stays in beads.
+Keep your own context small. Subagents return one-line receipts, and bead content stays in beads. Never dispatch fixers one by one yourself: the fix runner does that and reports once.
 
 Keep `../journal.md` current. It is raw material for a blog post about how intent-spec was built. Append an entry, following the format at the top of that file, whenever a human decides a gate, an invariant or the process changes, a fix is reverted, a result challenges the approach, or a round ends with its numbers. Commit it on main.
 
-On every start or resume, check these in order:
+On every start or resume, start the Neo4j harness first (see `../harness/README.md`):
+
+```bash
+cd ../harness
+docker compose up -d        # on this machine: DOCKER_CONTEXT=desktop-linux docker compose up -d
+uv run harness.py load      # rebuild the graph from the YAML in git
+```
+
+Then check these in order:
 
 1. **Working tree has uncommitted changes outside `.beads/` and `.obsidian/`:** stop and ask the human. Never discard changes. Beads and Obsidian update their own files.
 2. **`bd gate list` shows an open human gate:** stop and show the human the gates and the findings they block.
-3. **Your context is nearing 30%:** pause and ask the human whether to stop. Resuming in a fresh session loses nothing.
+3. **Your context is nearing 25%:** pause and ask the human whether to stop. Resuming in a fresh session loses nothing.
 4. **Otherwise, run `bd mol current <round>` and act on the first match.** Read step state from the molecule, not from `phase:` labels: findings inherit their parent step's labels, so a label query returns findings too.
    - **Review steps ready or in progress:** dispatch one subagent per step, in parallel. Give it the step ID and tell it to follow the Review section below.
    - **Triage ready:** dispatch one subagent with the Triage section.
-   - **Fix ready:** run `bd ready --label triage:accept`, then dispatch one fixer at a time, each with one bead ID and the Fix section. When no open finding labelled `triage:accept` remains, close the fix step.
+   - **Fix ready:** dispatch one subagent with the Fix runner section. When it reports the queue empty, run `uv run harness.py check` on all examples. Close the fix step only when it shows no errors and every warning is either waived with a rationale or has an open bead; otherwise file the rest as `harness-finding` beads and triage them.
    - **Summarize ready:** dispatch one subagent with the Summarize section.
    - **All steps closed:** report the summary and stop.
+5. **Outside a round,** open beads labelled `harness-finding` come from the rule checker. Triage them with the Triage section (they carry no `round:` label), then run the Fix runner on them.
 
 ## Review
 
@@ -32,6 +41,7 @@ You are given one review step. Its description names your persona and examples.
 
 1. Claim the step with `bd update <step> --claim`. If it already has child findings from an interrupted run, close each one with the reason "superseded by rerun".
 2. Read `../README.md`, `../erd.md`, `prompt.md`, your persona, `examples/README.md` and your examples.
+   Run `uv run harness.py check <your examples>` from `../harness` and query the graph in Neo4j as evidence. Don't file what the checker already reports: those are already tracked.
 3. Review as `prompt.md` describes, then file each finding as a child of the step:
    ```bash
    bd create --parent <step> --type task --priority P<1-3> \
@@ -47,7 +57,7 @@ You are given one review step. Its description names your persona and examples.
 
 ## Triage
 
-1. Claim the triage step. Work only on findings labelled `finding,round:<n>` that have no `triage:` label, so a rerun continues where the last one stopped.
+1. Claim the triage step. Work only on findings labelled `finding,round:<n>` (or `harness-finding`, outside a round) that have no `triage:` label, so a rerun continues where the last one stopped.
 2. Before deciding, look for earlier decisions on the same idea among closed findings from previous rounds. Their close reasons are in `bd list --label finding --status closed --json`.
 3. Decide each finding:
    - **Duplicate:** close it with the reason "duplicate of <id>". Raise the surviving finding's priority if the duplicate was higher, and add the duplicate's persona and example labels to it.
@@ -75,7 +85,17 @@ You are given one accepted finding.
 2. Read the finding, its comments, any resolved gate, and every finding it depends on or is related to (`bd dep list <id>` and `bd dep list <id> --direction=up`), including the commits that fixed them. A human's decision is recorded as a comment on the finding, and it overrides the proposal. Build on earlier fixes and never undo them. If this finding has become obsolete, close it with a reason instead of committing.
 3. Make the smallest change that resolves the finding across `../erd.md`, `examples/` and, only when a gate approved it, `../README.md`. Keep the examples consistent with the ERD.
 4. If the change turns out to touch an invariant or the review process, create a human gate on the finding as Triage step 3 describes and reply "escalated". Leave any edits you've already made uncommitted; the orchestrator will see the dirty tree and bring in the human.
-5. Commit on main with the message `<id>: <summary>`, then close the finding with the reason "fixed in <sha>". Reply with "fixed" or "escalated".
+5. Verify with the harness from `../harness`: `uv run harness.py load` and `uv run harness.py check <affected examples>`. The finding must be gone and nothing new may appear, and `uv run harness.py export` must leave no unintended diff. If you change a rule's text in `../erd.md`, update its `../harness/rules/<ID>.cypher` and show it still fires on a planted violation in a scratch copy (`../harness/rules/README.md`).
+6. Commit on main with the message `<id>: <summary>`, then close the finding with the reason "fixed in <sha>". Reply with "fixed" or "escalated".
+
+## Fix runner
+
+You run the fix queue so the orchestrator doesn't have to.
+
+1. Loop: take the first bead from `bd ready --label triage:accept`. If there is none, stop.
+2. Dispatch one fixer subagent for it with the Fix section and wait. One fixer at a time, never in parallel.
+3. After it replies, check that the working tree is clean apart from `.beads/` and that `bd gate list` is empty. If the fixer escalated, a gate opened or the tree is dirty, stop.
+4. Reply with one line: "fixed <n>; stopped: <reason or queue empty>; escalated: <ids>".
 
 ## Summarize
 
