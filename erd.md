@@ -24,21 +24,7 @@ erDiagram
     string source "where the imported document is fetched from; required"
     string version "semver range; required"
   }
-  %% the lockfile sits beside the document and, per import alias, records source, resolved version, digest, the imported document's stage and a snapshot of items keyed by type and id, each with its stage resolved [DOC-2]
-  %% the snapshot holds the referenced items plus their closure over outgoing links and over contained items (items whose in points at a snapshotted item, e.g. a profile's selections), stopping at external references
-  %% ids inside a snapshot are read relative to its alias; rules that follow links into an import read the snapshot, never the fetched document
   %% rule DOC-1: removing or renaming an item id is a breaking change (major version)
-
-  %% Serialization
-  %% A document is one YAML or JSON object. Its top-level keys are the DOCUMENT fields, imports (a map from alias to {source, version}) and one key per entity type.
-  %% An entity type's key is its name in camelCase with the last word pluralised by adding s (JOB_EXECUTOR jobExecutors, DATA_FLOW_DIAGRAM dataFlowDiagrams), except:
-  %% PERSON people, POLICY policies, PROCESS processes, EXTERNAL_ENTITY externalEntities, TRUST_BOUNDARY trustBoundaries.
-  %% Each entity type's value is a map from item id to the item's fields; nothing nests, so an item's JSON pointer is /<key>/<id>.
-  %% An item id, the document id and an import alias match ^[a-z0-9]+(-[a-z0-9]+)*$, so a pointer needs no ~0 or ~1 escaping.
-  %% A reference is an id or alias:id; the colon tells them apart because no id contains one.
-  %% A link is a field on its source item named after its verb, containment included (in). A to-one link (|| or o| at the target) holds one reference; a to-many link (|{ or o{) holds a list.
-  %% An attribute whose type ends in [] is a list of values of that type; its description says "one or more" (minItems 1) or "zero or more". Any other attribute holds one value of its type.
-  %% ruleWaivers is an object whose keys are rule IDs as written here (e.g. GRC-25) and whose values are rationale strings.
 
   %% References
   %% Every link below is a reference. Its target is a local item id or an imported alias:id.
@@ -60,7 +46,7 @@ erDiagram
   %% Every item may also have ruleWaivers (optional): a map from the ID of a (should) rule to a rationale for why that warning does not apply to the item. A checker reports a waived warning as waived, with its rationale, instead of dropping it. (A treatment's waives link is unrelated: it waives standards and procedures.)
   %% rule DOC-3: every key of an item's ruleWaivers is the ID of a (should) rule; waiving an error-severity rule or an unknown ID is itself an error
   %% An attribute is optional unless marked required. An optional attribute without a stated default is absent when omitted; a list attribute marked "one or more" is required and non-empty.
-  %% A date is an ISO 8601 calendar date string (YYYY-MM-DD). Loaders parse YAML with the YAML 1.2 JSON or core schema, so an unquoted date stays a string, never a timestamp.
+  %% A date is an ISO 8601 calendar date (YYYY-MM-DD).
   %% rule REF-1: a link not drawn to EXTERNAL_REFERENCE resolves to a local or imported item; an external reference there is a type error
   %% rule REF-2: where allowed, an external reference satisfies a link's cardinality; rules that inspect the target skip it
   %% rule REF-3: a ratified item does not link to a proposed item [DOC-2]
@@ -524,3 +510,25 @@ erDiagram
   %% rule DFD-19 (should): every data store and external entity in a DFD connects at least one data flow the DFD shows [DFD-20]
   %% derived DFD-20: a DFD shows every data flow whose two ends it includes, and every trust boundary enclosing an included element
 ```
+
+## Appendix: reference serialization
+
+The model is the deliverable; how it is stored is not (see README). The examples in `review/examples` and the Neo4j harness use the serialization below. It is a test fixture, not part of the model.
+
+### Documents
+
+- A document is one YAML or JSON object. Its top-level keys are the DOCUMENT fields, imports (a map from alias to {source, version}) and one key per entity type.
+- An entity type's key is its name in camelCase with the last word pluralised by adding s (JOB_EXECUTOR jobExecutors, DATA_FLOW_DIAGRAM dataFlowDiagrams), except PERSON people, POLICY policies, PROCESS processes, EXTERNAL_ENTITY externalEntities, TRUST_BOUNDARY trustBoundaries.
+- Each entity type's value is a map from item id to the item's fields; nothing nests, so an item's JSON pointer is /<key>/<id>.
+- An item id, the document id and an import alias match ^[a-z0-9]+(-[a-z0-9]+)*$, so a pointer needs no ~0 or ~1 escaping.
+- A reference is an id or alias:id; the colon tells them apart because no id contains one.
+- A link is a field on its source item named after its verb, containment included (in). A to-one link (|| or o| at the target) holds one reference; a to-many link (|{ or o{) holds a list.
+- An attribute whose type ends in [] is a list of values of that type; its description says "one or more" (minItems 1) or "zero or more". Any other attribute holds one value of its type.
+- ruleWaivers is an object whose keys are rule IDs as written here (e.g. GRC-25) and whose values are rationale strings.
+- Loaders parse YAML with the YAML 1.2 JSON or core schema, so an unquoted date stays a string, never a timestamp.
+
+### Imports and lockfile
+
+- The lockfile sits beside the document and, per import alias, records source, resolved version, digest, the imported document's stage and a snapshot of items keyed by type and id, each with its stage resolved [DOC-2]
+- The snapshot holds the referenced items plus their closure over outgoing links and over contained items (items whose in points at a snapshotted item, e.g. a profile's selections), stopping at external references
+- Ids inside a snapshot are read relative to its alias; rules that follow links into an import read the snapshot, never the fetched document

@@ -13,7 +13,7 @@ RETURN '/<key>/' + n.id AS pointer, '<what is wrong>' AS detail
 ```
 
 - **severity** is `warning` for a rule marked `(should)` and `error` for every other rule.
-- The query receives `$doc` and returns one row per problem. `pointer` is the item's JSON pointer `/<key>/<id>` (INV-2). Get `<key>` from `(:EntityType {name: n.type}).key`, or write it literally when the type is fixed. `detail` is optional.
+- The query receives `$doc` and returns one row per problem. `pointer` is the item's JSON pointer `/<key>/<id>` (erd.md, reference serialization). Get `<key>` from `(:EntityType {name: n.type}).key`, or write it literally when the type is fixed. `detail` is optional.
 - Match only items in the document: `(n:Item {doc: $doc})`, or a label such as `(:Product {doc: $doc})`.
 
 ## Mapping reminders
