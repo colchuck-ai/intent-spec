@@ -227,8 +227,8 @@ components:
   websocket-api: {in: core, name: WebSocket API, description: API for the frontend and apps, technology: aiohttp}
 
 relationships:
-  tinkerer-configures: {leaves: tinkerer, enters: frontend, description: Configures integrations and automations}
-  member-uses-app: {leaves: member, enters: companion, description: Checks dashboards and receives alerts}
+  tinkerer-configures: {leaves: tinkerer, enters: frontend, description: Configures integrations and automations, technology: Web browser}
+  member-uses-app: {leaves: member, enters: companion, description: Checks dashboards and receives alerts, technology: Mobile app}
   frontend-calls-core: {leaves: frontend, enters: core, description: Reads state and calls services, technology: WebSocket}
   companion-calls-core: {leaves: companion, enters: core, description: 'Reads state, calls services and registers for notifications', technology: 'WebSocket, REST'}
   core-records: {leaves: core, enters: recorder-db, description: Writes and queries history, technology: SQL}

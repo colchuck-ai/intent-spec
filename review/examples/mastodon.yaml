@@ -359,9 +359,9 @@ components:
   admin: {in: web, name: Admin and moderation, description: 'Report queue, account and domain actions', technology: Rails}
 
 relationships:
-  user-uses-web-ui: {leaves: user, enters: web-ui, description: Reads timelines and posts}
-  moderator-uses-web-ui: {leaves: moderator, enters: web-ui, description: Handles reports and domain blocks}
-  user-uses-apps: {leaves: user, enters: client-apps, description: Reads timelines and posts}
+  user-uses-web-ui: {leaves: user, enters: web-ui, description: Reads timelines and posts, technology: Web browser}
+  moderator-uses-web-ui: {leaves: moderator, enters: web-ui, description: Handles reports and domain blocks, technology: Web browser}
+  user-uses-apps: {leaves: user, enters: client-apps, description: Reads timelines and posts, technology: Mobile and desktop apps}
   web-ui-calls-api: {leaves: web-ui, enters: web, description: Calls the REST API, technology: HTTPS}
   web-ui-streams: {leaves: web-ui, enters: streaming, description: Subscribes to live updates, technology: WebSocket}
   apps-call-api: {leaves: client-apps, enters: web, description: Calls the REST API, technology: 'HTTPS, OAuth 2'}

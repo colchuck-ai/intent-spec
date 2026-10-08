@@ -284,10 +284,10 @@ components:
   notifications: {in: api-server, name: Notifications, description: WebSocket hub and push relay client, technology: Rust}
 
 relationships:
-  member-uses-clients: {leaves: household-member, enters: bitwarden-clients, description: Stores and fills passwords}
+  member-uses-clients: {leaves: household-member, enters: bitwarden-clients, description: Stores and fills passwords, technology: 'Browser extension, desktop and mobile apps'}
   clients-sync: {leaves: bitwarden-clients, enters: api-server, description: Logs in and syncs encrypted vault items, technology: 'HTTPS, WebSocket'}
   admin-manages: {leaves: admin, enters: api-server, description: Manages users and settings on the admin page, technology: HTTPS}
-  member-uses-web-vault: {leaves: household-member, enters: web-vault, description: Manages the vault in a browser}
+  member-uses-web-vault: {leaves: household-member, enters: web-vault, description: Manages the vault in a browser, technology: Web browser}
   web-vault-calls-api: {leaves: web-vault, enters: api-server, description: Logs in and syncs encrypted vault items, technology: HTTPS}
   api-uses-db: {leaves: api-server, enters: database, description: Reads and writes users and ciphertext, technology: Diesel/SQL}
   api-uses-files: {leaves: api-server, enters: attachments, description: Reads and writes attachments and icons, technology: File I/O}

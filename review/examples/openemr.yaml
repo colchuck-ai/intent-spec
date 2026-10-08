@@ -398,7 +398,7 @@ relationships:
   clinician-uses-clinical: {leaves: clinician-person, enters: clinical, description: Documents visits and orders, technology: HTTPS}
   biller-uses-billing: {leaves: biller-person, enters: billing, description: Prepares and submits claims, technology: HTTPS}
   patient-uses-portal: {leaves: patient-person, enters: portal, description: Views records and sends messages, technology: HTTPS}
-  patient-uses-apps: {leaves: patient-person, enters: smart-apps, description: Uses health apps}
+  patient-uses-apps: {leaves: patient-person, enters: smart-apps, description: Uses health apps, technology: 'Web browser, mobile app'}
   apps-call-fhir: {leaves: smart-apps, enters: fhir-api, description: Reads the patient's records, technology: 'HTTPS, FHIR R4, OAuth 2'}
   clinical-sends-erx: {leaves: clinical, enters: erx-network, description: Sends prescriptions, technology: 'HTTPS, NCPDP SCRIPT'}
   clinical-exchanges-labs: {leaves: clinical, enters: lab, description: Sends orders and receives results, technology: HL7 v2 over SFTP}
