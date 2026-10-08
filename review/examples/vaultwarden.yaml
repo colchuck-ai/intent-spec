@@ -453,6 +453,10 @@ threatReviews:
 #   of them obvious.
 # - No threat threatens client-side-encryption, because `threatens` targets
 #   controls only and this is a requirement.
+# - The same gap leaves t-server-side-request linked to nothing (RISK-2 warns).
+#   Its safeguard is the requirement icon-fetch-guard, which executes
+#   reduce-icon-ssrf, but `threatens` can't target a requirement and the risk
+#   review r-ssrf-api can't cite one.
 # - Likelihood or impact for any risk.
 # - RISK-18 warns on r-tamper-websites because the icon fetch crosses tb-server.
 #   The rationale is why the warning is fine, but there's no way to mark it reviewed.
