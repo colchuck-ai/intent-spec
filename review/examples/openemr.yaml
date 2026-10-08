@@ -350,9 +350,9 @@ secureBaselines:
     hardens: [app-node]
 
 people:
-  clinician-person: {name: Clinician, plays: [clinician]}
-  biller-person: {name: Biller, plays: [biller]}
-  patient-person: {name: Patient, plays: [patient]}
+  clinician-person: {name: Clinician, description: Physician or nurse who documents care, plays: [clinician]}
+  biller-person: {name: Biller, description: Office staff who prepare and submit claims, plays: [biller]}
+  patient-person: {name: Patient, description: Person receiving care who uses the portal and apps, plays: [patient]}
 
 systems:
   openemr-system:
