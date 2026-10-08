@@ -38,6 +38,7 @@ erDiagram
   %% A reference is an id or alias:id; the colon tells them apart because no id contains one.
   %% A link is a field on its source item named after its verb, containment included (in). A to-one link (|| or o| at the target) holds one reference; a to-many link (|{ or o{) holds a list.
   %% An attribute whose type ends in [] is a list of values of that type; its description says "one or more" (minItems 1) or "zero or more". Any other attribute holds one value of its type.
+  %% ruleWaivers is an object whose keys are rule IDs as written here (e.g. GRC-25) and whose values are rationale strings.
 
   %% References
   %% Every link below is a reference. Its target is a local item id or an imported alias:id.
@@ -56,6 +57,8 @@ erDiagram
   %% derived DOC-2: an item's stage is its own stage, or else the document's stage; every rule that names a stage means this one
   %% A deprecated item names its replacement (replacedBy) or, when nothing replaces it, gives a deprecationRationale.
   %% Every item may also have a name and a description (free text, optional); they are not repeated in each entity. Rule C4-1 asks for both on C4 elements.
+  %% Every item may also have ruleWaivers (optional): a map from the ID of a (should) rule to a rationale for why that warning does not apply to the item. A checker reports a waived warning as waived, with its rationale, instead of dropping it. (A treatment's waives link is unrelated: it waives standards and procedures.)
+  %% rule DOC-3: every key of an item's ruleWaivers is the ID of a (should) rule; waiving an error-severity rule or an unknown ID is itself an error
   %% An attribute is optional unless marked required. An optional attribute without a stated default is absent when omitted; a list attribute marked "one or more" is required and non-empty.
   %% A date is an ISO 8601 calendar date string (YYYY-MM-DD). Loaders parse YAML with the YAML 1.2 JSON or core schema, so an unquoted date stays a string, never a timestamp.
   %% rule REF-1: a link not drawn to EXTERNAL_REFERENCE resolves to a local or imported item; an external reference there is a type error

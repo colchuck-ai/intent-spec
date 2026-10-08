@@ -38,6 +38,8 @@ AUTH = (os.environ.get("NEO4J_USER", "neo4j"), os.environ.get("NEO4J_PASSWORD", 
 HEADER = ["intentSpec", "id", "version", "stage"]
 # Base fields every item may have that hold a reference (see erd.md "References").
 BASE_LINKS = {"replacedBy": False}
+# Base field mapping a (should) rule ID to the rationale for waiving it on the item (erd.md DOC-3).
+WAIVERS = "ruleWaivers"
 # Plural exceptions listed in erd.md "Serialization".
 PLURALS = {
     "PERSON": "people",
@@ -113,6 +115,15 @@ def parse_erd(path: Path = ERD) -> dict[str, Entity]:
             if not m.group(2):
                 current = None
     return entities
+
+
+RULE_RE = re.compile(r"^\s*%%\s*rule\s+([A-Z0-9]+-\d+)(\s*\(should\))?\s*:")
+
+
+def parse_rule_ids(path: Path = ERD) -> dict[str, str]:
+    """Rule IDs declared in the ERD, each with its severity: warning for (should), else error."""
+    return {m.group(1): "warning" if m.group(2) else "error"
+            for line in path.read_text().splitlines() if (m := RULE_RE.match(line))}
 
 
 def rel_type(verb: str) -> str:
@@ -211,6 +222,12 @@ def load_meta(session, entities: dict[str, Entity]) -> None:
         "MATCH (a:Attr) WHERE NOT {entity: a.entity, name: a.name} IN $keys DETACH DELETE a",
         keys=[{"entity": r["entity"], "name": r["name"]} for r in attrs],
     )
+    rules = parse_rule_ids()
+    session.run(
+        "UNWIND $rows AS r MERGE (x:Rule {id: r.id}) SET x.severity = r.severity",
+        rows=[{"id": k, "severity": v} for k, v in rules.items()],
+    )
+    session.run("MATCH (x:Rule) WHERE NOT x.id IN $ids DETACH DELETE x", ids=list(rules))
 
 
 def load_doc(session, path: Path, entities: dict[str, Entity]) -> str:
@@ -258,6 +275,8 @@ def load_doc(session, path: Path, entities: dict[str, Entity]) -> str:
                     continue
                 pv, is_json = to_property(v)
                 props[f] = pv
+                if f == WAIVERS and isinstance(v, dict):
+                    props["_waived"] = list(v)  # waived rule IDs as a list, for DOC-3
                 if is_json:
                     json_props.append(f)
             nodes.append({"id": item_id, "label": ent.label, "type": ent.name, "props": props,
@@ -320,7 +339,7 @@ def read_graph(session, doc: str) -> dict:
         n = dict(r["n"])
         fields = {}
         for k, v in n.items():
-            if k in ("id", "doc", "type", "_json", "_empty", "_order"):
+            if k in ("id", "doc", "type", "_json", "_empty", "_order", "_waived"):
                 continue
             fields[k] = json.loads(v) if k in (n.get("_json") or []) else v
         for l in r["links"]:
@@ -443,10 +462,29 @@ def load_rules() -> list[Rule]:
     return rules
 
 
+def load_waivers(session, doc: str) -> dict[str, dict[str, str]]:
+    """Pointer -> {rule ID: rationale} for every item in the document with ruleWaivers."""
+    rows = session.run(
+        f"MATCH (n:Item {{doc: $doc}}) WHERE n.{WAIVERS} IS NOT NULL "
+        f"MATCH (e:EntityType {{name: n.type}}) RETURN '/' + e.key + '/' + n.id AS pointer, n.{WAIVERS} AS w",
+        doc=doc,
+    )
+    out = {}
+    for r in rows:
+        try:
+            w = json.loads(r["w"])
+        except (TypeError, ValueError):
+            continue
+        if isinstance(w, dict):
+            out[r["pointer"]] = {str(k): str(v) for k, v in w.items()}
+    return out
+
+
 def check(session, docs: list[str], only: set[str] | None = None) -> int:
     failures = 0
     rules = [r for r in load_rules() if not only or r.id in only]
     for doc in docs:
+        waivers = load_waivers(session, doc)
         for rule in rules:
             try:
                 rows = session.run(rule.query, doc=doc).data()
@@ -455,8 +493,14 @@ def check(session, docs: list[str], only: set[str] | None = None) -> int:
                 print(f"{doc}: rule-error {rule.id} {rule.file.name}: {exc}".splitlines()[0])
                 continue
             for row in rows:
-                failures += rule.severity == "error"
                 detail = row.get("detail", "")
+                # Only a warning can be waived; a waiver of an error rule is itself reported by DOC-3.
+                rationale = waivers.get(row["pointer"], {}).get(rule.id) if rule.severity == "warning" else None
+                if rationale is not None:
+                    print(f"{doc}: waived {rule.id} {row['pointer']} {detail}".rstrip())
+                    print(f"    rationale: {rationale}")
+                    continue
+                failures += rule.severity == "error"
                 print(f"{doc}: {rule.severity} {rule.id} {row['pointer']} {detail}".rstrip())
                 if rule.hint:
                     print(f"    hint: {rule.hint}")

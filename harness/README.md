@@ -70,6 +70,8 @@ Each rule is a file in `rules/` holding one Cypher query. Its header names the r
 
 The query receives `$doc` and returns one row per problem, with `pointer` (the JSON pointer `/<key>/<id>` from INV-2) and optionally `detail`. `check` exits non-zero when an error-severity rule finds anything.
 
+An item's `ruleWaivers` map (rule ID to rationale) waives a warning-severity rule on that item: `check` prints it as `waived` with the rationale instead of as a warning. Waivers never silence an error-severity rule; DOC-3 reports any waiver of one, or of an unknown rule ID. Rule IDs and severities are loaded from `../erd.md` as `(:Rule {id, severity})` nodes.
+
 ## Agents
 
 Agents can use `cypher-shell` inside the container (`docker exec -it intent-spec-neo4j cypher-shell -u neo4j -p intentspec`) or connect to `bolt://localhost:7687` with any Neo4j driver or MCP server.

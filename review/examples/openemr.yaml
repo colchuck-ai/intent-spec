@@ -368,7 +368,13 @@ systems:
   erx-network: {name: E-prescribing network, description: Routes prescriptions to pharmacies, owner: E-prescribing vendor, external: true}
   lab: {name: Lab, description: Reference lab receiving orders and returning results, owner: Lab, external: true}
   clearinghouse: {name: Clearinghouse, description: Validates and forwards claims to payers, owner: Clearinghouse, external: true}
-  smart-apps: {name: Patient apps, description: Third-party SMART on FHIR apps chosen by patients, owner: App developers, external: true}
+  smart-apps:
+    name: Patient apps
+    description: Third-party SMART on FHIR apps chosen by patients
+    owner: App developers
+    external: true
+    ruleWaivers:
+      GRC-25: Patients choose these apps under their HIPAA right of access, so the apps are not business associates and no BAA can bind them
 
 containers:
   web-app:
@@ -559,8 +565,6 @@ threatReviews:
 # - The deploying practice's shared responsibility. It's spread across inherited
 #   adoptions, a transfer treatment and free-text owners. A clinic reading this
 #   can't easily get "what you must do yourself" out of it.
-# - Patient-chosen SMART apps receive ePHI but aren't business associates, so no
-#   BAA binds them. GRC-25 still warns, and there's no way to record why.
 # - Configuration that changes compliance. Document encryption is optional, and
 #   MFA is available but not enforced by default on self-installs. The system
 #   adoption claims the control, but whether a given clinic has it switched on is
