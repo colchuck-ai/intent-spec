@@ -402,7 +402,7 @@ erDiagram
   %% rule C4-23 (should): every container of a system a deployment diagram depicts has an instance on a node in the diagram's environment [C4-22], or is listed in its notDeployed
   %% notDeployed keys are references to CONTAINER, checked by REF-1 and REF-6 like links
   %% rule C4-24: a notDeployed key is a container of a system the diagram depicts that has no instance in the diagram's environment [C4-22]
-  %% rule C4-27 (should): every ratified requirement that applies [PRODUCT-8] to a product the diagram's environment serves is satisfied by at least one system, container or component that is not a container listed in the diagram's notDeployed or a component in one, or by a deployment node in the diagram's environment [C4-22]
+  %% rule C4-27 (should): every ratified requirement that applies [PRODUCT-8] to a product the diagram's environment serves is satisfied by at least one system, container or component, or by a deployment node in the diagram's environment [C4-22]; a container listed in the diagram's notDeployed, such as a script that runs in the visitor's browser, and its components count
 
   ENVIRONMENT {
     string operator "who runs it, e.g. self-hosting operator; omit when the team that owns the document runs it"
