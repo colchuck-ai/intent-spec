@@ -20,6 +20,8 @@ uv run harness.py check        # run the rules in rules/*.cypher
 uv run harness.py export       # write loaded documents back to their YAML files
 ```
 
+If `docker` can't reach the daemon although Docker Desktop is running, run `docker context use desktop-linux` (or prefix commands with `DOCKER_CONTEXT=desktop-linux`).
+
 Each command also takes document names, for example `uv run harness.py load openemr`, or a path to a YAML file.
 
 ## How a document becomes a graph
