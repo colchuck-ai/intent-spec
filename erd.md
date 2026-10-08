@@ -484,7 +484,7 @@ erDiagram
   %% rule DFD-7: a data flow leaves at most one end, and that end is one it connects
   %% rule DFD-8: each end of a data flow represents an end of every relationship the flow represents, or an element containing it
   %% rule DFD-9: when a data flow leaves an end, every relationship it represents leaves the element that end represents, or one inside it
-  %% rule DFD-10 (should): a data flow connecting an external entity and a process crosses at least one trust boundary [DFD-11]
+  %% rule DFD-10 (should): a data flow connecting an external entity and a process crosses at least one trust boundary [DFD-11], unless no trust boundary encloses the process; a process outside every boundary, such as client-side code on the user's own device, shares the external entity's trust level, and the boundary sits between it and the server
   %% derived DFD-11: a data flow crosses a trust boundary when exactly one end is inside it [DFD-15]
 
   TRUST_BOUNDARY {
