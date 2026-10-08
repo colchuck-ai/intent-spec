@@ -13,15 +13,15 @@ products:
 
 jobExecutors:
   volunteer-coordinator:
-    description: Volunteer coordinator at a small food bank, planning next week's distribution shifts
+    description: Volunteer coordinator at a small food bank
   volunteer:
-    description: Community volunteer deciding when they can help this week
+    description: Community volunteer who helps at the food bank
   food-bank-director:
-    description: Food bank director deciding whether to pay for a scheduling tool
+    description: Food bank director who approves spending
 
 jobs:
   fill-shifts:
-    statement: Make sure every distribution shift has enough people to run
+    statement: When planning next week's shifts, make sure every distribution shift has enough people to run
     motivates: volunteer-coordinator
     cites: [coordinator-interviews]
   sign-up-for-shift:

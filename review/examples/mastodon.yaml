@@ -23,7 +23,7 @@ jobExecutors:
   social-user:
     description: Someone following and talking with people and communities they care about
   community-admin:
-    description: Person or small team running a server for a community, including moderating it
+    description: Person or small team who runs and moderates a community's server
 
 jobs:
   stay-connected:

@@ -80,12 +80,12 @@ erDiagram
   %% rule PRODUCT-2: a job targeted by a ratified product has at least one ratified outcome
 
   JOB_EXECUTOR {
-    string description "the role in the moment of doing the job; required"
+    string description "the person or group who does the job, described by role (the JTBD job executor); required"
   }
   %% rule PRODUCT-3 (should): every job executor is motivated by at least one job
 
   JOB {
-    string statement "required; from the executor's perspective"
+    string statement "required; from the executor's perspective; may include the circumstance, e.g. when planning next week's shifts"
     enum kind "core | related | consumption | purchase; optional, default core"
   }
   %% a core job is what the product is hired for; a related job is done alongside it; a consumption job is about living with the product (setting up, upgrading, running it); a purchase job is choosing and paying for it, and its executor is the buyer
