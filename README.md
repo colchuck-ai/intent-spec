@@ -1,16 +1,46 @@
 # intent-spec
 
-A versioned contract for one document that describes a whole product: product intent, engineering architecture, governance, security and business process. It is the context an agent needs to take a product through its full lifecycle.
+A unified data model for describing a product across product management, engineering, security, and governance, risk and compliance. It defines the entities, the relationships between them, and the rules those entities and relationships must obey. It stitches together established models instead of inventing new ones: Jobs to be Done for product intent, C4 for architecture, DFD3 and STRIDE for threat modeling, and HCGF for governance.
+
+**Status:** a public scratchpad. The model is being worked out in the open, and parts of it are wrong. That's the point: being ambitious and finding out where it's wrong beats thinking small and never learning anything.
+
+## Goal
+
+The model should be:
+
+- **Simple:** the fewest entities, links and rules that can still express real products.
+- **Complete:** able to express what many kinds of companies, in different domains and at different stages, need to say about their products.
+- **Accurate:** faithful to the established models it builds on.
+- **Composable:** governance is defined once and adopted by many products, and one product's intent can be implemented across many repos.
+- **Agent-friendly:** easy for agents to read, query and edit, with stable IDs and rules that say what's wrong and how to fix it.
+
+The model is the deliverable. How it is stored, whether as YAML files, SQL tables or a graph database, is not.
+
+## How we get there
+
+We treat the design as a search for the best model, not the first one that works. A model that fits the few products you checked can be a local minimum, so every change has to hold up against many products from many points of view.
+
+1. **Simulate companies.** Example products span domains and lifecycle stages: a concept, an MVP, growth-stage and mature products, and a regulated one ([review/examples](review/examples)).
+2. **Load them into a test harness.** A Neo4j database holds each example as a graph, and every rule runs as a query against it ([harness](harness)). The harness and the YAML examples are test fixtures, not a product.
+3. **Review from many perspectives.** A panel of reviewer personas, including product, end user, architecture, threat modeling, GRC, an agent user and a simplicity advocate, reports where the model can't express something, forces the wrong shape, or carries more than it needs ([review/personas](review/personas)).
+4. **Fix and repeat.** Findings are triaged, fixed and re-checked ([review/loop.md](review/loop.md)). We stop when a round finds no new P1s and fewer P2s than the round before.
+
+## Repository
+
+- [erd.md](erd.md): the model, which holds its entities, links and rules.
+- [review](review): example companies, reviewer personas and the review loop.
+- [harness](harness): the Neo4j test harness and the rules written as Cypher.
+- [journal.md](journal.md): how the model was built, and why it changed.
 
 ## Invariants
 
-These hold for every version of the contract. Creating, changing or deleting an invariant needs a human decision, and so does any change that contradicts one. Cite them by ID.
+These hold for every version of the model. Creating, changing or deleting an invariant needs a human decision, and so does any change that contradicts one. Cite them by ID.
 
-- **INV-1. The document always wins.** It describes intent only. It holds no observed or runtime state, and correcting drift or compiling intent into a deployed product is out of scope.
-- **INV-2. The deliverable is a versioned contract with two layers:** syntactic checks (JSON Schema) and semantic checks (rules). Rules are runnable, not prose: each has an ID, a selector, a predicate, a JSON pointer to the problem and a hint for fixing it. Every invalid example names the rule ID or schema path it breaks.
-- **INV-3. Every item has a stable, document-unique ID.** Each entity type is one flat map keyed by ID, not a list, and containment is a link like any other, never nesting. An item's JSON pointer is always `/<type>/<id>`, so it stays stable when items move. Loaders must reject duplicate keys.
-- **INV-4. Distribution follows a package-manager model.** A document declares aliased imports pinned to versions. A lockfile records, per import alias, the source, resolved version, digest, the imported document's stage and a snapshot of items keyed by type and id, each with its stage resolved. The snapshot holds the referenced items plus their closure over outgoing links and over the items they contain (items whose `in` points at a snapshotted item, such as a profile's selections), stopping at external references. IDs inside a snapshot are read relative to its alias, so validators never re-fetch an import. Removing or renaming an ID is a breaking change, so deprecated items stay in place with a pointer to their replacement, or a rationale when nothing replaces them.
-- **INV-5. Intent has lifecycle stages**, for example proposed, ratified and deprecated. Stages are intent, not observed state.
+- **INV-1. Intent always wins.** The model describes intent only. It holds no observed or runtime state, and correcting drift or compiling intent into a deployed product is out of scope.
+- **INV-2.** Retired 2026-10-08: the JSON Schema and JSON pointer layer is a concern of how the model is stored, not part of the model.
+- **INV-3.** Retired 2026-10-08: flat maps and pointer addressing are a concern of how the model is stored, not part of the model.
+- **INV-4.** Retired 2026-10-08: the lockfile and version pinning are a concern of how the model is stored, not part of the model.
+- **INV-5. Intent has lifecycle stages**, for example proposed, ratified and deprecated. Stages are intent, not observed state. A deprecated item stays in place and points to its replacement, or gives a rationale when nothing replaces it.
 - **INV-6. Coverage applies to what a scope selects:** every selected item has exactly one disposition. Importing something never creates an obligation.
 - **INV-7. References and imports work the same way in every layer.** A reference targets a local item, an imported item, or an external reference (free-text title, optional URL and party) for things that will never publish intent-spec, such as a provider's SOC 2 report or a law. Each link in the ERD declares whether it accepts an external reference (job cites, outcome cites, adoption inherits, influencer cites, influencer binds, secure baseline derives); every other link must resolve to a local or imported item. Where allowed, an external reference satisfies the link's cardinality, but rules that inspect the target skip it.
 - **INV-8. The model has no abstract placeholder entities.** Links go to concrete entities. Each link is labelled with a single action verb and points from the dependent item to its anchor.
@@ -19,7 +49,7 @@ These hold for every version of the contract. Creating, changing or deleting an 
 
 ## Open
 
-- How the contract specifies anything that is derived, not stored.
-- The risk model: cause and consequence, treatments, scoring.
+- How the model specifies anything that is derived, not stored.
+- The risk model: cause and consequence, treatments, scoring (for example CVSS).
 - Which way dependencies run between the product-intent repo and the repos that implement it.
 - Business process layer.
