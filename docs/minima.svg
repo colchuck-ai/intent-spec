@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 300" width="680" height="300" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13">
+  <title>Local and global minimum</title>
+  <style>
+    .axis { stroke: #848d97; stroke-width: 1.5; fill: none; }
+    .curve { stroke: #848d97; stroke-width: 3; fill: none; }
+    .text { fill: #848d97; }
+    .muted { fill: #848d97; }
+    .local { fill: #c38000; }
+    .global { fill: #2da44e; }
+    .jump { stroke: #3b82f6; stroke-width: 2; fill: none; stroke-dasharray: 6 5; }
+    .jumptext { fill: #3b82f6; }
+    .ltext { fill: #c38000; }
+    .gtext { fill: #2da44e; }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="jumptext"/>
+    </marker>
+  </defs>
+  <!-- axes -->
+  <path class="axis" d="M 40 20 L 40 260 L 660 260"/>
+  <text class="muted" x="20" y="140" transform="rotate(-90 20 140)" text-anchor="middle">cost: findings the model can't absorb</text>
+  <text class="muted" x="350" y="285" text-anchor="middle">possible designs of the model</text>
+  <!-- cost curve -->
+  <path class="curve" d="M 50 40 C 110 40, 150 160, 200 160 C 250 160, 275 85, 320 85 C 380 85, 420 225, 490 225 C 560 225, 600 120, 650 45"/>
+  <!-- local minimum -->
+  <circle class="local" cx="200" cy="149" r="10"/>
+  <text class="ltext" x="200" y="186" text-anchor="middle" font-weight="600">local minimum</text>
+  <text class="muted" x="200" y="203" text-anchor="middle">fits the few products checked</text>
+  <!-- global minimum -->
+  <circle class="global" cx="490" cy="214" r="10"/>
+  <text class="gtext" x="490" y="250" text-anchor="middle" font-weight="600">global minimum</text>
+  <!-- jump -->
+  <path class="jump" d="M 212 138 Q 330 -10 478 202" marker-end="url(#arrow)"/>
+  <text class="jumptext" x="330" y="34" text-anchor="middle">new companies and new reviewers</text>
+  <text class="jumptext" x="330" y="51" text-anchor="middle">shake the model out of the dip</text>
+  <text class="muted" x="600" y="210" text-anchor="middle">simple, complete,</text>
+  <text class="muted" x="600" y="226" text-anchor="middle">accurate everywhere</text>
+</svg>
