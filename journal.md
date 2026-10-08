@@ -67,3 +67,7 @@ The loop was designed so the orchestrating session keeps no state, and it still 
 ## 2026-10-08: the model is the deliverable, not the file
 
 Halfway into building lockfile tooling, the human stepped back: the goal is a data model (entities, relationships, rules) that is simple, complete, accurate, composable and agent-friendly across many kinds of companies. Whether it lives in YAML, SQL or a graph database is beside the point. The work had drifted into the contract's packaging: JSON Schema, pointers, a lockfile format. Three invariants about serialization (INV-2, INV-3, INV-4) were retired, the ERD's serialization notes moved to an appendix marked as a test fixture, and the lockfile agent was stopped before it wrote anything. The examples and the Neo4j harness are now framed as what they had become: a test bench for searching toward a global minimum, not the product. Evidence: 38358b1, 9149f95, review-8ii.
+
+## 2026-10-08: the round trip was only byte-identical because nothing imported
+
+Adding the first importing example (shiftly now adopts governance from a separate shiftly-governance document) showed that harness export silently deleted a document's imports. The "byte-identical round trip" had held only because no example used imports, so a guarantee checked on the examples was only as strong as the examples. The same change turned every rule into a regression test: 96 minimal invalid documents, each naming the one rule it breaks, all passing, with no rule found wrong. Evidence: ce869d8, 1605aac, 4f06a2a, review-8ii.
