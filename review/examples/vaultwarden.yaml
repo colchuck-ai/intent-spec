@@ -435,7 +435,13 @@ threatReviews:
   r-tamper-files: {reviews: t-flow-tampering, inspects: [df-api-files], disposition: not-applicable, rationale: Local file system on the same host}
   r-tamper-push: {reviews: t-flow-tampering, inspects: [df-api-push], disposition: risk, raises: no-tls}
   r-tamper-smtp: {reviews: t-flow-tampering, inspects: [df-api-smtp], disposition: risk, raises: no-tls}
-  r-tamper-websites: {reviews: t-flow-tampering, inspects: [df-api-websites], disposition: not-applicable, rationale: A modified response is only an icon shown to the user; it carries no authority}
+  r-tamper-websites:
+    reviews: t-flow-tampering
+    inspects: [df-api-websites]
+    disposition: not-applicable
+    rationale: A modified response is only an icon shown to the user; it carries no authority
+    ruleWaivers:
+      RISK-18: The flow crosses tb-server, but its source is any website on the internet, so a tampered response is no worse than one the site serves itself
 
 # Couldn't express
 # - Backups. The biggest real availability risk is a self-hoster losing their
@@ -458,5 +464,3 @@ threatReviews:
 #   reduce-icon-ssrf, but `threatens` can't target a requirement and the risk
 #   review r-ssrf-api can't cite one.
 # - Likelihood or impact for any risk.
-# - RISK-18 warns on r-tamper-websites because the icon fetch crosses tb-server.
-#   The rationale is why the warning is fine, but there's no way to mark it reviewed.
