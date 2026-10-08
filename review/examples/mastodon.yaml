@@ -93,7 +93,7 @@ requirements:
     statement: Users can report posts and accounts; moderators act on reports from an admin queue, including reports forwarded from other servers
     verification: Moderation workflow tests
     serves: [safe-from-abuse, enforce-rules]
-    implements: [adopt-moderation-social, adopt-moderation-sw]
+    implements: [adopt-moderation-sw]
   domain-blocks:
     statement: Admins can silence or suspend whole remote domains
     verification: Federation tests with a blocked domain
