@@ -18,36 +18,90 @@ The model is the deliverable. How it is stored, whether as YAML files, SQL table
 
 ## How we get there
 
-We treat the design as a search for the best model, not the first one that works. A model that fits the few products checked so far can sit in a local minimum: every finding against it looks fixed, but only because nothing has pushed on it from a new direction. New companies and new reviewers supply that push, so every change has to hold up against many products from many points of view.
+We treat the design as a search for the best model, not the first one that works. A model that fits the few products checked so far can sit in a local minimum: every finding against it looks fixed, but only because nothing has pushed on it from a new direction. A search that only ever moves downhill stops in the first dip it finds.
 
 ![A cost curve with a shallow local minimum and a deeper global minimum. New companies and new reviewers move the model out of the shallow dip.](docs/minima.svg)
 
-The process works like simulated annealing. Each round disturbs the model with new examples and rotated reviewers, then lets it settle through fixes.
+The search is **simulated annealing**. It keeps one current model and changes it one move at a time. Early on it is "hot" and accepts some moves that make things worse, so it can climb out of shallow dips. As it cools it accepts fewer, until it takes only improvements and freezes. We use annealing rather than a genetic algorithm because a candidate model is expensive to evaluate (examples to rewrite, a panel to review), there is one model rather than a population, and we want a single unified model, not several good ones.
 
-```mermaid
-flowchart LR
-  sim["Simulate companies<br/>example products"] --> load["Load into the harness<br/>graph + runnable rules"]
-  load --> review["Review panel<br/>personas × examples"]
-  review --> triage{"Triage<br/>each finding"}
-  triage -- "reject, defer, duplicate<br/>(reason recorded)" --> log[("Beads")]
-  triage -- "accept" --> fix["Fix one at a time<br/>verified by the harness"]
-  triage -- "touches an invariant" --> human{{"Human decision"}}
-  human --> fix
-  fix --> done{"Converged?<br/>no new P1s,<br/>fewer P2s"}
-  done -- "no: rotate reviewers,<br/>add companies" --> sim
-  done -- "yes" --> stable(["Stable model"])
+The process is being rebuilt around this design. A harness (`anneal/`) makes every mechanical step deterministic, and agents do only the steps that need judgment.
+
+### The parts
+
+**State.** One current model: [erd.md](erd.md) and its rules. A copy of the best model found so far is kept next to it, together with the examples that match it, so the search can always return to it.
+
+**Energy.** One number for how far the model is from where it should be, computed the same way every round:
+
+```
+E = 10·P1 + 3·P2 + 1·P3       open accepted findings against the model
+  + 10·errors                 harness errors on the benchmark
+  + 0.5·size                  entities + links + rules
+  + 50·departures             places the model leaves JTBD, C4, DFD3 or HCGF
 ```
 
-1. **Simulate companies.** Example products span domains and lifecycle stages: a concept, an MVP, growth-stage and mature products, and a regulated one ([review/examples](review/examples)).
-2. **Load them into a test harness.** A Neo4j database holds each example as a graph, and every rule runs as a query against it. Each rule also has an invalid example that breaks it, as a regression test ([harness](harness)). The harness and the YAML examples are test fixtures, not a product.
-3. **Review from many perspectives.** A panel of reviewer personas, including product, end user, architecture, threat modeling, GRC, an agent user and a simplicity advocate, reports where the model can't express something, forces the wrong shape, or carries more than it needs ([review/personas](review/personas)).
-4. **Fix and repeat.** Findings are triaged, fixed and re-checked ([review/loop.md](review/loop.md)). A human decides anything that touches an invariant. We stop when a round finds no new P1s and fewer P2s than the round before.
+Departures are weighted far above a P1, so leaving an established model pays off only when it resolves several P1s' worth of findings (INV-9, INV-10). Each departure is declared in the ERD, so the count is mechanical.
+
+**Benchmark and probe.** Energy is measured on the **benchmark**, the examples the model has already been fitted to. Each round also adds one **probe**: a software product the fixers have never seen. Its energy is reported separately, because it shows whether the model generalizes or has only been fitted to what it has seen. After its round the probe joins the benchmark. Probes come from a pinned snapshot of [awesome-selfhosted-data](https://github.com/awesome-selfhosted/awesome-selfhosted-data): 1,353 open-source products across 95 tags such as CRM, health, money, e-commerce, IoT and generative AI ([anneal/products-2026-10-08.json](anneal), CC BY-SA 3.0). Open source matters, because the author of a probe models it from the product's own public docs, code and security pages. A mechanical rule decides eligibility: not archived, at least 1,000 stars, updated in the past year. That leaves 729 products in 82 tags. Each draw picks a tag first and then a product within it, from a seeded shuffle without replacement, so probes spread across domains rather than following popularity, and the order can be replayed.
+
+**Panel.** Each round, a fixed core of generalist reviewers always reviews: product management, architecture, threat modeling, governance, the agent user and the simplicity advocate. A seeded sample of the specialists joins them. Every reviewer reviews the probe plus a sample of benchmark examples.
+
+**Moves.** Every change is a move with a size: local (wording, an attribute, a rule), additive (a new attribute, link or rule), structural (adding, removing, merging or splitting an entity, retargeting a link) or unifying (merging concepts across disciplines, INV-12). Most moves fix accepted findings. While the search is hot or warm, an explorer also proposes structural moves nobody asked for, such as removing an entity to see whether the examples can still say everything. These are the random perturbations of annealing, aimed instead of random.
+
+**Acceptance.** We use **threshold accepting**, a deterministic form of annealing: a move is kept when its change in energy (ΔE) is at or below the current threshold. After a fixer commits a move, the harness measures the mechanical part of ΔE (size, departures, errors). A critic re-reviews the affected examples as the persona who raised the finding and files anything new it finds. ΔE is the weight of the findings the move resolves, subtracted from the weight of new findings and the mechanical changes. The harness then keeps the move or reverts it.
+
+| Temperature | Threshold | Moves allowed |
+|---|---|---|
+| Hot | ΔE ≤ +10 | any size; explorer active |
+| Warm | ΔE ≤ +3 | up to structural; explorer active |
+| Cool | ΔE ≤ 0 | local and additive |
+| Frozen | ΔE < 0 | local only |
+
+A move kept while ΔE > 0 is an **uphill** move. If benchmark energy hasn't fallen by the next round, it is reverted.
+
+**Schedule.** The search starts hot and cools one step per round. It reheats one step when the probe's energy is high, because the model failed to generalize. If energy rises for two rounds in a row, the current model is compared with the best copy and may be reset to it. The search stops when it is frozen, benchmark energy has stopped falling, and the probe's energy is close to the benchmark's.
+
+### One round
+
+```mermaid
+flowchart TD
+  draw["Draw the probe and the panel<br/>(seeded, harness)"] --> author["Author the probe example<br/>(agent)"]
+  author --> review["Panel reviews the probe<br/>and sampled benchmark examples"]
+  review --> triage["Triage findings<br/>(agent; human for invariants)"]
+  triage --> energy["Compute E and E-probe,<br/>set temperature, update best<br/>(harness)"]
+  energy --> frozen{"Frozen?"}
+  frozen -- "yes" --> stop(["Stop: best model"])
+  frozen -- "no" --> explore["Explorer proposes<br/>structural moves (hot, warm)"]
+  explore --> move["Fixer makes one move<br/>(agent)"]
+  move --> critic["Critic re-reviews;<br/>harness measures ΔE"]
+  critic --> accept{"ΔE ≤ threshold?"}
+  accept -- "yes" --> keep["Keep"]
+  accept -- "no" --> revert["Revert"]
+  keep --> more{"More moves?"}
+  revert --> more
+  more -- "yes" --> move
+  more -- "no" --> draw
+```
+
+### What is stored
+
+| What | Where | Why |
+|---|---|---|
+| The current model and examples | `erd.md`, `harness/rules`, `review/examples` | the state being annealed |
+| The best model so far | `anneal/best/` (model, rules and matching examples) | to compare or reset without git archaeology |
+| Round, temperature, seed, probe cursor, energy history | `anneal/state.json` | so every mechanical step can be replayed |
+| The company snapshot and eligibility | `anneal/companies-*.json` | the source of probes |
+| Findings, moves and decisions | beads | the reasoning behind each move |
+
+Everything else is derived. All of it lives in git, so the orchestrating agent keeps nothing in memory and can stop and resume at any point.
+
+**What is deterministic and what isn't.** The harness does the draws, the panel sample, energy, the threshold decision, the schedule, the best copy and the stop check. Agents do what needs judgment: writing examples, reviewing, triage, proposing moves, making fixes and the critic's re-review. A human decides anything that touches an invariant or departs from an established model.
 
 ## Repository
 
 - [erd.md](erd.md): the model, which holds its entities, links and rules.
 - [review](review): example companies, reviewer personas and the review loop.
 - [harness](harness): the Neo4j test harness and the rules written as Cypher.
+- [anneal](anneal): the annealing state, the best model so far and the company snapshot.
 - [journal.md](journal.md): how the model was built, and why it changed.
 
 ## Invariants
