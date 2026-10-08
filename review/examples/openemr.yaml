@@ -213,7 +213,7 @@ externalReferences:
   hipaa-security: {title: "45 CFR Part 164 Subpart C (HIPAA Security Rule)", url: "https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C", party: HHS}
   aws-physical: {title: AWS SOC 2 Type II report, party: AWS}
   cis-amazon-linux: {title: CIS Amazon Linux 2023 Benchmark, party: Center for Internet Security}
-  partner-baas: {title: Business associate agreements with ePHI exchange partners, party: E-prescribing network, lab and clearinghouse}
+  partner-baas: {title: Business associate agreements with ePHI exchange partners, party: 'E-prescribing network, lab and clearinghouse'}
   aws-baa: {title: AWS Business Associate Addendum, party: AWS}
 
 influencers:
@@ -389,8 +389,8 @@ containers:
     satisfies: [document-encryption]
 
 components:
-  clinical: {in: web-app, name: Clinical, description: Encounters, problem lists, prescribing and lab orders, technology: PHP, satisfies: [encounter-forms, e-prescribing, lab-interface]}
-  billing: {in: web-app, name: Billing, description: Fee sheets, claims and payments, technology: PHP, satisfies: [claims-export]}
+  clinical: {in: web-app, name: Clinical, description: 'Encounters, problem lists, prescribing and lab orders', technology: PHP, satisfies: [encounter-forms, e-prescribing, lab-interface]}
+  billing: {in: web-app, name: Billing, description: 'Fee sheets, claims and payments', technology: PHP, satisfies: [claims-export]}
   portal: {in: web-app, name: Patient portal, description: Patient-facing records and messaging, technology: PHP, satisfies: [patient-portal, portal-lockout]}
   fhir-api: {in: web-app, name: FHIR API, description: FHIR R4 with SMART on FHIR and OAuth 2, technology: PHP, satisfies: [fhir-patient-access]}
 
@@ -399,8 +399,8 @@ relationships:
   biller-uses-billing: {leaves: biller-person, enters: billing, description: Prepares and submits claims, technology: HTTPS}
   patient-uses-portal: {leaves: patient-person, enters: portal, description: Views records and sends messages, technology: HTTPS}
   patient-uses-apps: {leaves: patient-person, enters: smart-apps, description: Uses health apps}
-  apps-call-fhir: {leaves: smart-apps, enters: fhir-api, description: Reads the patient's records, technology: HTTPS, FHIR R4, OAuth 2}
-  clinical-sends-erx: {leaves: clinical, enters: erx-network, description: Sends prescriptions, technology: HTTPS, NCPDP SCRIPT}
+  apps-call-fhir: {leaves: smart-apps, enters: fhir-api, description: Reads the patient's records, technology: 'HTTPS, FHIR R4, OAuth 2'}
+  clinical-sends-erx: {leaves: clinical, enters: erx-network, description: Sends prescriptions, technology: 'HTTPS, NCPDP SCRIPT'}
   clinical-exchanges-labs: {leaves: clinical, enters: lab, description: Sends orders and receives results, technology: HL7 v2 over SFTP}
   billing-sends-claims: {leaves: billing, enters: clearinghouse, description: Submits claims and fetches remittances, technology: X12 over SFTP}
   clinical-uses-db: {leaves: clinical, enters: database, description: Reads and writes clinical data and audit entries, technology: SQL}
@@ -477,14 +477,14 @@ dataStores:
   ds-documents: {label: Documents, represents: documents, stores: [clinical-document]}
 
 dataElements:
-  clinical-record: {classification: restricted, description: Encounters, problems, medications, allergies and results, triggers: [inf-hipaa]}
-  demographics: {classification: restricted, description: Name, date of birth, address and insurance, triggers: [inf-hipaa]}
+  clinical-record: {classification: restricted, description: 'Encounters, problems, medications, allergies and results', triggers: [inf-hipaa]}
+  demographics: {classification: restricted, description: 'Name, date of birth, address and insurance', triggers: [inf-hipaa]}
   clinical-document: {classification: restricted, description: Scanned documents and images, triggers: [inf-hipaa]}
   prescription: {classification: restricted, description: Medication order for a patient, triggers: [inf-hipaa]}
   lab-message: {classification: restricted, description: HL7 order or result, triggers: [inf-hipaa]}
   claim: {classification: restricted, description: X12 claim and remittance, triggers: [inf-hipaa]}
-  credentials: {classification: confidential, description: Password hashes, MFA secrets and OAuth tokens}
-  audit-event: {classification: confidential, description: Who accessed what and when, with a checksum, triggers: [inf-hipaa, inf-onc]}
+  credentials: {classification: confidential, description: 'Password hashes, MFA secrets and OAuth tokens'}
+  audit-event: {classification: confidential, description: 'Who accessed what and when, with a checksum', triggers: [inf-hipaa, inf-onc]}
   message: {classification: restricted, description: Portal message between patient and clinic, triggers: [inf-hipaa]}
 
 dataFlows:
@@ -521,7 +521,7 @@ dataFlowDiagrams:
     includes: [ee-clinician, ee-biller, ee-patient, ee-smart-apps, ee-erx, ee-lab, ee-clearinghouse, p-clinical, p-billing, p-portal, p-fhir, ds-database, ds-documents]
 
 threats:
-  t-spoofing: {category: spoofing, appliesTo: [external-entity], description: A user, app or partner is impersonated, threatens: [access-control, mfa]}
+  t-spoofing: {category: spoofing, appliesTo: [external-entity], description: 'A user, app or partner is impersonated', threatens: [access-control, mfa]}
   t-store-disclosure: {category: information-disclosure, appliesTo: [data-store], description: ePHI is read from storage without authorization, threatens: [document-encryption-control, access-control]}
   t-repudiation: {category: repudiation, appliesTo: [process], description: A user denies an action on a patient record, threatens: [audit-logging]}
   t-privilege: {category: elevation-of-privilege, appliesTo: [process], description: A user reaches functions or records beyond their role, threatens: [access-control]}

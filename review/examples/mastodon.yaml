@@ -290,7 +290,7 @@ adoptions:
   adopt-shutdown-sw: {mode: delegated, adopts: shutdown-notice, governs: mastodon, delegatedTo: Server operator, decidedBy: Managing director, rationale: The covenant binds server operators}
 
 people:
-  user: {name: User, description: Posts, follows and reads timelines, plays: [social-user]}
+  user: {name: User, description: 'Posts, follows and reads timelines', plays: [social-user]}
   moderator: {name: Moderator or admin, description: Handles reports and server settings, plays: [community-admin]}
 
 systems:
@@ -356,7 +356,7 @@ containers:
 components:
   rest-api: {in: web, name: REST API, description: Client API used by the web UI and apps, technology: Rails}
   activitypub: {in: web, name: ActivityPub, description: Inbox and outbox for federation, technology: Rails, satisfies: [activitypub-federation]}
-  admin: {in: web, name: Admin and moderation, description: Report queue, account and domain actions, technology: Rails}
+  admin: {in: web, name: Admin and moderation, description: 'Report queue, account and domain actions', technology: Rails}
 
 relationships:
   user-uses-web-ui: {leaves: user, enters: web-ui, description: Reads timelines and posts}
@@ -364,10 +364,10 @@ relationships:
   user-uses-apps: {leaves: user, enters: client-apps, description: Reads timelines and posts}
   web-ui-calls-api: {leaves: web-ui, enters: web, description: Calls the REST API, technology: HTTPS}
   web-ui-streams: {leaves: web-ui, enters: streaming, description: Subscribes to live updates, technology: WebSocket}
-  apps-call-api: {leaves: client-apps, enters: web, description: Calls the REST API, technology: HTTPS, OAuth 2}
+  apps-call-api: {leaves: client-apps, enters: web, description: Calls the REST API, technology: 'HTTPS, OAuth 2'}
   apps-stream: {leaves: client-apps, enters: streaming, description: Subscribes to live updates, technology: WebSocket}
-  fediverse-delivers: {leaves: fediverse, enters: web, description: Delivers activities to the inbox, technology: HTTPS, ActivityPub, HTTP signatures}
-  sidekiq-delivers: {leaves: sidekiq, enters: fediverse, description: Delivers activities to remote inboxes, technology: HTTPS, ActivityPub, HTTP signatures}
+  fediverse-delivers: {leaves: fediverse, enters: web, description: Delivers activities to the inbox, technology: 'HTTPS, ActivityPub, HTTP signatures'}
+  sidekiq-delivers: {leaves: sidekiq, enters: fediverse, description: Delivers activities to remote inboxes, technology: 'HTTPS, ActivityPub, HTTP signatures'}
   web-uses-postgres: {leaves: web, enters: postgres, description: Reads and writes data, technology: SQL}
   web-uses-redis: {leaves: web, enters: redis, description: Reads feeds and enqueues jobs, technology: Redis protocol}
   web-uses-search: {leaves: web, enters: search, description: Runs searches, technology: HTTP}
@@ -381,8 +381,8 @@ relationships:
   streaming-uses-postgres: {leaves: streaming, enters: postgres, description: Checks access tokens and filters, technology: SQL}
   web-ui-calls-rest: {leaves: web-ui, enters: rest-api, description: Reads timelines and posts, technology: HTTPS}
   web-ui-moderates: {leaves: web-ui, enters: admin, description: Handles reports and domain blocks, technology: HTTPS}
-  apps-call-rest: {leaves: client-apps, enters: rest-api, description: Reads timelines and posts, technology: HTTPS, OAuth 2}
-  fediverse-posts-inbox: {leaves: fediverse, enters: activitypub, description: Delivers activities to the inbox, technology: HTTPS, ActivityPub, HTTP signatures}
+  apps-call-rest: {leaves: client-apps, enters: rest-api, description: Reads timelines and posts, technology: 'HTTPS, OAuth 2'}
+  fediverse-posts-inbox: {leaves: fediverse, enters: activitypub, description: Delivers activities to the inbox, technology: 'HTTPS, ActivityPub, HTTP signatures'}
   rest-api-uses-postgres: {leaves: rest-api, enters: postgres, description: Reads and writes accounts and posts, technology: SQL}
   activitypub-uses-postgres: {leaves: activitypub, enters: postgres, description: Reads actors and stores remote posts, technology: SQL}
   admin-uses-postgres: {leaves: admin, enters: postgres, description: Reads reports and writes moderation actions, technology: SQL}
@@ -428,7 +428,7 @@ containerInstances:
   compose-search-instance: {in: compose-host, instantiates: search}
 
 infrastructureNodes:
-  ingress: {in: cloud-region, name: Ingress and CDN, technology: nginx, CDN}
+  ingress: {in: cloud-region, name: Ingress and CDN, technology: 'nginx, CDN'}
 
 deploymentDiagrams:
   deploy-social:
@@ -443,9 +443,9 @@ deploymentDiagrams:
       web-ui: Served by the web container and runs in the user's browser
 
 dataElements:
-  account: {classification: confidential, description: Email, password hash, IP addresses and settings, triggers: [inf-dsa]}
+  account: {classification: confidential, description: 'Email, password hash, IP addresses and settings', triggers: [inf-dsa]}
   post: {classification: public, description: Posts and their visibility; direct messages are not end-to-end encrypted}
-  report: {classification: confidential, description: Report, reporter and moderation decision, triggers: [inf-dsa]}
+  report: {classification: confidential, description: 'Report, reporter and moderation decision', triggers: [inf-dsa]}
 
 # Couldn't express
 # - Software versus server. Both influencers scope only mastodon.social, but the

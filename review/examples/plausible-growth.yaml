@@ -366,8 +366,8 @@ dataStores:
   ds-app: {label: PostgreSQL, represents: app-db, stores: [account, billing-status]}
 
 dataElements:
-  pageview-event: {classification: internal, description: URL, referrer, UTM tags, country, device and the daily visitor hash, triggers: [inf-gdpr]}
-  account: {classification: confidential, description: Customer email, password hash, sites and goals, triggers: [inf-gdpr, inf-dpa]}
+  pageview-event: {classification: internal, description: 'URL, referrer, UTM tags, country, device and the daily visitor hash', triggers: [inf-gdpr]}
+  account: {classification: confidential, description: 'Customer email, password hash, sites and goals', triggers: [inf-gdpr, inf-dpa]}
   billing-status: {classification: confidential, description: Subscription plan and status, triggers: [inf-dpa]}
 
 dataFlows:

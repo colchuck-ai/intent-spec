@@ -43,3 +43,7 @@ Round 2 filed 59 findings (1 P1, 44 P2, 14 P3), and the model barely grew: entit
 ## 2026-10-08: it's a graph
 
 Writing and reviewing the model as YAML felt clunky, because the model is really a graph. The next direction is to load example documents into a local Neo4j database. There both people and agents can see and query how a product's jobs, systems, threats and controls connect, and changes to the model can be tested against the loaded graph.
+
+## 2026-10-08: the graph loader found what two review rounds missed
+
+The first thing the Neo4j loader did, before Neo4j was even running, was compare every field in the examples against the ERD. It found 67 values that YAML had silently cut short. Flow-style lines like `{description: Lights, sensors and hubs reached over Zigbee, Z-Wave, owner: ...}` contain unquoted commas, so YAML read the description as just "Lights" and turned the rest into empty fields. Thirteen expert reviewers read these files across two rounds and none noticed, because people (and models) read the prose, not the parse. Evidence: the "quote comma-separated values" commit.

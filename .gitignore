@@ -1,2 +1,4 @@
 .obsidian/workspace.json
 .DS_Store
+.venv/
+__pycache__/

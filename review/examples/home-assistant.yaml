@@ -171,7 +171,7 @@ systems:
     description: Core, frontend, Supervisor and companion apps
     owner: Home Assistant project
     realizes: [home-assistant, home-assistant-container]
-  devices: {name: Local devices, description: Lights, sensors and hubs reached over Zigbee, Z-Wave, Matter, Wi-Fi or Bluetooth, owner: Device makers, external: true}
+  devices: {name: Local devices, description: 'Lights, sensors and hubs reached over Zigbee, Z-Wave, Matter, Wi-Fi or Bluetooth', owner: Device makers, external: true}
   vendor-clouds: {name: Vendor clouds, description: Cloud APIs for cloud-only devices, owner: Device vendors, external: true}
   ha-cloud: {name: Home Assistant Cloud, description: Paid remote access and voice assistant bridge, owner: Nabu Casa, external: true, satisfies: [remote-access-options]}
   image-registry: {name: Container registry, description: Hosts signed images, owner: GitHub, external: true}
@@ -220,28 +220,28 @@ containers:
     technology: Files
 
 components:
-  automation-engine: {in: core, name: Automation engine, description: Runs triggers, conditions and actions, technology: Python}
+  automation-engine: {in: core, name: Automation engine, description: 'Runs triggers, conditions and actions', technology: Python}
   integrations: {in: core, name: Integrations, description: Device and service integrations, technology: Python}
   recorder: {in: core, name: Recorder, description: Writes state history, technology: SQLAlchemy, satisfies: [local-history]}
-  auth: {in: core, name: Auth, description: Users, tokens and multi-factor modules, technology: Python}
+  auth: {in: core, name: Auth, description: 'Users, tokens and multi-factor modules', technology: Python}
   websocket-api: {in: core, name: WebSocket API, description: API for the frontend and apps, technology: aiohttp}
 
 relationships:
   tinkerer-configures: {leaves: tinkerer, enters: frontend, description: Configures integrations and automations}
   member-uses-app: {leaves: member, enters: companion, description: Checks dashboards and receives alerts}
   frontend-calls-core: {leaves: frontend, enters: core, description: Reads state and calls services, technology: WebSocket}
-  companion-calls-core: {leaves: companion, enters: core, description: Reads state, calls services and registers for notifications, technology: WebSocket, REST}
+  companion-calls-core: {leaves: companion, enters: core, description: 'Reads state, calls services and registers for notifications', technology: 'WebSocket, REST'}
   core-records: {leaves: core, enters: recorder-db, description: Writes and queries history, technology: SQL}
   core-reads-config: {leaves: core, enters: config-store, description: Loads configuration and stores credentials, technology: File I/O}
-  core-controls-devices: {leaves: core, enters: devices, description: Subscribes to events and sends commands, technology: Zigbee, Z-Wave, Matter, IP}
+  core-controls-devices: {leaves: core, enters: devices, description: Subscribes to events and sends commands, technology: 'Zigbee, Z-Wave, Matter, IP'}
   core-polls-clouds: {leaves: core, enters: vendor-clouds, description: Polls state and sends commands, technology: HTTPS}
   core-uses-ha-cloud: {leaves: core, enters: ha-cloud, description: Opens the remote access tunnel and voice bridge, technology: TLS tunnel}
-  supervisor-manages-core: {leaves: supervisor, enters: core, description: Starts, stops, updates and backs up Core, technology: Docker API, HTTP}
+  supervisor-manages-core: {leaves: supervisor, enters: core, description: 'Starts, stops, updates and backs up Core', technology: 'Docker API, HTTP'}
   supervisor-pulls-images: {leaves: supervisor, enters: image-registry, description: Pulls signed images, technology: HTTPS}
   supervisor-checks-versions: {leaves: supervisor, enters: version-service, description: Checks for updates, technology: HTTPS}
   frontend-calls-websocket: {leaves: frontend, enters: websocket-api, description: Reads state and calls services, technology: WebSocket}
   frontend-logs-in: {leaves: frontend, enters: auth, description: Logs in and refreshes tokens, technology: HTTPS}
-  companion-calls-websocket: {leaves: companion, enters: websocket-api, description: Reads state, calls services and registers for notifications, technology: WebSocket, REST}
+  companion-calls-websocket: {leaves: companion, enters: websocket-api, description: 'Reads state, calls services and registers for notifications', technology: 'WebSocket, REST'}
   companion-logs-in: {leaves: companion, enters: auth, description: Logs in and refreshes tokens, technology: HTTPS}
   supervisor-checks-core: {leaves: supervisor, enters: websocket-api, description: Checks Core is up before and after updates and backups, technology: HTTP}
   websocket-checks-tokens: {leaves: websocket-api, enters: auth, description: Validates access tokens}
@@ -251,7 +251,7 @@ relationships:
   automation-loads-config: {leaves: automation-engine, enters: config-store, description: Loads automations, technology: File I/O}
   integrations-load-config: {leaves: integrations, enters: config-store, description: Loads config entries and stores credentials, technology: File I/O}
   auth-stores-users: {leaves: auth, enters: config-store, description: Stores users and tokens, technology: File I/O}
-  integrations-control-devices: {leaves: integrations, enters: devices, description: Subscribes to events and sends commands, technology: Zigbee, Z-Wave, Matter, IP}
+  integrations-control-devices: {leaves: integrations, enters: devices, description: Subscribes to events and sends commands, technology: 'Zigbee, Z-Wave, Matter, IP'}
   integrations-poll-clouds: {leaves: integrations, enters: vendor-clouds, description: Polls state and sends commands, technology: HTTPS}
   integrations-use-ha-cloud: {leaves: integrations, enters: ha-cloud, description: Opens the remote access tunnel and voice bridge, technology: TLS tunnel}
 
@@ -341,9 +341,9 @@ dataStores:
   ds-config: {label: Configuration store, represents: config-store, stores: [configuration, credentials]}
 
 dataElements:
-  state-history: {classification: confidential, description: When people were home, which rooms were used, camera and lock events}
-  configuration: {classification: internal, description: Automations, dashboards and integration settings}
-  credentials: {classification: restricted, description: User password hashes, refresh tokens and vendor-cloud credentials}
+  state-history: {classification: confidential, description: 'When people were home, which rooms were used, camera and lock events'}
+  configuration: {classification: internal, description: 'Automations, dashboards and integration settings'}
+  credentials: {classification: restricted, description: 'User password hashes, refresh tokens and vendor-cloud credentials'}
   device-command: {classification: internal, description: Device states and commands}
   image: {classification: public, description: Signed container image and version metadata}
 
@@ -397,7 +397,7 @@ threats:
 threatReviews:
   r-spoof-tinkerer: {reviews: t-spoofed-party, inspects: [ee-tinkerer], disposition: risk, raises: exposed-instances}
   r-spoof-member: {reviews: t-spoofed-party, inspects: [ee-member], disposition: covered, cites: [multi-factor-auth, role-based-users]}
-  r-spoof-devices: {reviews: t-spoofed-party, inspects: [ee-devices], disposition: not-applicable, rationale: Device pairing security is set by each protocol (Zigbee, Z-Wave, Matter) and outside our design}
+  r-spoof-devices: {reviews: t-spoofed-party, inspects: [ee-devices], disposition: not-applicable, rationale: 'Device pairing security is set by each protocol (Zigbee, Z-Wave, Matter) and outside our design'}
   r-spoof-clouds: {reviews: t-spoofed-party, inspects: [ee-vendor-clouds], disposition: not-applicable, rationale: Vendor APIs are reached over HTTPS with certificate validation}
   r-spoof-ha-cloud: {reviews: t-spoofed-party, inspects: [ee-ha-cloud], disposition: covered, cites: [remote-access-options]}
   r-spoof-registry: {reviews: t-spoofed-party, inspects: [ee-registry], disposition: risk, raises: update-supply-chain}
@@ -407,7 +407,7 @@ threatReviews:
   r-tamper-core: {reviews: t-process-tampering, inspects: [p-core], disposition: risk, raises: custom-code}
   r-tamper-supervisor: {reviews: t-process-tampering, inspects: [p-supervisor], disposition: risk, raises: update-supply-chain}
   r-tamper-frontend: {reviews: t-process-tampering, inspects: [p-frontend], disposition: risk, raises: update-supply-chain}
-  r-tamper-companion: {reviews: t-process-tampering, inspects: [p-companion], disposition: not-applicable, rationale: Distributed through the app stores, which sign and review builds}
+  r-tamper-companion: {reviews: t-process-tampering, inspects: [p-companion], disposition: not-applicable, rationale: 'Distributed through the app stores, which sign and review builds'}
 
 # Couldn't express
 # - Installation methods. Home Assistant OS and Container are modelled as

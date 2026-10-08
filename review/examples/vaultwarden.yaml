@@ -244,7 +244,7 @@ systems:
     description: Bitwarden-compatible server
     owner: Vaultwarden maintainers
     realizes: [vaultwarden]
-  bitwarden-clients: {name: Bitwarden clients, description: Official desktop, mobile, browser and CLI apps, owner: Bitwarden Inc., external: true, satisfies: [client-side-encryption]}
+  bitwarden-clients: {name: Bitwarden clients, description: 'Official desktop, mobile, browser and CLI apps', owner: Bitwarden Inc., external: true, satisfies: [client-side-encryption]}
   push-relay: {name: Bitwarden push relay, description: Forwards push notifications to mobile apps, owner: Bitwarden Inc., external: true}
   smtp-server: {name: SMTP server, description: Sends invitations and two-factor codes, owner: Self-hoster's provider, external: true}
   websites: {name: Websites, description: Sites whose icons are fetched, external: true}
@@ -277,7 +277,7 @@ containers:
     technology: File system
 
 components:
-  identity: {in: api-server, name: Identity, description: Login, two-factor and tokens, technology: Rust}
+  identity: {in: api-server, name: Identity, description: 'Login, two-factor and tokens', technology: Rust}
   vault-api: {in: api-server, name: Vault API, description: Sync and cipher endpoints, technology: Rust, satisfies: [client-side-encryption]}
   admin-page: {in: api-server, name: Admin page, description: User and settings management behind the admin token, technology: Rust}
   icon-service: {in: api-server, name: Icon service, description: Fetches and caches website icons, technology: Rust, satisfies: [icon-fetch-guard]}
@@ -285,7 +285,7 @@ components:
 
 relationships:
   member-uses-clients: {leaves: household-member, enters: bitwarden-clients, description: Stores and fills passwords}
-  clients-sync: {leaves: bitwarden-clients, enters: api-server, description: Logs in and syncs encrypted vault items, technology: HTTPS, WebSocket}
+  clients-sync: {leaves: bitwarden-clients, enters: api-server, description: Logs in and syncs encrypted vault items, technology: 'HTTPS, WebSocket'}
   admin-manages: {leaves: admin, enters: api-server, description: Manages users and settings on the admin page, technology: HTTPS}
   member-uses-web-vault: {leaves: household-member, enters: web-vault, description: Manages the vault in a browser}
   web-vault-calls-api: {leaves: web-vault, enters: api-server, description: Logs in and syncs encrypted vault items, technology: HTTPS}
@@ -366,7 +366,7 @@ dataStores:
 
 dataElements:
   vault-ciphertext: {classification: restricted, description: Encrypted vault items and attachments}
-  user-account: {classification: confidential, description: Email, master password hash, two-factor secrets}
+  user-account: {classification: confidential, description: 'Email, master password hash, two-factor secrets'}
   admin-settings: {classification: confidential, description: Server configuration including SMTP credentials}
   icon: {classification: public, description: Cached website icon}
   notification: {classification: internal, description: Device token and "vault changed" signal}
