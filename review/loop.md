@@ -12,6 +12,8 @@ Beads hold all the state. The orchestrating session dispatches subagents and rea
 
 Keep your own context small. Subagents return one-line receipts, and bead content stays in beads.
 
+Keep `../journal.md` current. It is raw material for a blog post about how intent-spec was built. Append an entry, following the format at the top of that file, whenever a human decides a gate, an invariant or the process changes, a fix is reverted, a result challenges the approach, or a round ends with its numbers. Commit it on main.
+
 On every start or resume, check these in order:
 
 1. **Working tree has uncommitted changes outside `.beads/` and `.obsidian/`:** stop and ask the human. Never discard changes. Beads and Obsidian update their own files.
