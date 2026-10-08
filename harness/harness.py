@@ -411,11 +411,17 @@ def load_rules() -> list[Rule]:
     return rules
 
 
-def check(session, docs: list[str]) -> int:
+def check(session, docs: list[str], only: set[str] | None = None) -> int:
     failures = 0
+    rules = [r for r in load_rules() if not only or r.id in only]
     for doc in docs:
-        for rule in load_rules():
-            rows = session.run(rule.query, doc=doc).data()
+        for rule in rules:
+            try:
+                rows = session.run(rule.query, doc=doc).data()
+            except Exception as exc:  # a broken rule file must not stop the others
+                failures += 1
+                print(f"{doc}: rule-error {rule.id} {rule.file.name}: {exc}".splitlines()[0])
+                continue
             for row in rows:
                 failures += rule.severity == "error"
                 detail = row.get("detail", "")
@@ -438,6 +444,8 @@ def main() -> None:
     ]:
         sp = sub.add_parser(name, help=helptext)
         sp.add_argument("docs", nargs="*", help="example names (e.g. openemr) or YAML paths")
+        if name == "check":
+            sp.add_argument("--rules", help="comma-separated rule ids to run (default: all)")
     sub.add_parser("meta", help="load only the ERD meta-graph")
     args = p.parse_args()
 
@@ -453,12 +461,14 @@ def main() -> None:
             for path in paths:
                 print(f"loaded {load_doc(s, path, entities)} from {path.relative_to(ROOT)}")
             return
-        docs = args.docs or [r["doc"] for r in s.run("MATCH (d:Document) RETURN d.doc AS doc ORDER BY doc")]
+        docs = [Path(d).stem for d in args.docs] or [
+            r["doc"] for r in s.run("MATCH (d:Document) RETURN d.doc AS doc ORDER BY doc")]
         if args.cmd == "export":
             for doc in docs:
                 print(f"exported {doc} to {export_doc(s, doc, entities).relative_to(ROOT)}")
         elif args.cmd == "check":
-            sys.exit(1 if check(s, docs) else 0)
+            only = set(args.rules.split(",")) if args.rules else None
+            sys.exit(1 if check(s, docs, only) else 0)
 
 
 if __name__ == "__main__":
