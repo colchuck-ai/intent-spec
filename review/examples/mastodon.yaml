@@ -43,10 +43,10 @@ outcomes:
     statement: Minimize the likelihood that a platform decides what I see
   move-freely:
     in: stay-connected
-    statement: Minimize what I lose when I move to another server
+    statement: Minimize the followers and history I lose when I change provider
   reach-across-servers:
     in: stay-connected
-    statement: Minimize the number of people I can't follow because they're on a different server
+    statement: Minimize the number of people I want to follow but can't, because of where they post
   safe-from-abuse:
     in: stay-connected
     statement: Minimize the time abusive content stays in front of me
@@ -65,10 +65,10 @@ outcomes:
     rationale: Direct messages are not end-to-end encrypted, so server admins can read them; users are told to use an encrypted messenger for anything sensitive
   enforce-rules:
     in: run-a-community
-    statement: Minimize the time it takes to act on a report
+    statement: Minimize the time content that breaks our rules stays visible in our community
   defederate:
     in: run-a-community
-    statement: Minimize the effort to limit or block a misbehaving server
+    statement: Minimize the effort to keep outside groups that harass us away from our community
   affordable:
     in: keep-server-running
     statement: Minimize the cost of hosting per active user
