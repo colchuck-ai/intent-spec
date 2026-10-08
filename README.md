@@ -10,7 +10,7 @@ The model should be:
 
 - **Simple:** the fewest entities, links and rules that can still express real products.
 - **Complete:** able to express what many kinds of companies, in different domains and at different stages, need to say about their products.
-- **Accurate:** faithful to the established models it builds on. We depart from one only when the evidence shows that a new approach is worth the cost of leaving a standard people already know (INV-9).
+- **Accurate:** faithful to the established models it builds on. They anchor questions of principle (INV-9), and we depart from one only when the evidence shows that unification is worth the cost of leaving a standard people already know (INV-10).
 - **Composable:** governance is defined once and adopted by many products, and one product's intent can be implemented across many repos.
 - **Agent-friendly:** easy for agents to read, query and edit, with stable IDs and rules that say what's wrong and how to fix it.
 
@@ -54,13 +54,13 @@ flowchart LR
 
 These hold for every version of the model. Creating, changing or deleting an invariant needs a human decision, and so does any change that contradicts one. Cite them by ID. IDs are never reused, so a removed invariant leaves a gap.
 
-- **INV-1. Intent always wins.** The model describes intent only. It holds no observed or runtime state, and correcting drift or compiling intent into a deployed product is out of scope.
-- **INV-5. Intent has lifecycle stages**, for example proposed, ratified and deprecated. Stages are intent, not observed state. A deprecated item stays in place and points to its replacement, or gives a rationale when nothing replaces it.
-- **INV-6. Coverage applies to what a scope selects:** every selected item has exactly one disposition. Importing something never creates an obligation.
-- **INV-7. References and imports work the same way in every layer.** A reference targets a local item, an imported item, or an external reference (free-text title, optional URL and party) for things that will never publish intent-spec, such as a provider's SOC 2 report or a law. Each link in the ERD declares whether it accepts an external reference (job cites, outcome cites, adoption inherits, influencer cites, influencer binds, secure baseline derives); every other link must resolve to a local or imported item. Where allowed, an external reference satisfies the link's cardinality, but rules that inspect the target skip it.
-- **INV-8. The model has no abstract placeholder entities.** Links go to concrete entities. Each link is labelled with a single action verb and points from the dependent item to its anchor.
-- **INV-9. Established models stay intact.** C4 follows c4model.com, DFDs follow DFD3, governance follows HCGF and product intent follows JTBD. Their core elements and relationships stay as the source model defines them. Removing, merging or replacing one, or making a stored link derived, needs a very strong reason and a human decision; simplicity (INV-10) alone is never enough. DFD elements stay separate from C4 elements and may optionally represent them.
-- **INV-10. Keep it simple.** Every addition is justified by an example that needs it.
+- **INV-1. Intent only.** The model describes what a product is meant to be, never what is observed at runtime. Detecting drift between intent and reality, and compiling intent into a running product, are out of scope.
+- **INV-7. One way to refer to anything.** An item can point to an item in its own document, to an item in a document it imports, or to an external reference: something that will never be described in intent-spec, such as a law or a provider's SOC 2 report. References work the same way in every layer, which is what lets governance be defined once and adopted by many products. Importing something never creates an obligation; only an explicit adoption does.
+- **INV-9. Established models are the anchors.** JTBD, C4, DFD3 and HCGF are the source the unified model draws from. When a design question turns on principle, the answer starts from what the source model says and why.
+- **INV-10. Every change earns its place.** Every addition is justified by an example that needs it. Adding, removing or changing an established model's elements or relationships, including making a stored link derived, goes through review and a human decision. It is accepted only when the benefit of unification outweighs the cost of leaving a model people already know. Simplicity alone is never reason enough.
+- **INV-11. The model does not depend on how it is stored.** Entities, links and rules are defined without reference to any file format or database. Any storage that keeps them, whether YAML, SQL or a graph, is a valid form of the model, and none is the model.
+- **INV-12. Each concept exists once.** Product, engineering, security and GRC share one model, and their items link to each other directly. When two disciplines mean the same thing, they use the same entity. When they mean different things, the model names the difference.
+- **INV-13. Every item has a stable identity.** An item's ID is unique and keeps its meaning across versions. Items are deprecated, pointing to a replacement, rather than deleted or renamed.
 
 ## Open
 

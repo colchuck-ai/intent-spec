@@ -66,7 +66,8 @@ You are given one review step. Its description names your persona and examples.
    - **Accept:** add the label `triage:accept`.
    - **Needs a human:** add the labels `triage:accept` and `triage:human`, then run `bd gate create --type=human --blocks <id> --reason "<INV-n or process>: <decision needed>"`. Use this only if accepting the finding would:
      - create, change or delete an invariant in `../README.md`,
-     - contradict an invariant, or
+     - contradict an invariant,
+     - add, remove or change an established model's elements or relationships (INV-10), or
      - change the review process (personas, prompt, formula, this file).
 4. **Plan the fixes.** Compare the open accepted findings for overlap: the same entity, link, rule or example section.
    - **One fix builds on another:** run `bd dep add <later> <earlier>`, then comment on the later finding with "after <earlier>: <why>". Put structural changes (renames, flattening, removed or moved entities, edits across every example) before additive ones.

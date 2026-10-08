@@ -71,3 +71,7 @@ Halfway into building lockfile tooling, the human stepped back: the goal is a da
 ## 2026-10-08: the round trip was only byte-identical because nothing imported
 
 Adding the first importing example (shiftly now adopts governance from a separate shiftly-governance document) showed that harness export silently deleted a document's imports. The "byte-identical round trip" had held only because no example used imports, so a guarantee checked on the examples was only as strong as the examples. The same change turned every rule into a regression test: 96 minimal invalid documents, each naming the one rule it breaks, all passing, with no rule found wrong. Evidence: ce869d8, 1605aac, 4f06a2a, review-8ii.
+
+## 2026-10-08: the invariants, rewritten as principles
+
+Asked what an invariant even is, the answer became: a line every version of the model keeps, which settles disputes ahead of time and marks what the loop may not change without a human. Measured against that, three of the old invariants were really design conventions (lifecycle stages, coverage, verb direction) and moved into the ERD. The human softened INV-9: established models are philosophical anchors to reality, not texts that must stay intact; any departure instead has to earn its place through review (INV-10). Three were added: the model does not depend on how it is stored (INV-11, guarding against the drift just reversed), each concept exists once across disciplines (INV-12, the unification itself), and items keep a stable identity (INV-13). Seven remain: 1, 7, 9, 10, 11, 12, 13.

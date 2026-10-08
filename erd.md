@@ -8,6 +8,12 @@ erDiagram
   %% A rule or derivation that uses a derivation cites its ID in brackets.
   %% A guidance line is review advice that cannot be checked mechanically; it is not a rule and has no ID.
 
+  %% Conventions (formerly README INV-5, INV-6, INV-8 and part of INV-9)
+  %% Intent has lifecycle stages (proposed, ratified, deprecated); stages are intent, not observed state.
+  %% Coverage applies to what a scope selects: every selected item has exactly one disposition.
+  %% No abstract placeholder entities: links go to concrete entities. Each link is labelled with a single action verb and points from the dependent item to its anchor.
+  %% DFD elements stay separate from C4 elements and may optionally represent them; they model different things (INV-12).
+
   %% Document
   %% The document is the unit of distribution; its fields are the header, not an item.
 
