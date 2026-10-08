@@ -64,6 +64,7 @@ class Link:
 class Entity:
     name: str
     attrs: dict[str, str] = field(default_factory=dict)  # name -> type (e.g. string, enum[], map)
+    notes: dict[str, str] = field(default_factory=dict)  # name -> quoted description
     links: dict[str, Link] = field(default_factory=dict)  # verb -> link
 
     @property
@@ -80,7 +81,7 @@ class Entity:
 
 LINK_RE = re.compile(r"^\s*([A-Z_]+)\s+(\S{2})--(\S{2})\s+([A-Z_]+)\s*:\s*(\w+)")
 ENTITY_RE = re.compile(r"^\s*([A-Z_]+)\s*(\{)?\s*$")
-ATTR_RE = re.compile(r"^\s*(\w+(?:\[\])?)\s+(\w+)(?:\s+\".*\")?\s*$")
+ATTR_RE = re.compile(r"^\s*(\w+(?:\[\])?)\s+(\w+)(?:\s+\"(.*)\")?\s*$")
 
 
 def parse_erd(path: Path = ERD) -> dict[str, Entity]:
@@ -95,6 +96,7 @@ def parse_erd(path: Path = ERD) -> dict[str, Entity]:
                 current = None
             elif m := ATTR_RE.match(line):
                 current.attrs[m.group(2)] = m.group(1)
+                current.notes[m.group(2)] = m.group(3) or ""
             continue
         if m := LINK_RE.match(line):
             src, _, right, tgt, verb = m.groups()
@@ -164,20 +166,50 @@ def to_property(v):
     return v, False
 
 
+def attr_rows(e: Entity) -> list[dict]:
+    """Attribute metadata from the ERD: type, required, and enum values (the part before the first ';')."""
+    rows = []
+    for name, typ in e.attrs.items():
+        parts = [p.strip() for p in e.notes.get(name, "").split(";")]
+        values = None
+        if typ.startswith("enum") and parts and "|" in parts[0]:
+            values = [v.strip() for v in parts[0].split("|")]
+        required = "required" in parts or "one or more" in parts
+        rows.append({"name": name, "type": typ, "list": typ.endswith("[]"), "required": required, "values": values})
+    return rows
+
+
 def load_meta(session, entities: dict[str, Entity]) -> None:
-    session.run("MATCH (e:EntityType) DETACH DELETE e")
+    """Load the ERD as :EntityType nodes. MERGE keeps it readable while another process loads."""
     session.run(
-        "UNWIND $rows AS r CREATE (:EntityType {name: r.name, key: r.key, label: r.label, attrs: r.attrs})",
+        "UNWIND $rows AS r MERGE (e:EntityType {name: r.name}) SET e.key = r.key, e.label = r.label, e.attrs = r.attrs",
         rows=[{"name": e.name, "key": e.key, "label": e.label, "attrs": list(e.attrs)} for e in entities.values()],
     )
-    rows = [
+    session.run("MATCH (e:EntityType) WHERE NOT e.name IN $names DETACH DELETE e", names=list(entities))
+    links = [
         {"src": l.source, "tgt": t, "verb": l.verb, "many": l.many, "required": l.required}
         for e in entities.values() for l in e.links.values() for t in l.targets
     ]
     session.run(
         "UNWIND $rows AS r MATCH (a:EntityType {name: r.src}), (b:EntityType {name: r.tgt}) "
-        "CREATE (a)-[:LINK {verb: r.verb, many: r.many, required: r.required}]->(b)",
-        rows=rows,
+        "MERGE (a)-[l:LINK {verb: r.verb}]->(b) SET l.many = r.many, l.required = r.required",
+        rows=links,
+    )
+    session.run(
+        "MATCH (a:EntityType)-[l:LINK]->(b:EntityType) "
+        "WHERE NOT {src: a.name, tgt: b.name, verb: l.verb} IN $keys DELETE l",
+        keys=[{"src": r["src"], "tgt": r["tgt"], "verb": r["verb"]} for r in links],
+    )
+    attrs = [dict(r, entity=e.name) for e in entities.values() for r in attr_rows(e)]
+    session.run(
+        "UNWIND $rows AS r MATCH (e:EntityType {name: r.entity}) "
+        "MERGE (e)-[:HAS_ATTR]->(a:Attr {entity: r.entity, name: r.name}) "
+        "SET a.type = r.type, a.list = r.list, a.required = r.required, a.values = r.values",
+        rows=attrs,
+    )
+    session.run(
+        "MATCH (a:Attr) WHERE NOT {entity: a.entity, name: a.name} IN $keys DETACH DELETE a",
+        keys=[{"entity": r["entity"], "name": r["name"]} for r in attrs],
     )
 
 
@@ -434,6 +466,11 @@ def check(session, docs: list[str], only: set[str] | None = None) -> int:
 # ---------------------------------------------------------------- CLI
 
 
+def show(path: Path) -> str:
+    return str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path)
+
+
+
 def main() -> None:
     p = argparse.ArgumentParser(prog="harness", description=__doc__.split("\n")[0])
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -459,13 +496,13 @@ def main() -> None:
             load_meta(s, entities)
             paths = [doc_path(d) for d in args.docs] or all_docs()
             for path in paths:
-                print(f"loaded {load_doc(s, path, entities)} from {path.relative_to(ROOT)}")
+                print(f"loaded {load_doc(s, path, entities)} from {show(path)}")
             return
         docs = [Path(d).stem for d in args.docs] or [
             r["doc"] for r in s.run("MATCH (d:Document) RETURN d.doc AS doc ORDER BY doc")]
         if args.cmd == "export":
             for doc in docs:
-                print(f"exported {doc} to {export_doc(s, doc, entities).relative_to(ROOT)}")
+                print(f"exported {doc} to {show(export_doc(s, doc, entities))}")
         elif args.cmd == "check":
             only = set(args.rules.split(",")) if args.rules else None
             sys.exit(1 if check(s, docs, only) else 0)
