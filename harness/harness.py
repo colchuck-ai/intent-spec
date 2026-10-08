@@ -408,7 +408,8 @@ def export_doc(session, doc: str, entities: dict[str, Entity]) -> Path:
     for item_id, item in g["items"].items():
         wanted.setdefault(by_type[item["type"]].key, {})[item_id] = item["fields"]
 
-    entity_keys = {e.key for e in entities.values()}
+    # The header and imports are not items (DOCUMENT and IMPORT pluralise to "documents" and "imports").
+    entity_keys = {e.key for e in entities.values() if e.name not in ("DOCUMENT", "IMPORT")}
     for key in list(data):
         if key not in entity_keys or not isinstance(data[key], dict):
             continue
