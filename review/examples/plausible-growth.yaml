@@ -323,7 +323,7 @@ containers:
     description: Ingests events, serves the dashboard and API, manages accounts and billing
     kind: application
     technology: Elixir, Phoenix
-    satisfies: [one-page-dashboard, source-breakdown, goals-and-funnels, daily-salted-visitor-hash, shared-links, site-switcher, referrer-list]
+    satisfies: [one-page-dashboard, source-breakdown, goals-and-funnels, daily-salted-visitor-hash, shared-links, site-switcher]
   events-db:
     in: plausible-system
     name: Events database
