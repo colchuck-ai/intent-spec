@@ -433,6 +433,7 @@ deploymentNodes:
     in: aws-region
     name: Application server
     technology: EC2, Amazon Linux, Docker
+    satisfies: [cloud-host-hardening]
   db-node:
     in: aws-region
     name: Managed database

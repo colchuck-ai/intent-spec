@@ -90,7 +90,7 @@ erDiagram
   }
   %% a core job is what the product is hired for; a related job is done alongside it; a consumption job is about living with the product (setting up, upgrading, running it); a purchase job is choosing and paying for it, and its executor is the buyer
   %% guidance: the statement of a core or related job, and of its outcomes, is solution-free; a consumption or purchase job and its outcomes may name the product
-  %% a purchase job's outcomes are usually served by commercial commitments (pricing, terms, procurement paperwork): requirements with a verification that no system, container or component satisfies [C4-8]
+  %% a purchase job's outcomes are usually served by commercial commitments (pricing, terms, procurement paperwork): requirements with a verification that no system, container, component or deployment node satisfies [C4-8]
   JOB }o--|| JOB_EXECUTOR: motivates
   JOB }o--o{ EXTERNAL_REFERENCE: cites
 
@@ -347,7 +347,9 @@ erDiagram
   SYSTEM }o--o{ REQUIREMENT: satisfies
   CONTAINER }o--o{ REQUIREMENT: satisfies
   COMPONENT }o--o{ REQUIREMENT: satisfies
-  %% rule C4-8: every ratified requirement is satisfied by at least one system, container or component, unless it serves only outcomes of purchase jobs and executes no treatment and implements no adoption
+  DEPLOYMENT_NODE }o--o{ REQUIREMENT: satisfies
+  %% a deployment node satisfies requirements about the host itself, e.g. a hardened operating system image
+  %% rule C4-8: every ratified requirement is satisfied by at least one system, container, component or deployment node, unless it serves only outcomes of purchase jobs and executes no treatment and implements no adoption
 
   RELATIONSHIP {
     string description "specific, consistent with direction; avoid bare 'uses'"
@@ -400,7 +402,7 @@ erDiagram
   %% rule C4-23 (should): every container of a system a deployment diagram depicts has an instance on a node in the diagram's environment [C4-22], or is listed in its notDeployed
   %% notDeployed keys are references to CONTAINER, checked by REF-1 and REF-6 like links
   %% rule C4-24: a notDeployed key is a container of a system the diagram depicts that has no instance in the diagram's environment [C4-22]
-  %% rule C4-27 (should): every ratified requirement that applies [PRODUCT-8] to a product the diagram's environment serves is satisfied by at least one system, container or component that is not a container listed in the diagram's notDeployed or a component in one
+  %% rule C4-27 (should): every ratified requirement that applies [PRODUCT-8] to a product the diagram's environment serves is satisfied by at least one system, container or component that is not a container listed in the diagram's notDeployed or a component in one, or by a deployment node in the diagram's environment [C4-22]
 
   ENVIRONMENT {
     string operator "who runs it, e.g. self-hosting operator; omit when the team that owns the document runs it"

@@ -407,10 +407,12 @@ deploymentNodes:
     in: eu-region
     name: App servers
     technology: Ubuntu, Docker
+    satisfies: [hardened-hosts]
   db-servers:
     in: eu-region
     name: Database servers
     technology: Ubuntu
+    satisfies: [hardened-hosts]
   compose-host:
     name: Operator's server
     technology: Docker Compose
