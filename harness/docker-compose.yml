@@ -1,0 +1,15 @@
+services:
+  neo4j:
+    image: neo4j:5-community
+    container_name: intent-spec-neo4j
+    ports:
+      - "7474:7474" # Neo4j Browser: http://localhost:7474
+      - "7687:7687" # Bolt, used by the harness and agents
+    environment:
+      # Local development only.
+      NEO4J_AUTH: neo4j/intentspec
+    volumes:
+      - neo4j-data:/data
+
+volumes:
+  neo4j-data:

@@ -1,0 +1,9 @@
+[project]
+name = "intent-harness"
+version = "0.1.0"
+description = "Load intent-spec documents into Neo4j, check rules as Cypher, export back to YAML"
+requires-python = ">=3.11"
+dependencies = [
+    "neo4j>=5.20",
+    "ruamel.yaml>=0.18",
+]

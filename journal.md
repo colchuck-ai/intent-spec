@@ -47,3 +47,7 @@ Writing and reviewing the model as YAML felt clunky, because the model is really
 ## 2026-10-08: the graph loader found what two review rounds missed
 
 The first thing the Neo4j loader did, before Neo4j was even running, was compare every field in the examples against the ERD. It found 67 values that YAML had silently cut short. Flow-style lines like `{description: Lights, sensors and hubs reached over Zigbee, Z-Wave, owner: ...}` contain unquoted commas, so YAML read the description as just "Lights" and turned the rest into empty fields. Thirteen expert reviewers read these files across two rounds and none noticed, because people (and models) read the prose, not the parse. Evidence: the "quote comma-separated values" commit.
+
+## 2026-10-08: YAML in git, graph in Neo4j
+
+The question was whether the graph or the YAML should be the source of truth. The answer: load, change in the graph, export to save. A small Python harness reads the ERD itself, so the mapping follows the model with no extra code: items become nodes, link fields become relationships named after their verbs, and the ERD becomes a browsable meta-graph. Export writes changes back into the YAML in place, so comments and order survive. Loading and exporting all seven examples gives a byte-identical result, and an edit made in Neo4j shows up as an ordinary three-line git diff. The first rules are now Cypher queries (REF-1, REF-6, link cardinality, PRODUCT-1). Each was checked by planting a violation and watching it fire. Evidence: harness/.
