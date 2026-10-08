@@ -1,0 +1,9 @@
+# breaks: SCHEMA-ATTR /externalReferences/er
+# An external reference without its required title.
+intentSpec: "0.1"
+id: schema-attr
+version: 0.1.0
+stage: proposed
+
+externalReferences:
+  er: {party: Acme}

@@ -1,0 +1,8 @@
+# breaks: SCHEMA-ENUM /dataElements/de
+intentSpec: "0.1"
+id: schema-enum
+version: 0.1.0
+stage: proposed
+
+dataElements:
+  de: {classification: secret}

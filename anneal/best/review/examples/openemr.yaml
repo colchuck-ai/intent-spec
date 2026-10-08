@@ -1,0 +1,582 @@
+# OpenEMR: open-source electronic health records and practice management,
+# certified under the ONC Health IT Certification Program, plus a packaged
+# cloud deployment on AWS. Stage: mature, regulated.
+# Illustrative only, written from public information. Owners, targets and the
+# MFA exception are invented and say nothing about OpenEMR's actual posture.
+intentSpec: "0.1"
+id: openemr
+version: 7.0.0
+stage: ratified
+
+products:
+  openemr:
+    name: OpenEMR
+    description: Certified EHR and practice management software that clinics install and run.
+    targets: [run-patient-care, get-paid, access-my-care]
+    selects: [openemr-controls]
+  openemr-cloud:
+    name: OpenEMR Cloud
+    description: OpenEMR packaged for one-click deployment on AWS.
+    targets: [run-patient-care, get-paid, access-my-care]
+    selects: [openemr-controls]
+    answers: [inf-aws-baa]
+
+jobExecutors:
+  clinician:
+    description: Clinician seeing a patient during a visit
+  biller:
+    description: Billing staff member turning visits into paid claims
+  patient:
+    description: Patient managing their own care between visits
+
+jobs:
+  run-patient-care:
+    statement: Record and act on everything needed to care for a patient during a visit
+    motivates: clinician
+  get-paid:
+    statement: Get paid for the care the practice delivers
+    motivates: biller
+  access-my-care:
+    statement: See my health information and stay in touch with my clinic
+    motivates: patient
+
+outcomes:
+  chart-in-visit:
+    in: run-patient-care
+    statement: Minimize the time spent documenting during a visit
+  complete-history:
+    in: run-patient-care
+    statement: Minimize the likelihood of missing relevant history, medications or allergies
+  safe-medication:
+    in: run-patient-care
+    statement: Minimize the likelihood of a medication error reaching the patient
+  send-prescriptions:
+    in: run-patient-care
+    statement: Minimize the time it takes to get a prescription to the pharmacy
+  lab-results-back:
+    in: run-patient-care
+    statement: Minimize the time between a lab result being ready and seeing it
+  clean-claims:
+    in: get-paid
+    statement: Minimize the number of claims rejected for errors
+  days-to-payment:
+    in: get-paid
+    statement: Minimize the time between a visit and payment
+  see-records:
+    in: access-my-care
+    statement: Minimize the effort to see my records and results
+  use-my-apps:
+    in: access-my-care
+    statement: Minimize the effort to use my own health apps with my records
+  records-stay-private:
+    in: access-my-care
+    statement: Minimize the likelihood that people outside my care see my records
+  message-clinic:
+    in: access-my-care
+    statement: Minimize the time to get an answer from my clinic
+  telehealth:
+    in: access-my-care
+    statement: Minimize the effort to see my clinician without travelling
+    disposition: deferred
+    rationale: Provided through third-party modules for now
+
+requirements:
+  encounter-forms:
+    statement: Clinicians document encounters with configurable forms, problem lists, medications and allergies
+    verification: ONC certification test procedures for clinical criteria
+    serves: [chart-in-visit, complete-history]
+  e-prescribing:
+    statement: Prescriptions are sent electronically through an e-prescribing network
+    verification: Certification test of electronic prescribing
+    serves: [send-prescriptions, safe-medication]
+  lab-interface:
+    statement: Lab orders and results are exchanged over HL7 v2
+    verification: Interface test with a lab sandbox
+    serves: [lab-results-back]
+  claims-export:
+    statement: Claims are generated as X12 837 and sent to a clearinghouse, with scrubbing before submission
+    verification: Clearinghouse test submissions
+    serves: [clean-claims, days-to-payment]
+  patient-portal:
+    statement: Patients view records, results and appointments, and message their clinic through a portal
+    verification: Portal test plan
+    serves: [see-records, message-clinic]
+  fhir-patient-access:
+    statement: A FHIR R4 API with SMART on FHIR authorization lets patients connect apps of their choice
+    verification: ONC (g)(10) standardized API test with Inferno
+    serves: [use-my-apps]
+  role-based-access:
+    statement: Access to every function is controlled by role-based access control lists
+    verification: ACL test suite
+    serves: [records-stay-private]
+    implements: [adopt-rbac-emr]
+  multi-factor-login:
+    statement: Staff can log in with TOTP or U2F as a second factor
+    verification: Login tests for each factor
+    implements: [adopt-mfa-emr]
+  tamper-evident-audit:
+    statement: Every access to and change of patient data is logged with a checksum, and the log can be checked for tampering
+    verification: Certification test of audit log integrity
+    implements: [adopt-audit-emr]
+  document-encryption:
+    statement: Patient documents can be encrypted at rest
+    verification: Inspect stored documents with encryption enabled
+    implements: [adopt-doc-encryption-emr]
+  partner-authentication:
+    statement: E-prescribing, lab and clearinghouse connections authenticate each partner with its own credentials over TLS and validate its messages
+    verification: Interface test of a connection without partner credentials being refused
+    implements: [adopt-partner-emr]
+  cloud-tls:
+    statement: OpenEMR Cloud terminates TLS at the load balancer with a managed certificate
+    verification: Deployment template review
+    implements: [adopt-tls-cloud]
+  cloud-host-hardening:
+    statement: OpenEMR Cloud hosts are built from an image hardened to the CIS Amazon Linux benchmark
+    verification: CIS benchmark scan of the image
+    implements: [adopt-host-cloud]
+  portal-lockout:
+    statement: Portal accounts lock after repeated failed logins
+    verification: Login test
+    executes: [reduce-portal-takeover]
+
+metrics:
+  audit-integrity:
+    target: 100% of weekly audit log integrity checks pass
+    frequency: Weekly
+    measures: [audit-logging]
+  claim-rejection-rate:
+    target: Under 5% of claims rejected on first submission
+    frequency: Monthly
+    measures: [clean-claims]
+
+risks:
+  portal-takeover:
+    description: An attacker takes over a patient's portal account with a reused password
+    endangers: [see-records, message-clinic]
+  acl-misconfiguration:
+    description: A clinic misconfigures ACLs and staff see records they shouldn't
+    endangers: [records-stay-private]
+  unpatched-installs:
+    description: Clinics run old versions with known vulnerabilities
+    endangers: [records-stay-private, safe-medication]
+  partner-compromise:
+    description: An e-prescribing, lab or clearinghouse partner is compromised and sends bad data
+    endangers: [send-prescriptions, lab-results-back, clean-claims]
+  mfa-not-enforced-cloud:
+    description: OpenEMR Cloud deployments run without enforced MFA for staff
+    endangers: [records-stay-private]
+  no-tls:
+    description: ePHI travels without TLS and is modified in transit
+    endangers: [safe-medication]
+
+treatments:
+  reduce-portal-takeover:
+    strategy: reduce
+    owner: Security lead
+    reviewBy: 2027-02-01
+    treats: [portal-takeover]
+  reduce-acl-misconfiguration:
+    strategy: reduce
+    owner: Security lead
+    reviewBy: 2027-02-01
+    treats: [acl-misconfiguration]
+  transfer-patching:
+    strategy: transfer
+    owner: Project lead
+    rationale: Deploying practices are responsible for patching under the installation guide and their HIPAA obligations
+    treats: [unpatched-installs]
+    scopes: [openemr]
+  transfer-tls:
+    strategy: transfer
+    owner: Project lead
+    rationale: Deploying practices terminate TLS under the installation guide and their HIPAA obligations
+    treats: [no-tls]
+    scopes: [openemr]
+  reduce-tls-cloud:
+    strategy: reduce
+    owner: Infrastructure lead
+    reviewBy: 2027-02-01
+    treats: [no-tls]
+    scopes: [openemr-cloud]
+  reduce-partner-compromise:
+    strategy: reduce
+    owner: Security lead
+    reviewBy: 2027-02-01
+    treats: [partner-compromise]
+  accept-cloud-mfa-gap:
+    strategy: accept
+    owner: Project lead
+    reviewBy: 2026-12-31
+    rationale: Illustrative. Enforcing MFA would break existing cloud customers' integrations; we accept this until the next major release
+    treats: [mfa-not-enforced-cloud]
+    scopes: [openemr-cloud]
+    waives: [std-mfa]
+
+externalReferences:
+  onc-cert: {title: "45 CFR 170.315 ONC Health IT certification criteria", url: "https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-D/part-170/subpart-C/section-170.315", party: ONC}
+  hipaa-security: {title: "45 CFR Part 164 Subpart C (HIPAA Security Rule)", url: "https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C", party: HHS}
+  aws-physical: {title: AWS SOC 2 Type II report, party: AWS}
+  cis-amazon-linux: {title: CIS Amazon Linux 2023 Benchmark, party: Center for Internet Security}
+  partner-baas: {title: Business associate agreements with ePHI exchange partners, party: 'E-prescribing network, lab and clearinghouse'}
+  aws-baa: {title: AWS Business Associate Addendum, party: AWS}
+
+influencers:
+  inf-onc:
+    kinds: [regulatory]
+    scopeRationale: OpenEMR is certified health IT, and clinics rely on that for federal programs
+    cites: onc-cert
+  inf-hipaa:
+    kinds: [statutory]
+    scopeRationale: Deploying practices are covered entities and must protect ePHI that OpenEMR stores
+    cites: hipaa-security
+  inf-baa:
+    kinds: [contractual]
+    scopeRationale: Every partner that receives ePHI from OpenEMR must be under a business associate agreement
+    cites: partner-baas
+    binds: [erx-network, lab, clearinghouse]
+  inf-aws-baa:
+    kinds: [contractual]
+    scopeRationale: AWS stores OpenEMR Cloud's ePHI on its database and host nodes, so it is a business associate
+    cites: aws-baa
+    binds: [aws-physical]
+
+policies:
+  pol-security:
+    statement: We protect the confidentiality, integrity and availability of patient health information
+    name: Information security policy
+    approver: OpenEMR Foundation board
+    satisfies: [inf-onc, inf-hipaa, inf-baa, inf-aws-baa]
+
+controlObjectives:
+  co-access-control: {statement: "Only authenticated, authorised users reach ePHI", supports: [pol-security], cites: [inf-hipaa, inf-onc], clauses: [45 CFR 164.312(a)(1), 45 CFR 164.312(d), 45 CFR 170.315(d)(1)]}
+  co-audit: {statement: "Every action on ePHI can be traced to a user", supports: [pol-security], cites: [inf-hipaa, inf-onc], clauses: [45 CFR 164.312(b), 45 CFR 170.315(d)(2)]}
+  co-transmission: {statement: "ePHI cannot be read or altered in transit", supports: [pol-security], cites: [inf-hipaa], clauses: [45 CFR 164.312(e)(1)]}
+  co-data-at-rest: {statement: "Stored patient documents cannot be read without the key", supports: [pol-security], cites: [inf-onc], clauses: [45 CFR 170.315(d)(7)]}
+  co-vulnerabilities: {statement: "Known vulnerabilities are fixed before they are exploited", supports: [pol-security]}
+  co-physical: {statement: "Only authorised people can physically reach systems holding ePHI", supports: [pol-security], cites: [inf-hipaa], clauses: [45 CFR 164.310]}
+
+standards:
+  std-unique-users: {statement: Every user has a unique login and least-privilege role, addresses: [co-access-control]}
+  std-mfa: {statement: Staff accounts use multi-factor authentication, addresses: [co-access-control]}
+  std-audit-log: {statement: Actions on ePHI are logged and the log is tamper-evident, addresses: [co-audit]}
+  std-tls: {statement: ePHI is encrypted in transit with TLS 1.2 or later, addresses: [co-transmission]}
+  std-encrypt-at-rest: {statement: Stored patient documents are encrypted, addresses: [co-data-at-rest]}
+  std-disclosure: {statement: Security reports are triaged within 7 days and fixed in a patch release, addresses: [co-vulnerabilities]}
+  std-physical: {statement: Servers are in physically secured facilities, addresses: [co-physical]}
+  std-host-baseline: {statement: Hosts are hardened to the secure baseline, addresses: [co-access-control]}
+  std-partner-auth: {statement: Partner systems authenticate with their own credentials over TLS, addresses: [co-access-control]}
+
+guidelines:
+  gl-acl-setup: {description: Wiki guidance on setting up ACL roles for a clinic, augments: [std-unique-users]}
+
+controls:
+  access-control: {statement: "Each user logs in with a unique account and gets only the ACL role their job needs", owner: Security lead, safeguard: technical, enforces: [std-unique-users], achieves: [co-access-control]}
+  mfa: {statement: "Staff accounts require a second factor (TOTP or U2F) at login", owner: Security lead, safeguard: technical, enforces: [std-mfa], achieves: [co-access-control]}
+  audit-logging: {statement: "The audit log records every access to and change of ePHI, with checksums that reveal tampering", owner: Security lead, safeguard: technical, enforces: [std-audit-log], achieves: [co-audit]}
+  transport-encryption: {statement: "Every connection carrying ePHI uses TLS 1.2 or later", owner: Infrastructure lead, safeguard: technical, enforces: [std-tls], achieves: [co-transmission], executes: [reduce-tls-cloud]}
+  document-encryption-control: {statement: "Patient documents are encrypted on disk with a site key", owner: Security lead, safeguard: technical, enforces: [std-encrypt-at-rest], achieves: [co-data-at-rest]}
+  vulnerability-management: {statement: "Security reports are triaged and fixed through patch releases", owner: Security lead, safeguard: administrative, enforces: [std-disclosure], achieves: [co-vulnerabilities]}
+  physical-security: {statement: "Hosting facilities restrict and log physical access", owner: Infrastructure lead, safeguard: physical, enforces: [std-physical], achieves: [co-physical]}
+  host-hardening: {statement: "Hosts are configured to the secure baseline before use", owner: Infrastructure lead, safeguard: technical, enforces: [std-host-baseline], achieves: [co-access-control]}
+  partner-validation:
+    statement: Partner systems authenticate with their own credentials over TLS, and their requests are validated
+    owner: Security lead
+    safeguard: technical
+    enforces: [std-partner-auth]
+    achieves: [co-access-control]
+    executes: [reduce-partner-compromise, reduce-acl-misconfiguration]
+
+procedures:
+  proc-vuln-triage:
+    steps: "1. Acknowledge the report. 2. Reproduce it and rate its severity. 3. Assign a fix within 7 days."
+    owner: Security lead
+    overseer: Project lead
+    operationalizes: vulnerability-management
+  proc-patch-release:
+    steps: "1. Backport the fix to supported releases. 2. Publish a patch release. 3. Announce it to users."
+    owner: Release manager
+    overseer: Project lead
+    operationalizes: vulnerability-management
+
+assessmentObjectives:
+  ao-access: {assesses: access-control, verifies: [std-unique-users], methods: [examine, test], evidence: "User list with assigned roles and a test login attempting access outside the assigned role"}
+  ao-mfa: {assesses: mfa, verifies: [std-mfa], methods: [examine, test], evidence: "MFA enrollment report for staff accounts and a test login without a second factor being refused"}
+  ao-audit: {assesses: audit-logging, verifies: [std-audit-log], methods: [examine, test], evidence: "Audit log sample for ePHI actions, the weekly integrity-check output and the ONC certification test report"}
+  ao-tls: {assesses: transport-encryption, verifies: [std-tls], methods: [test], evidence: "TLS scan of every ePHI endpoint showing only TLS 1.2 or later"}
+  ao-doc-encryption: {assesses: document-encryption-control, verifies: [std-encrypt-at-rest], methods: [examine, test], evidence: "Encryption configuration for document storage and a raw read of a stored document showing ciphertext"}
+  ao-vuln: {assesses: vulnerability-management, verifies: [std-disclosure], examines: [proc-vuln-triage, proc-patch-release], methods: [examine, interview], evidence: "Security report tracker showing triage within 7 days and the patch release notes that shipped each fix"}
+  ao-physical: {assesses: physical-security, verifies: [std-physical], methods: [examine], evidence: "Hosting provider physical security attestation such as a SOC 2 report"}
+  ao-partner: {assesses: partner-validation, verifies: [std-partner-auth], methods: [examine, test], evidence: "Partner credential inventory and a test connection without partner credentials being refused"}
+  ao-host-hardening: {assesses: host-hardening, verifies: [std-host-baseline], methods: [examine, test], evidence: "Baseline compliance scan of each host against the secure baseline"}
+
+profiles:
+  openemr-controls:
+    name: OpenEMR control profile
+    owner: Security lead
+
+selections:
+  sel-access-control: {in: openemr-controls, choice: include, names: access-control}
+  sel-mfa: {in: openemr-controls, choice: include, names: mfa}
+  sel-audit-logging: {in: openemr-controls, choice: include, names: audit-logging}
+  sel-transport-encryption: {in: openemr-controls, choice: include, names: transport-encryption}
+  sel-document-encryption-control: {in: openemr-controls, choice: include, names: document-encryption-control}
+  sel-vulnerability-management: {in: openemr-controls, choice: include, names: vulnerability-management}
+  sel-physical-security: {in: openemr-controls, choice: include, names: physical-security}
+  sel-partner-validation: {in: openemr-controls, choice: include, names: partner-validation}
+  sel-host-hardening: {in: openemr-controls, choice: include, names: host-hardening}
+
+adoptions:
+  # OpenEMR (self-installed)
+  adopt-rbac-emr: {mode: system, adopts: access-control, governs: openemr, owner: Security lead}
+  adopt-mfa-emr: {mode: system, adopts: mfa, governs: openemr, owner: Security lead}
+  adopt-audit-emr: {mode: system, adopts: audit-logging, governs: openemr, owner: Security lead}
+  adopt-tls-emr: {mode: delegated, adopts: transport-encryption, governs: openemr, delegatedTo: Deploying practice, decidedBy: Project lead, rationale: The practice terminates TLS on its own server or proxy}
+  adopt-doc-encryption-emr: {mode: system, adopts: document-encryption-control, governs: openemr, owner: Security lead}
+  adopt-vuln-emr: {mode: procedure, adopts: vulnerability-management, governs: openemr, follows: [proc-vuln-triage, proc-patch-release], owner: Security lead}
+  adopt-physical-emr: {mode: delegated, adopts: physical-security, governs: openemr, delegatedTo: Deploying practice, decidedBy: Project lead, rationale: The practice hosts the server on its own premises or provider}
+  adopt-partner-emr: {mode: system, adopts: partner-validation, governs: openemr, owner: Security lead}
+  adopt-host-emr: {mode: delegated, adopts: host-hardening, governs: openemr, delegatedTo: Deploying practice, decidedBy: Project lead, rationale: The practice builds and patches its own server}
+  # OpenEMR Cloud
+  adopt-rbac-cloud: {mode: inherited, adopts: access-control, governs: openemr-cloud, inherits: adopt-rbac-emr, decidedBy: Security lead}
+  adopt-mfa-cloud: {mode: excepted, adopts: mfa, governs: openemr-cloud, decidedBy: Project lead, invokes: accept-cloud-mfa-gap}
+  adopt-audit-cloud: {mode: inherited, adopts: audit-logging, governs: openemr-cloud, inherits: adopt-audit-emr, decidedBy: Security lead}
+  adopt-tls-cloud: {mode: system, adopts: transport-encryption, governs: openemr-cloud, owner: Cloud operations lead}
+  adopt-doc-encryption-cloud: {mode: inherited, adopts: document-encryption-control, governs: openemr-cloud, inherits: adopt-doc-encryption-emr, decidedBy: Security lead}
+  adopt-vuln-cloud: {mode: inherited, adopts: vulnerability-management, governs: openemr-cloud, inherits: adopt-vuln-emr, decidedBy: Security lead}
+  adopt-physical-cloud: {mode: inherited, adopts: physical-security, governs: openemr-cloud, inherits: aws-physical, decidedBy: Infrastructure lead}
+  adopt-partner-cloud: {mode: inherited, adopts: partner-validation, governs: openemr-cloud, inherits: adopt-partner-emr, decidedBy: Security lead}
+  adopt-host-cloud: {mode: system, adopts: host-hardening, governs: openemr-cloud, owner: Cloud operations lead}
+
+secureBaselines:
+  cloud-host-baseline:
+    encodes: [std-host-baseline]
+    derives: cis-amazon-linux
+    hardens: [app-node]
+
+people:
+  clinician-person: {name: Clinician, description: Physician or nurse who documents care, plays: [clinician]}
+  biller-person: {name: Biller, description: Office staff who prepare and submit claims, plays: [biller]}
+  patient-person: {name: Patient, description: Person receiving care who uses the portal and apps, plays: [patient]}
+
+systems:
+  openemr-system:
+    name: OpenEMR
+    description: EHR and practice management web application
+    owner: OpenEMR project
+    realizes: [openemr, openemr-cloud]
+    satisfies: [cloud-tls]
+  erx-network: {name: E-prescribing network, description: Routes prescriptions to pharmacies, owner: E-prescribing vendor, external: true}
+  lab: {name: Lab, description: Reference lab receiving orders and returning results, owner: Lab, external: true}
+  clearinghouse: {name: Clearinghouse, description: Validates and forwards claims to payers, owner: Clearinghouse, external: true}
+  smart-apps:
+    name: Patient apps
+    description: Third-party SMART on FHIR apps chosen by patients
+    owner: App developers
+    external: true
+    ruleWaivers:
+      GRC-25: Patients choose these apps under their HIPAA right of access, so the apps are not business associates and no BAA can bind them
+
+containers:
+  web-app:
+    in: openemr-system
+    name: Web application
+    description: PHP application serving clinical, billing, portal and API functions
+    kind: application
+    technology: PHP, Apache
+    satisfies: [role-based-access, multi-factor-login, tamper-evident-audit, partner-authentication]
+  database:
+    in: openemr-system
+    name: Database
+    description: Patient records, billing, users, ACLs and audit log
+    kind: data-store
+    technology: MySQL or MariaDB
+  documents:
+    in: openemr-system
+    name: Document store
+    description: Scanned documents and images, optionally encrypted
+    kind: data-store
+    technology: File system
+    satisfies: [document-encryption]
+
+components:
+  clinical: {in: web-app, name: Clinical, description: 'Encounters, problem lists, prescribing and lab orders', technology: PHP, satisfies: [encounter-forms, e-prescribing, lab-interface]}
+  billing: {in: web-app, name: Billing, description: 'Fee sheets, claims and payments', technology: PHP, satisfies: [claims-export]}
+  portal: {in: web-app, name: Patient portal, description: Patient-facing records and messaging, technology: PHP, satisfies: [patient-portal, portal-lockout]}
+  fhir-api: {in: web-app, name: FHIR API, description: FHIR R4 with SMART on FHIR and OAuth 2, technology: PHP, satisfies: [fhir-patient-access]}
+
+relationships:
+  clinician-uses-clinical: {leaves: clinician-person, enters: clinical, description: Documents visits and orders, technology: HTTPS}
+  biller-uses-billing: {leaves: biller-person, enters: billing, description: Prepares and submits claims, technology: HTTPS}
+  patient-uses-portal: {leaves: patient-person, enters: portal, description: Views records and sends messages, technology: HTTPS}
+  patient-uses-apps: {leaves: patient-person, enters: smart-apps, description: Uses health apps, technology: 'Web browser, mobile app'}
+  apps-call-fhir: {leaves: smart-apps, enters: fhir-api, description: Reads the patient's records, technology: 'HTTPS, FHIR R4, OAuth 2'}
+  clinical-sends-erx: {leaves: clinical, enters: erx-network, description: Sends prescriptions, technology: 'HTTPS, NCPDP SCRIPT'}
+  clinical-exchanges-labs: {leaves: clinical, enters: lab, description: Sends orders and receives results, technology: HL7 v2 over SFTP}
+  billing-sends-claims: {leaves: billing, enters: clearinghouse, description: Submits claims and fetches remittances, technology: X12 over SFTP}
+  clinical-uses-db: {leaves: clinical, enters: database, description: Reads and writes clinical data and audit entries, technology: SQL}
+  clinical-uses-docs: {leaves: clinical, enters: documents, description: Stores and reads documents, technology: File I/O}
+  billing-uses-db: {leaves: billing, enters: database, description: Reads and writes billing data and audit entries, technology: SQL}
+  portal-uses-db: {leaves: portal, enters: database, description: Reads records and writes messages and audit entries, technology: SQL}
+  fhir-uses-db: {leaves: fhir-api, enters: database, description: Reads records and writes audit entries, technology: SQL}
+
+dynamicDiagrams:
+  dyn-app-access:
+    name: A patient connects a health app
+    illustrates: fhir-patient-access
+    depicts: web-app
+
+dynamicSteps:
+  dyn-app-access-1: {in: dyn-app-access, order: 1, follows: patient-uses-apps, description: Patient chooses to connect the app}
+  dyn-app-access-2: {in: dyn-app-access, order: 2, follows: apps-call-fhir, description: App completes SMART authorization and requests records}
+  dyn-app-access-3: {in: dyn-app-access, order: 3, follows: fhir-uses-db, description: API reads the records and logs the access}
+
+environments:
+  cloud-production: {name: OpenEMR Cloud on AWS, serves: [openemr-cloud]}
+  docker-install: {name: Docker reference install, serves: [openemr], operator: Deploying practice}
+
+deploymentNodes:
+  aws-region:
+    name: AWS region
+    technology: AWS
+    belongs: cloud-production
+  app-node:
+    in: aws-region
+    name: Application server
+    technology: EC2, Amazon Linux, Docker
+    satisfies: [cloud-host-hardening]
+  db-node:
+    in: aws-region
+    name: Managed database
+    technology: Amazon RDS for MySQL, encrypted
+  practice-host:
+    name: Practice's server
+    technology: Docker Compose
+    belongs: docker-install
+
+containerInstances:
+  web-app-cloud: {in: app-node, instantiates: web-app}
+  documents-cloud: {in: app-node, instantiates: documents}
+  database-cloud: {in: db-node, instantiates: database}
+  web-app-docker: {in: practice-host, instantiates: web-app}
+  documents-docker: {in: practice-host, instantiates: documents}
+  database-docker: {in: practice-host, instantiates: database}
+
+infrastructureNodes:
+  load-balancer: {in: aws-region, name: Application load balancer, technology: AWS ALB with ACM certificate}
+
+deploymentDiagrams:
+  deploy-cloud: {depicts: [openemr-system], covers: cloud-production}
+  deploy-docker: {depicts: [openemr-system], covers: docker-install}
+
+externalEntities:
+  ee-clinician: {label: Clinician, represents: clinician-person}
+  ee-biller: {label: Biller, represents: biller-person}
+  ee-patient: {label: Patient, represents: patient-person}
+  ee-smart-apps: {label: Patient apps, represents: smart-apps}
+  ee-erx: {label: E-prescribing network, represents: erx-network}
+  ee-lab: {label: Lab, represents: lab}
+  ee-clearinghouse: {label: Clearinghouse, represents: clearinghouse}
+
+processes:
+  p-clinical: {label: Clinical, represents: clinical}
+  p-billing: {label: Billing, represents: billing}
+  p-portal: {label: Portal, represents: portal}
+  p-fhir: {label: FHIR API, represents: fhir-api}
+
+dataStores:
+  ds-database: {label: Database, represents: database, stores: [clinical-record, demographics, claim, credentials, audit-event, message]}
+  ds-documents: {label: Documents, represents: documents, stores: [clinical-document]}
+
+dataElements:
+  clinical-record: {classification: restricted, description: 'Encounters, problems, medications, allergies and results', triggers: [inf-hipaa]}
+  demographics: {classification: restricted, description: 'Name, date of birth, address and insurance', triggers: [inf-hipaa]}
+  clinical-document: {classification: restricted, description: Scanned documents and images, triggers: [inf-hipaa]}
+  prescription: {classification: restricted, description: Medication order for a patient, triggers: [inf-hipaa]}
+  lab-message: {classification: restricted, description: HL7 order or result, triggers: [inf-hipaa]}
+  claim: {classification: restricted, description: X12 claim and remittance, triggers: [inf-hipaa]}
+  credentials: {classification: confidential, description: 'Password hashes, MFA secrets and OAuth tokens'}
+  audit-event: {classification: confidential, description: 'Who accessed what and when, with a checksum', triggers: [inf-hipaa, inf-onc]}
+  message: {classification: restricted, description: Portal message between patient and clinic, triggers: [inf-hipaa]}
+
+dataFlows:
+  df-clinician-clinical: {label: Clinical UI, connects: [ee-clinician, p-clinical], leaves: ee-clinician, carries: [clinical-record, demographics, credentials], represents: [clinician-uses-clinical]}
+  df-biller-billing: {label: Billing UI, connects: [ee-biller, p-billing], leaves: ee-biller, carries: [claim, demographics, credentials], represents: [biller-uses-billing]}
+  df-patient-portal: {label: Portal, connects: [ee-patient, p-portal], leaves: ee-patient, carries: [clinical-record, message, credentials], represents: [patient-uses-portal]}
+  df-apps-fhir: {label: FHIR, connects: [ee-smart-apps, p-fhir], leaves: ee-smart-apps, carries: [clinical-record, demographics, credentials], represents: [apps-call-fhir]}
+  df-clinical-erx: {label: E-prescriptions, connects: [p-clinical, ee-erx], leaves: p-clinical, carries: [prescription], represents: [clinical-sends-erx]}
+  df-clinical-lab: {label: HL7, connects: [p-clinical, ee-lab], leaves: p-clinical, carries: [lab-message], represents: [clinical-exchanges-labs]}
+  df-billing-clearinghouse: {label: X12, connects: [p-billing, ee-clearinghouse], leaves: p-billing, carries: [claim], represents: [billing-sends-claims]}
+  df-clinical-db: {label: SQL, connects: [p-clinical, ds-database], leaves: p-clinical, carries: [clinical-record, demographics, audit-event], represents: [clinical-uses-db]}
+  df-clinical-docs: {label: Files, connects: [p-clinical, ds-documents], leaves: p-clinical, carries: [clinical-document], represents: [clinical-uses-docs]}
+  df-billing-db: {label: SQL, connects: [p-billing, ds-database], leaves: p-billing, carries: [claim, demographics, audit-event], represents: [billing-uses-db]}
+  df-portal-db: {label: SQL, connects: [p-portal, ds-database], leaves: p-portal, carries: [clinical-record, message, audit-event], represents: [portal-uses-db]}
+  df-fhir-db: {label: SQL, connects: [p-fhir, ds-database], leaves: p-fhir, carries: [clinical-record, demographics, audit-event], represents: [fhir-uses-db]}
+
+trustBoundaries:
+  tb-server:
+    label: OpenEMR server
+    crossing: Authenticated HTTPS from staff, patients and apps; SFTP and HTTPS to partners
+    encloses: [p-clinical, p-billing, p-portal, p-fhir]
+    relies: [access-control, transport-encryption]
+  tb-data:
+    in: tb-server
+    label: Data tier
+    crossing: Only the web application's database account and file system user
+    encloses: [ds-database, ds-documents]
+    relies: [database, document-encryption-control]
+
+dataFlowDiagrams:
+  dfd-web-app:
+    level: detail
+    depicts: web-app
+    includes: [ee-clinician, ee-biller, ee-patient, ee-smart-apps, ee-erx, ee-lab, ee-clearinghouse, p-clinical, p-billing, p-portal, p-fhir, ds-database, ds-documents]
+
+threats:
+  t-spoofing: {category: spoofing, appliesTo: [external-entity], description: 'A user, app or partner is impersonated', threatens: [access-control, mfa]}
+  t-store-disclosure: {category: information-disclosure, appliesTo: [data-store], description: ePHI is read from storage without authorization, threatens: [document-encryption-control, access-control]}
+  t-repudiation: {category: repudiation, appliesTo: [process], description: A user denies an action on a patient record, threatens: [audit-logging]}
+  t-privilege: {category: elevation-of-privilege, appliesTo: [process], description: A user reaches functions or records beyond their role, threatens: [access-control]}
+  t-flow-tampering: {category: tampering, appliesTo: [data-flow], description: ePHI is modified in transit, threatens: [transport-encryption]}
+
+threatReviews:
+  r-spoof-staff: {reviews: t-spoofing, inspects: [ee-clinician, ee-biller], disposition: covered, cites: [access-control, mfa]}
+  r-spoof-patient: {reviews: t-spoofing, inspects: [ee-patient], disposition: risk, raises: portal-takeover}
+  r-spoof-apps: {reviews: t-spoofing, inspects: [ee-smart-apps], disposition: covered, cites: [fhir-patient-access]}
+  r-spoof-erx: {reviews: t-spoofing, inspects: [ee-erx], disposition: risk, raises: partner-compromise}
+  r-spoof-partners: {reviews: t-spoofing, inspects: [ee-lab, ee-clearinghouse], disposition: risk, raises: partner-compromise}
+  r-store-db: {reviews: t-store-disclosure, inspects: [ds-database], disposition: covered, cites: [access-control]}
+  r-store-docs: {reviews: t-store-disclosure, inspects: [ds-documents], disposition: covered, cites: [document-encryption-control]}
+  r-repudiate: {reviews: t-repudiation, inspects: [p-clinical, p-billing, p-portal, p-fhir], disposition: covered, cites: [audit-logging]}
+  r-privilege-clinical: {reviews: t-privilege, inspects: [p-clinical], disposition: risk, raises: acl-misconfiguration}
+  r-privilege-other: {reviews: t-privilege, inspects: [p-billing, p-portal], disposition: covered, cites: [access-control]}
+  r-privilege-fhir: {reviews: t-privilege, inspects: [p-fhir], disposition: covered, cites: [fhir-patient-access, access-control]}
+  r-tamper-external: {reviews: t-flow-tampering, inspects: [df-clinician-clinical, df-biller-billing, df-patient-portal, df-apps-fhir, df-clinical-erx, df-clinical-lab, df-billing-clearinghouse], disposition: risk, raises: no-tls}
+  r-tamper-db: {reviews: t-flow-tampering, inspects: [df-clinical-db, df-billing-db, df-portal-db, df-fhir-db], disposition: risk, raises: no-tls}
+  r-tamper-clinical-docs: {reviews: t-flow-tampering, inspects: [df-clinical-docs], disposition: covered, cites: [document-encryption-control]}
+
+# Couldn't express
+# - HIPAA applies to the clinic, not to OpenEMR. The whole security program exists
+#   to let covered entities comply, but the influencer's scope rationale is the only
+#   place to say so. There's no way to express "we provide this control so that
+#   our customers can meet their obligation".
+# - Certification status. OpenEMR holds a specific ONC certification with a
+#   listing number and date. A control objective can name the criteria it answers
+#   in clauses, but the certification itself has nowhere to go.
+# - The deploying practice's shared responsibility. It's spread across inherited
+#   adoptions, a transfer treatment and free-text owners. A clinic reading this
+#   can't easily get "what you must do yourself" out of it.
+# - Configuration that changes compliance. Document encryption is optional, and
+#   MFA is available but not enforced by default on self-installs. The system
+#   adoption claims the control, but whether a given clinic has it switched on is
+#   deployment state, which is out of scope.
+# - cloud-tls is satisfied by the AWS load balancer, an infrastructure node.
+#   Those can't satisfy requirements, so I attached it to the whole system.
+# - The ACL-misconfiguration risk is caused by the clinic, not an attacker, but it
+#   could only be raised through an elevation-of-privilege review.
+# - The excepted MFA adoption needed an accept treatment that waives std-mfa. It
+#   works, but the risk "MFA isn't enforced" restates the exception rather than a
+#   real cause and consequence.
+# - 14 threat reviews cover 29 (threat, target) pairs on a deliberately small DFD,
+#   one review per decision. A real deployment would still need many more.
+# - The project's governance: OpenEMR Foundation, volunteer contributors and
+#   commercial support vendors who each deploy it differently.

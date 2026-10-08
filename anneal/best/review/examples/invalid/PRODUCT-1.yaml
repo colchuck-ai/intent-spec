@@ -1,0 +1,8 @@
+# breaks: PRODUCT-1 /products/p
+intentSpec: "0.1"
+id: product-1
+version: 0.1.0
+stage: ratified
+
+products:
+  p: {}

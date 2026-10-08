@@ -1,0 +1,10 @@
+# breaks: GRC-24 /influencers/i
+intentSpec: "0.1"
+id: grc-24
+version: 0.1.0
+stage: proposed
+
+systems:
+  s: {name: Payments, description: Card payments provider, external: true}
+influencers:
+  i: {kinds: [internal], scopeRationale: The founders require it, binds: [s]}

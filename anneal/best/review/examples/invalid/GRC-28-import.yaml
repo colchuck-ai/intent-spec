@@ -1,0 +1,13 @@
+# breaks: GRC-28 /adoptions/a
+# p answers the imported influencer that the imported control's objective's policy satisfies.
+intentSpec: "0.1"
+id: grc-28-import
+version: 0.1.0
+stage: proposed
+imports:
+  gov: {source: ../shiftly-governance.yaml, version: ^1.0.0}
+
+products:
+  p: {answers: [gov:food-bank-trust]}
+adoptions:
+  a: {mode: not-applicable, adopts: gov:volunteer-data-minimisation, governs: p, decidedBy: Founders, rationale: We think it does not apply}

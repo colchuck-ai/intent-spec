@@ -1,0 +1,158 @@
+# Plausible Analytics around its 2019 launch: a single hosted service for simple,
+# privacy-friendly website analytics. Stage: MVP.
+# Illustrative only, written from public information.
+intentSpec: "0.1"
+id: plausible
+version: 1.0.0
+stage: ratified
+
+products:
+  plausible:
+    name: Plausible Analytics
+    description: Simple, lightweight website analytics that needs no cookies.
+    targets: [understand-traffic]
+
+jobExecutors:
+  site-owner:
+    description: Independent site owner (blogger, indie maker, small business) checking how their site is doing
+
+jobs:
+  understand-traffic:
+    statement: Understand how many people visit my site and where they come from
+    motivates: site-owner
+    cites: [beta-feedback]
+
+outcomes:
+  traffic-at-a-glance:
+    in: understand-traffic
+    statement: Minimize the time it takes to see how traffic is trending
+    cites: [beta-feedback]
+  know-sources:
+    in: understand-traffic
+    statement: Minimize the effort to see which sites send me visitors
+    cites: [beta-feedback]
+  no-consent-banner:
+    in: understand-traffic
+    statement: Minimize the need to ask visitors for consent before measuring traffic
+    cites: [beta-feedback]
+  fast-pages:
+    in: understand-traffic
+    statement: Minimize the page weight that analytics adds
+    cites: [beta-feedback]
+  campaign-conversions:
+    in: understand-traffic
+    statement: Minimize the time it takes to see which campaigns lead to sign-ups
+    cites: [beta-feedback]
+    disposition: deferred
+    rationale: Goals and conversions come after launch; we're validating the basic dashboard first
+  individual-journeys:
+    in: understand-traffic
+    statement: Minimize the effort to follow one visitor's path through the site
+    cites: [beta-feedback]
+    disposition: out-of-scope
+    rationale: Tracking individuals conflicts with the product's privacy promise
+
+requirements:
+  one-page-dashboard:
+    statement: Every metric for a site fits on one dashboard page with a date-range picker
+    verification: Design review; no metric sits behind a second page
+    serves: [traffic-at-a-glance]
+  referrer-list:
+    statement: The dashboard lists top referrers by domain
+    verification: Integration test with known referrers
+    serves: [know-sources]
+  no-cookies:
+    statement: The tracker sets no cookies and uses no persistent identifiers
+    verification: Browser test confirms no cookies or local storage are written
+    serves: [no-consent-banner]
+  daily-salted-visitor-hash:
+    statement: Unique visitors are counted using a hash of IP, user agent and a salt that rotates and is deleted daily
+    verification: Code review and unit test of salt rotation
+    serves: [no-consent-banner]
+  small-script:
+    statement: The tracking script stays under 1 KB gzipped
+    verification: Size check in CI
+    serves: [fast-pages]
+
+metrics:
+  added-page-weight:
+    target: Analytics adds under 1 KB to the pages of a sample of live customer sites
+    frequency: Monthly
+    measures: [fast-pages]
+
+externalReferences:
+  beta-feedback:
+    title: Feedback from site owners using the pre-launch beta
+    party: Plausible founding team
+
+people:
+  site-owner-person:
+    name: Site owner
+    description: Customer who reads the dashboard
+    plays: [site-owner]
+  visitor:
+    name: Visitor
+    description: Someone browsing a customer's site
+
+systems:
+  plausible-system:
+    name: Plausible
+    description: Hosted analytics service
+    owner: Founding team
+    realizes: [plausible]
+    satisfies: [one-page-dashboard]
+
+containers:
+  tracker:
+    in: plausible-system
+    name: Tracker script
+    description: JavaScript that runs on customers' sites and sends pageviews
+    kind: application
+    technology: JavaScript
+    satisfies: [no-cookies, small-script]
+  web-app:
+    in: plausible-system
+    name: Web app
+    description: Receives events and serves the dashboard
+    kind: application
+    technology: Elixir, Phoenix
+    satisfies: [one-page-dashboard, referrer-list, daily-salted-visitor-hash]
+  database:
+    in: plausible-system
+    name: Database
+    description: Accounts, sites and pageview events
+    kind: data-store
+    technology: PostgreSQL
+
+relationships:
+  visitor-loads-tracker: {leaves: visitor, enters: tracker, description: Loads the tracker while browsing a customer site, technology: HTTPS}
+  tracker-sends-events: {leaves: tracker, enters: web-app, description: Sends pageview events, technology: HTTPS}
+  owner-views-dashboard: {leaves: site-owner-person, enters: web-app, description: Views the dashboard, technology: HTTPS}
+  web-app-stores: {leaves: web-app, enters: database, description: Reads and writes accounts and events, technology: Ecto/SQL}
+
+environments:
+  production: {name: Production, serves: [plausible]}
+
+deploymentNodes:
+  app-server:
+    name: Rented server
+    technology: Ubuntu, Docker
+    belongs: production
+
+containerInstances:
+  web-app-instance: {in: app-server, instantiates: web-app}
+  database-instance: {in: app-server, instantiates: database}
+
+# Couldn't express
+# - What the MVP is for: "get the first 100 paying customers and learn whether
+#   people pay for privacy-first analytics". There is no goal or hypothesis.
+# - The business model: a paid SaaS with a free trial and pricing by monthly
+#   pageviews.
+# - That people do this job today with Google Analytics, and that the product is
+#   positioned against it.
+# - That the hashing and no-cookies requirements exist because of GDPR and the
+#   ePrivacy rules. I could add an influencer for GDPR, but with no
+#   policy or control there is nothing to link these requirements to, so I left
+#   GDPR out entirely.
+# - The visitor, whose privacy the product is built around, appears only as a C4
+#   person. They aren't a job executor and have no outcomes.

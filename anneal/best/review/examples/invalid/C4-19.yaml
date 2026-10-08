@@ -1,0 +1,26 @@
+# breaks: C4-19 /dynamicSteps/st
+# A landscape-level diagram (it depicts nothing) lifts both containers to the system s.
+intentSpec: "0.1"
+id: c4-19
+version: 0.1.0
+stage: proposed
+
+jobExecutors:
+  e: {description: Shop owner}
+jobs:
+  j: {statement: Know what sold this week, motivates: e}
+outcomes:
+  o: {in: j, statement: Minimize the time to see weekly sales}
+requirements:
+  q: {statement: Weekly sales report, verification: Demo, serves: [o]}
+systems:
+  s: {name: Shop, description: The web shop}
+containers:
+  web: {in: s, kind: application, name: Web app, description: Serves the shop, technology: Python}
+  db: {in: s, kind: data-store, name: Database, description: Orders, technology: PostgreSQL}
+relationships:
+  r: {leaves: web, enters: db, technology: SQL}
+dynamicDiagrams:
+  dd: {illustrates: q}
+dynamicSteps:
+  st: {in: dd, follows: r, order: 1}

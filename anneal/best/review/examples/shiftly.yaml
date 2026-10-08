@@ -1,0 +1,161 @@
+# Shiftly: volunteer shift scheduling for small food banks.
+# A made-up product at the concept stage. Nothing is built, so every item is proposed.
+intentSpec: "0.1"
+id: shiftly
+version: 0.1.0
+stage: proposed
+# Company governance is defined once in shiftly-governance.yaml; Shiftly adopts it through the baseline profile.
+imports:
+  gov: {source: shiftly-governance.yaml, version: ^1.0.0}
+
+products:
+  shiftly:
+    name: Shiftly
+    description: Helps small food banks fill volunteer shifts without a coordinator phoning people.
+    targets: [fill-shifts, sign-up-for-shift, choose-scheduling-tool]
+    selects: [gov:shiftly-baseline]
+
+jobExecutors:
+  volunteer-coordinator:
+    description: Volunteer coordinator at a small food bank
+  volunteer:
+    description: Community volunteer who helps at the food bank
+  food-bank-director:
+    description: Food bank director who approves spending
+
+jobs:
+  fill-shifts:
+    statement: When planning next week's shifts, make sure every distribution shift has enough people to run
+    motivates: volunteer-coordinator
+    cites: [coordinator-interviews]
+  sign-up-for-shift:
+    statement: Commit to helping at a time that fits my week
+    motivates: volunteer
+    cites: [coordinator-interviews]
+  choose-scheduling-tool:
+    kind: purchase
+    statement: Decide whether Shiftly is worth paying for
+    motivates: food-bank-director
+
+outcomes:
+  fewer-short-shifts:
+    in: fill-shifts
+    statement: Minimize the number of shifts that start short-staffed
+    cites: [coordinator-interviews]
+  less-time-chasing:
+    in: fill-shifts
+    statement: Minimize the time spent contacting volunteers to cover gaps
+    cites: [coordinator-interviews]
+  know-who-is-coming:
+    in: fill-shifts
+    statement: Minimize the likelihood of not knowing who will turn up the day before a shift
+    cites: [coordinator-interviews]
+  quick-to-commit:
+    in: sign-up-for-shift
+    statement: Minimize the time it takes to find and commit to a shift that fits
+    cites: [coordinator-interviews]
+  easy-to-drop:
+    in: sign-up-for-shift
+    statement: Minimize the effort to drop a shift I can no longer make
+    cites: [coordinator-interviews]
+  not-forgotten:
+    in: sign-up-for-shift
+    statement: Minimize the likelihood of forgetting a shift I committed to
+    cites: [coordinator-interviews]
+  number-stays-private:
+    in: sign-up-for-shift
+    statement: Minimize the likelihood that my phone number reaches people I didn't give it to
+  low-cost:
+    in: choose-scheduling-tool
+    statement: Minimize the monthly cost of Shiftly for the food bank
+
+requirements:
+  open-shift-board:
+    statement: Volunteers see every open shift for the next four weeks on one page
+    verification: Usability test with five volunteers; each finds and books a shift in under two minutes
+    serves: [quick-to-commit, fewer-short-shifts]
+  sign-up-without-account:
+    statement: A volunteer can book a shift with only a name and phone number
+    verification: Booking flow has no password or account step
+    serves: [quick-to-commit]
+  sms-reminders:
+    statement: Volunteers get a text reminder 24 hours before a shift and can reply to cancel
+    verification: End-to-end test with a test phone number
+    serves: [not-forgotten, easy-to-drop, know-who-is-coming]
+  gap-alerts:
+    statement: The coordinator is alerted 48 hours ahead when a shift is short, with a one-tap message to past volunteers
+    verification: Scenario test with a short-staffed shift
+    serves: [less-time-chasing, fewer-short-shifts]
+  coordinator-adds-bookings:
+    statement: The coordinator can book a volunteer who phoned in, so non-smartphone volunteers stay included
+    verification: Coordinator walkthrough
+    serves: [fewer-short-shifts]
+    executes: [keep-phone-sign-up]
+  minimal-volunteer-data:
+    statement: Store only name, phone number and shift history; delete volunteers inactive for 12 months
+    verification: Data inventory review before launch
+    serves: [number-stays-private]
+    executes: [minimise-volunteer-data]
+    implements: [adopt-volunteer-data]
+  free-for-small-food-banks:
+    statement: Shiftly is free for food banks with fewer than 50 active volunteers
+    verification: Pricing page and billing plans reviewed before launch
+    serves: [low-cost]
+
+metrics:
+  short-shift-rate:
+    description: Share of shifts that start with fewer volunteers than planned
+    target: Under 5% of shifts
+    frequency: Monthly
+    measures: [fewer-short-shifts]
+
+externalReferences:
+  coordinator-interviews:
+    title: Interviews with three food bank volunteer coordinators
+    party: Shiftly founders
+
+risks:
+  low-uptake:
+    description: Older volunteers keep phoning the coordinator instead of using the board, so the coordinator's workload doesn't fall
+    endangers: [less-time-chasing, fewer-short-shifts]
+  phone-number-exposure:
+    description: Volunteers' phone numbers are exposed through a breach or misuse
+    endangers: [number-stays-private]
+  sms-cost:
+    description: Text-message costs exceed what a small food bank can pay
+    endangers: [low-cost]
+
+treatments:
+  keep-phone-sign-up:
+    strategy: reduce
+    owner: Product lead
+    reviewBy: 2027-03-01
+    treats: [low-uptake]
+  minimise-volunteer-data:
+    strategy: reduce
+    owner: Product lead
+    reviewBy: 2027-03-01
+    treats: [phone-number-exposure]
+  accept-sms-cost:
+    strategy: accept
+    owner: Founder
+    reviewBy: 2027-01-15
+    rationale: We don't know real volumes yet; we'll revisit after the first three pilot food banks
+    treats: [sms-cost]
+
+adoptions:
+  adopt-volunteer-data: {mode: system, adopts: gov:volunteer-data-minimisation, governs: shiftly, owner: Product lead}
+
+# Couldn't express
+# - What we still need to learn. The whole product is a bet ("coordinators will
+#   switch from phone trees"). There is nowhere to state a hypothesis, how we'll
+#   test it, or what result would kill the idea.
+# - How important an outcome is or how badly it's served today. Every outcome
+#   looks equally important.
+# - What people use today (phone trees, SignUpGenius, spreadsheets) and why
+#   they would switch.
+# - Product-level non-goals, such as "not a general volunteer CRM". Outcome
+#   dispositions only work for outcomes of jobs we already target.
+# - How likely or how bad a risk is. A risk has no fields at all, so there's no
+#   statement other than the description I added.
+# - A rough stage for the product as a whole ("concept"). Only items have stages.

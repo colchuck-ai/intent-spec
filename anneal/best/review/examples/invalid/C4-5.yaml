@@ -1,0 +1,10 @@
+# breaks: C4-5 /systems/s
+intentSpec: "0.1"
+id: c4-5
+version: 0.1.0
+stage: proposed
+
+products:
+  p: {}
+systems:
+  s: {name: Payments, description: Card payments provider, external: true, realizes: [p]}

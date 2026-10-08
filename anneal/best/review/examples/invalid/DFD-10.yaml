@@ -1,0 +1,20 @@
+# breaks: DFD-10 /dataFlows/f
+intentSpec: "0.1"
+id: dfd-10
+version: 0.1.0
+stage: proposed
+
+systems:
+  s: {name: Shop, description: The web shop, owner: Shop team}
+containers:
+  c: {in: s, kind: application, name: Web app, description: Serves the shop, technology: Python}
+dataElements:
+  de: {classification: internal}
+externalEntities:
+  x: {label: Shopper}
+processes:
+  pr: {label: Web app}
+dataFlows:
+  f: {label: Orders, connects: [x, pr], carries: [de]}
+trustBoundaries:
+  tb: {label: Server, crossing: HTTPS only, relies: [c], encloses: [x, pr]}

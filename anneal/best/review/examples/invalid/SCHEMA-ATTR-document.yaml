@@ -1,0 +1,5 @@
+# breaks: SCHEMA-ATTR /version
+# A document header without its required version.
+intentSpec: "0.1"
+id: schema-attr-document
+stage: proposed

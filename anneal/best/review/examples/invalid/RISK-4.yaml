@@ -1,0 +1,22 @@
+# breaks: RISK-4 /threats/t
+intentSpec: "0.1"
+id: risk-4
+version: 0.1.0
+stage: proposed
+
+influencers:
+  inf: {kinds: [internal], scopeRationale: The founders require it}
+policies:
+  pol: {statement: Protect customer data, approver: Founders, satisfies: [inf]}
+controlObjectives:
+  co: {statement: Customer data is protected, supports: [pol]}
+standards:
+  std: {statement: Encrypt customer data at rest, addresses: [co]}
+controls:
+  ctl: {statement: Disks are encrypted, owner: Ops lead, safeguard: technical, enforces: [std], achieves: [co]}
+assessmentObjectives:
+  ao: {assesses: ctl, verifies: [std], methods: [examine], evidence: Disk configuration}
+threats:
+  t: {category: tampering, appliesTo: [process], threatens: [ctl]}
+processes:
+  pr: {label: Web app}

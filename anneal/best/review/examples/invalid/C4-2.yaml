@@ -1,0 +1,10 @@
+# breaks: C4-2 /containers/c
+intentSpec: "0.1"
+id: c4-2
+version: 0.1.0
+stage: proposed
+
+systems:
+  s: {name: Shop, description: The web shop}
+containers:
+  c: {in: s, kind: application, name: Web app, description: Serves the shop}

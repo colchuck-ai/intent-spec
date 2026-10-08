@@ -91,3 +91,24 @@ An item's `ruleWaivers` map (rule ID to rationale) waives a warning-severity rul
 ## Agents
 
 Agents can use `cypher-shell` inside the container (`docker exec -it intent-spec-neo4j cypher-shell -u neo4j -p intentspec`) or connect to `bolt://localhost:7687` with any Neo4j driver or MCP server.
+
+## Annealing
+
+`anneal.py` runs the mechanical steps of the annealing loop ([review/loop.md](../review/loop.md)) so that they replay exactly. It reads and writes `../anneal/state.json` and calls `bd` and `git`.
+
+```bash
+uv run anneal.py status            # round, temperature, energy history, next action
+uv run anneal.py energy            # energy of the current model on the benchmark
+uv run anneal.py begin --dry-run   # the next round's probe and panel, without writing anything
+uv run anneal.py begin             # draw, pour the anneal-round molecule, create the review steps
+uv run anneal.py measure           # energy, temperature, uphill rule, best copy, stop check
+uv run anneal.py move next         # the next move the runner may take
+uv run anneal.py move start <id>   # record size, departures and errors before a move
+uv run anneal.py move judge <id>   # ΔE and keep or revert (--dry-run prints the arithmetic only)
+uv run anneal.py end               # the probe joins the benchmark; summary onto the molecule
+uv run anneal.py reset-to-best     # copy ../anneal/best/ over the model (human decision only)
+uv run pytest tests                # unit tests for energy, thresholds, schedule and draws
+```
+
+Every draw uses `random.Random(f"{seed}:{round}:{purpose}")` with the seed in `state.json`, so the same state always draws the same probe and panel. Size is entities plus links (one per source and target pair) plus rule IDs, all parsed from `../erd.md`. Errors are error-severity rule findings that aren't waived, after reloading every example.
+

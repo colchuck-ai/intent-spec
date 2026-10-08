@@ -1,0 +1,55 @@
+# Shiftly governance: the company's policy and controls, defined once and imported by
+# each Shiftly product (see shiftly.yaml). A made-up company, like the product.
+# It holds no product: a product adopts these controls by selecting the baseline profile.
+intentSpec: "0.1"
+id: shiftly-governance
+version: 1.0.0
+stage: ratified
+
+influencers:
+  food-bank-trust:
+    kinds: [internal]
+    scopeRationale: Food banks share their volunteers' phone numbers with us only if we keep no more than scheduling needs
+
+policies:
+  volunteer-data-policy:
+    statement: We collect only the volunteer data a food bank needs to run its shifts, and keep it no longer than it is used
+    approver: Founders
+    satisfies: [food-bank-trust]
+
+controlObjectives:
+  co-minimal-volunteer-data:
+    statement: Volunteer personal data is limited to what scheduling needs and is removed once it is no longer used
+    supports: [volunteer-data-policy]
+
+standards:
+  std-volunteer-data-retention:
+    statement: Store only a volunteer's name, phone number and shift history; delete volunteers inactive for 12 months
+    addresses: [co-minimal-volunteer-data]
+
+controls:
+  volunteer-data-minimisation:
+    statement: Products store only the volunteer fields the standard lists and delete inactive volunteers automatically
+    owner: Product lead
+    safeguard: technical
+    enforces: [std-volunteer-data-retention]
+    achieves: [co-minimal-volunteer-data]
+
+assessmentObjectives:
+  ao-volunteer-data:
+    assesses: volunteer-data-minimisation
+    verifies: [std-volunteer-data-retention]
+    methods: [examine]
+    evidence: Data inventory of each product and the log of the inactive-volunteer deletion job
+
+profiles:
+  shiftly-baseline:
+    name: Shiftly baseline
+    owner: Founders
+
+selections:
+  sel-volunteer-data: {in: shiftly-baseline, choice: include, names: volunteer-data-minimisation}
+
+# Couldn't express
+# - That every Shiftly product must select the baseline. A product opts in by
+#   selecting the profile; nothing here can require it of the products that import it.

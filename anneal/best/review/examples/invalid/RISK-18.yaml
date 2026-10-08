@@ -1,0 +1,32 @@
+# breaks: RISK-18 /threatReviews/r
+intentSpec: "0.1"
+id: risk-18
+version: 0.1.0
+stage: proposed
+
+influencers:
+  inf: {kinds: [internal], scopeRationale: The founders require it}
+policies:
+  pol: {statement: Protect customer data, approver: Founders, satisfies: [inf]}
+controlObjectives:
+  co: {statement: Customer data is protected, supports: [pol]}
+standards:
+  std: {statement: Encrypt customer data at rest, addresses: [co]}
+controls:
+  ctl: {statement: Disks are encrypted, owner: Ops lead, safeguard: technical, enforces: [std], achieves: [co]}
+assessmentObjectives:
+  ao: {assesses: ctl, verifies: [std], methods: [examine], evidence: Disk configuration}
+dataElements:
+  de: {classification: internal}
+threats:
+  t: {category: tampering, appliesTo: [data-flow], threatens: [ctl]}
+externalEntities:
+  x: {label: Shopper}
+processes:
+  pr: {label: Web app}
+dataFlows:
+  f: {label: Orders, connects: [x, pr], carries: [de]}
+trustBoundaries:
+  tb: {label: Server, crossing: HTTPS only, relies: [ctl], encloses: [pr]}
+threatReviews:
+  r: {disposition: not-applicable, rationale: Orders are not worth tampering with, reviews: t, inspects: [f]}

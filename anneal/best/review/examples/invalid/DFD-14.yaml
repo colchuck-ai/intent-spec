@@ -1,0 +1,14 @@
+# breaks: DFD-14 /trustBoundaries/tb1
+# also: DFD-14 /trustBoundaries/tb2
+intentSpec: "0.1"
+id: dfd-14
+version: 0.1.0
+stage: proposed
+
+systems:
+  s: {name: Shop, description: The web shop, owner: Shop team}
+containers:
+  c: {in: s, kind: application, name: Web app, description: Serves the shop, technology: Python}
+trustBoundaries:
+  tb1: {label: Server, crossing: HTTPS only, relies: [c], in: tb2}
+  tb2: {label: Office, crossing: VPN only, relies: [c], in: tb1}

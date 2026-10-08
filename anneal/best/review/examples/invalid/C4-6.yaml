@@ -1,0 +1,12 @@
+# breaks: C4-6 /containers/db
+intentSpec: "0.1"
+id: c4-6
+version: 0.1.0
+stage: proposed
+
+systems:
+  s: {name: Shop, description: The web shop}
+containers:
+  db: {in: s, kind: data-store, name: Database, description: Orders, technology: PostgreSQL}
+components:
+  k: {in: db, name: Orders module, description: Order logic, technology: SQL}

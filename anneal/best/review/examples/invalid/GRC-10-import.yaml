@@ -1,0 +1,11 @@
+# breaks: GRC-10 /products/p
+# The imported baseline profile includes gov:volunteer-data-minimisation; p does not adopt it.
+intentSpec: "0.1"
+id: grc-10-import
+version: 0.1.0
+stage: proposed
+imports:
+  gov: {source: ../shiftly-governance.yaml, version: ^1.0.0}
+
+products:
+  p: {selects: [gov:shiftly-baseline]}

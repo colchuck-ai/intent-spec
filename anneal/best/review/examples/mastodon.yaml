@@ -1,0 +1,468 @@
+# Mastodon: open-source, federated social network software, plus mastodon.social,
+# the flagship server run by the same non-profit. Stage: mature.
+# Illustrative only, written from public information; owners and targets are invented.
+intentSpec: "0.1"
+id: mastodon
+version: 4.0.0
+stage: ratified
+
+products:
+  mastodon:
+    name: Mastodon
+    description: Free software anyone can run to host a social network server that federates with others.
+    targets: [stay-connected, run-a-community, keep-server-running]
+    selects: [mastodon-controls]
+  mastodon-social:
+    name: mastodon.social
+    description: The flagship general-purpose server, operated by the Mastodon non-profit.
+    targets: [stay-connected]
+    selects: [mastodon-controls]
+    answers: [inf-covenant, inf-dsa]
+
+jobExecutors:
+  social-user:
+    description: Someone following and talking with people and communities they care about
+  community-admin:
+    description: Person or small team who runs and moderates a community's server
+
+jobs:
+  stay-connected:
+    statement: Keep up with and talk to the people and communities I care about, on my own terms
+    motivates: social-user
+  run-a-community:
+    statement: Run an online space for my community with our own rules
+    motivates: community-admin
+  keep-server-running:
+    kind: consumption
+    statement: Keep our Mastodon server running and up to date
+    motivates: community-admin
+
+outcomes:
+  chronological-feed:
+    in: stay-connected
+    statement: Minimize the likelihood that a platform decides what I see
+  move-freely:
+    in: stay-connected
+    statement: Minimize the followers and history I lose when I change provider
+  reach-across-servers:
+    in: stay-connected
+    statement: Minimize the number of people I want to follow but can't, because of where they post
+  safe-from-abuse:
+    in: stay-connected
+    statement: Minimize the time abusive content stays in front of me
+  find-people:
+    in: stay-connected
+    statement: Minimize the effort to find people and topics I'd want to follow
+  algorithmic-discovery:
+    in: stay-connected
+    statement: Minimize the effort to discover popular content I didn't know to look for
+    disposition: out-of-scope
+    rationale: Engagement-ranked feeds go against the product's purpose; trends and hashtags are the limit
+  private-messages:
+    in: stay-connected
+    statement: Minimize the likelihood that someone other than the recipient reads my private messages
+    disposition: out-of-scope
+    rationale: Direct messages are not end-to-end encrypted, so server admins can read them; users are told to use an encrypted messenger for anything sensitive
+  enforce-rules:
+    in: run-a-community
+    statement: Minimize the time content that breaks our rules stays visible in our community
+  defederate:
+    in: run-a-community
+    statement: Minimize the effort to keep outside groups that harass us away from our community
+  affordable:
+    in: keep-server-running
+    statement: Minimize the cost of hosting per active user
+  easy-upgrades:
+    in: keep-server-running
+    statement: Minimize the effort to upgrade to a new release
+
+requirements:
+  chronological-timelines:
+    statement: Home and list timelines are strictly reverse-chronological
+    verification: Timeline tests
+    serves: [chronological-feed]
+  activitypub-federation:
+    statement: Accounts, posts and follows federate with other servers over ActivityPub
+    verification: Interoperability tests with other ActivityPub software
+    serves: [reach-across-servers]
+  account-migration:
+    statement: Users can move followers to a new account on another server and export their data
+    verification: Migration test between two servers
+    serves: [move-freely]
+  reports-and-moderation:
+    statement: Users can report posts and accounts; moderators act on reports from an admin queue, including reports forwarded from other servers
+    verification: Moderation workflow tests
+    serves: [safe-from-abuse, enforce-rules]
+    implements: [adopt-moderation-sw]
+  domain-blocks:
+    statement: Admins can silence or suspend whole remote domains
+    verification: Federation tests with a blocked domain
+    serves: [defederate, safe-from-abuse]
+    executes: [reduce-spam-waves]
+  search-and-hashtags:
+    statement: Users can follow hashtags and search posts that opt in to search
+    verification: Search tests
+    serves: [find-people]
+  horizontal-scaling:
+    statement: Web, streaming and background workers scale independently
+    verification: Load test of each service
+    serves: [affordable]
+  documented-upgrades:
+    statement: Every release has upgrade notes with migration steps
+    verification: Release checklist
+    serves: [easy-upgrades]
+  daily-backups:
+    statement: mastodon.social backs up its database and media daily to a separate location
+    verification: Monthly restore test
+    implements: [adopt-backups-social]
+    executes: [reduce-data-loss]
+
+metrics:
+  report-resolution:
+    target: 90% of reports on mastodon.social resolved within 24 hours
+    frequency: Weekly
+    measures: [enforce-rules, moderation]
+  backup-restore:
+    target: Monthly restore test succeeds
+    frequency: Monthly
+    measures: [backups]
+
+risks:
+  moderator-burnout:
+    description: Report volume outgrows the moderation team on mastodon.social
+    endangers: [safe-from-abuse, enforce-rules]
+  federated-spam-wave:
+    description: Spam or harassment campaigns arrive from newly created servers faster than domain blocks
+    endangers: [safe-from-abuse]
+  data-loss:
+    description: mastodon.social loses its database
+    endangers: [move-freely]
+
+treatments:
+  accept-moderator-burnout:
+    strategy: accept
+    owner: Head of trust and safety
+    reviewBy: 2027-03-01
+    rationale: No safeguard yet adds moderator capacity; the weekly report-resolution metric shows when volume outgrows the team
+    treats: [moderator-burnout]
+    scopes: [mastodon-social]
+  reduce-spam-waves:
+    strategy: reduce
+    owner: Head of trust and safety
+    reviewBy: 2027-03-01
+    treats: [federated-spam-wave]
+    scopes: [mastodon-social]
+  reduce-data-loss:
+    strategy: reduce
+    owner: Infrastructure lead
+    reviewBy: 2027-03-01
+    treats: [data-loss]
+    scopes: [mastodon-social]
+
+externalReferences:
+  server-covenant: {title: Mastodon Server Covenant, url: "https://joinmastodon.org/covenant", party: Mastodon gGmbH}
+  dsa: {title: "Regulation (EU) 2022/2065 (Digital Services Act)", url: "https://eur-lex.europa.eu/eli/reg/2022/2065/oj", party: European Union}
+  server-rules: {title: mastodon.social server rules, url: "https://mastodon.social/about", party: Mastodon gGmbH}
+
+influencers:
+  inf-covenant:
+    kinds: [contractual]
+    scopeRationale: Servers listed on joinmastodon.org must commit to the covenant, and mastodon.social is listed
+    cites: server-covenant
+  inf-dsa:
+    kinds: [regulatory]
+    scopeRationale: mastodon.social is an online platform offered to users in the EU
+    cites: dsa
+
+policies:
+  pol-moderation:
+    statement: We moderate actively and act on every report, as the Server Covenant and the DSA require
+    name: Content moderation policy
+    approver: Managing director
+    satisfies: [inf-covenant, inf-dsa]
+  pol-operations:
+    statement: We run the server reliably and never leave users without notice or a way to leave
+    name: Server operations policy
+    approver: Managing director
+    satisfies: [inf-covenant]
+
+controlObjectives:
+  co-act-on-reports:
+    statement: Harmful content is removed and every report gets a reasoned decision
+    supports: [pol-moderation]
+    cites: [inf-dsa, inf-covenant]
+  co-continuity:
+    statement: The server survives the loss of its data or of any one person, and users can leave before it closes
+    supports: [pol-operations]
+    cites: [inf-covenant]
+
+standards:
+  std-active-moderation:
+    statement: Active moderation against racism, sexism, homophobia and transphobia
+    addresses: [co-act-on-reports]
+  std-notice-and-action:
+    statement: Every report gets a decision and a statement of reasons to the affected user
+    addresses: [co-act-on-reports]
+  std-daily-backups:
+    statement: Daily backups
+    addresses: [co-continuity]
+  std-emergency-access:
+    statement: At least one other person has emergency access to the server
+    addresses: [co-continuity]
+  std-shutdown-notice:
+    statement: At least three months' notice before shutting down
+    addresses: [co-continuity]
+
+guidelines:
+  gl-server-rules:
+    description: The published server rules users agree to
+    augments: [std-active-moderation]
+
+controls:
+  moderation:
+    statement: Moderators review reports and act on content that breaks the server rules
+    owner: Head of trust and safety
+    safeguard: administrative
+    enforces: [std-active-moderation, std-notice-and-action]
+    achieves: [co-act-on-reports]
+  backups:
+    statement: The database and media are backed up daily to separate storage
+    owner: Infrastructure lead
+    safeguard: technical
+    enforces: [std-daily-backups]
+    achieves: [co-continuity]
+    executes: [reduce-data-loss]
+  emergency-access:
+    statement: A second named person holds credentials to the server
+    owner: Managing director
+    safeguard: administrative
+    enforces: [std-emergency-access]
+    achieves: [co-continuity]
+  shutdown-notice:
+    statement: Any shutdown is announced to users at least three months ahead
+    owner: Managing director
+    safeguard: administrative
+    enforces: [std-shutdown-notice]
+    achieves: [co-continuity]
+
+procedures:
+  proc-report-triage:
+    steps: "1. Open the report queue. 2. Check the reported content against the server rules. 3. Decide and act. 4. Send the affected user a statement of reasons."
+    owner: Moderation team lead
+    overseer: Head of trust and safety
+    operationalizes: moderation
+  proc-emergency-access:
+    steps: "1. Keep server credentials in a shared vault. 2. Review who holds them every quarter."
+    owner: Infrastructure lead
+    overseer: Managing director
+    operationalizes: emergency-access
+  proc-shutdown:
+    steps: "1. Announce the shutdown date. 2. Remind users to export and migrate their accounts. 3. Shut down no sooner than three months after the announcement."
+    owner: Managing director
+    overseer: Board
+    operationalizes: shutdown-notice
+
+assessmentObjectives:
+  ao-moderation: {assesses: moderation, verifies: [std-active-moderation, std-notice-and-action], examines: [proc-report-triage], methods: [examine, interview], evidence: "Report queue history showing reports actioned and moderator interviews on the triage process"}
+  ao-backups: {assesses: backups, verifies: [std-daily-backups], methods: [examine, test], evidence: "Backup job log for the last 30 days and the result of a test restore"}
+  ao-emergency: {assesses: emergency-access, verifies: [std-emergency-access], examines: [proc-emergency-access], methods: [examine, interview], evidence: "Emergency access log entries and the admin interview on when access was used"}
+  ao-shutdown: {assesses: shutdown-notice, verifies: [std-shutdown-notice], examines: [proc-shutdown], methods: [examine], evidence: "Shutdown procedure and the user notice template with its notice period"}
+
+profiles:
+  mastodon-controls:
+    name: Mastodon control profile
+    owner: Managing director
+
+selections:
+  sel-moderation: {in: mastodon-controls, choice: include, names: moderation}
+  sel-backups: {in: mastodon-controls, choice: include, names: backups}
+  sel-emergency-access: {in: mastodon-controls, choice: include, names: emergency-access}
+  sel-shutdown-notice: {in: mastodon-controls, choice: include, names: shutdown-notice}
+
+adoptions:
+  adopt-moderation-social: {mode: procedure, adopts: moderation, governs: mastodon-social, follows: [proc-report-triage], owner: Moderation team lead}
+  adopt-backups-social: {mode: system, adopts: backups, governs: mastodon-social, owner: Infrastructure lead}
+  adopt-emergency-social: {mode: procedure, adopts: emergency-access, governs: mastodon-social, follows: [proc-emergency-access], owner: Infrastructure lead}
+  adopt-shutdown-social: {mode: procedure, adopts: shutdown-notice, governs: mastodon-social, follows: [proc-shutdown], owner: Managing director}
+  adopt-moderation-sw: {mode: system, adopts: moderation, governs: mastodon, owner: Mastodon gGmbH engineering}
+  adopt-backups-sw: {mode: delegated, adopts: backups, governs: mastodon, delegatedTo: Server operator, decidedBy: Managing director, rationale: The covenant binds server operators; the software ships no backup tooling of its own}
+  adopt-emergency-sw: {mode: delegated, adopts: emergency-access, governs: mastodon, delegatedTo: Server operator, decidedBy: Managing director, rationale: The covenant binds server operators}
+  adopt-shutdown-sw: {mode: delegated, adopts: shutdown-notice, governs: mastodon, delegatedTo: Server operator, decidedBy: Managing director, rationale: The covenant binds server operators}
+
+people:
+  user: {name: User, description: 'Posts, follows and reads timelines', plays: [social-user]}
+  moderator: {name: Moderator or admin, description: Handles reports and server settings, plays: [community-admin]}
+
+systems:
+  mastodon-system:
+    name: Mastodon
+    description: Mastodon server software
+    owner: Mastodon gGmbH engineering
+    realizes: [mastodon, mastodon-social]
+  fediverse: {name: Other fediverse servers, description: Mastodon and other ActivityPub servers, external: true}
+  client-apps: {name: Third-party apps, description: Mobile and desktop clients built on the REST API, external: true}
+  object-storage: {name: Object storage, description: S3-compatible storage for media, owner: Storage provider, external: true}
+  smtp: {name: Email provider, description: Sends confirmation and notification email, external: true}
+
+containers:
+  web-ui:
+    in: mastodon-system
+    name: Web interface
+    description: Single-page app for users and moderators
+    kind: application
+    technology: React
+  web:
+    in: mastodon-system
+    name: Web and API
+    description: REST API, ActivityPub inbox and outbox, admin pages
+    kind: application
+    technology: Ruby on Rails, Puma
+    satisfies: [chronological-timelines, account-migration, reports-and-moderation, domain-blocks, horizontal-scaling, documented-upgrades]
+  sidekiq:
+    in: mastodon-system
+    name: Background workers
+    description: Federation delivery, media processing, email and scheduled jobs
+    kind: application
+    technology: Ruby, Sidekiq
+    satisfies: [activitypub-federation, horizontal-scaling]
+  streaming:
+    in: mastodon-system
+    name: Streaming API
+    description: Pushes live timeline updates to clients
+    kind: application
+    technology: Node.js
+    satisfies: [horizontal-scaling]
+  postgres:
+    in: mastodon-system
+    name: Database
+    description: Accounts, posts, follows and reports
+    kind: data-store
+    technology: PostgreSQL
+    satisfies: [daily-backups]
+  redis:
+    in: mastodon-system
+    name: Redis
+    description: Home feeds, job queues and streaming pub/sub
+    kind: data-store
+    technology: Redis
+  search:
+    in: mastodon-system
+    name: Search index
+    description: Optional full-text index of opted-in posts
+    kind: data-store
+    technology: Elasticsearch or OpenSearch
+    satisfies: [search-and-hashtags]
+
+components:
+  rest-api: {in: web, name: REST API, description: Client API used by the web UI and apps, technology: Rails}
+  activitypub: {in: web, name: ActivityPub, description: Inbox and outbox for federation, technology: Rails, satisfies: [activitypub-federation]}
+  admin: {in: web, name: Admin and moderation, description: 'Report queue, account and domain actions', technology: Rails}
+
+relationships:
+  user-uses-web-ui: {leaves: user, enters: web-ui, description: Reads timelines and posts, technology: Web browser}
+  moderator-uses-web-ui: {leaves: moderator, enters: web-ui, description: Handles reports and domain blocks, technology: Web browser}
+  user-uses-apps: {leaves: user, enters: client-apps, description: Reads timelines and posts, technology: Mobile and desktop apps}
+  web-ui-calls-api: {leaves: web-ui, enters: web, description: Calls the REST API, technology: HTTPS}
+  web-ui-streams: {leaves: web-ui, enters: streaming, description: Subscribes to live updates, technology: WebSocket}
+  apps-call-api: {leaves: client-apps, enters: web, description: Calls the REST API, technology: 'HTTPS, OAuth 2'}
+  apps-stream: {leaves: client-apps, enters: streaming, description: Subscribes to live updates, technology: WebSocket}
+  fediverse-delivers: {leaves: fediverse, enters: web, description: Delivers activities to the inbox, technology: 'HTTPS, ActivityPub, HTTP signatures'}
+  sidekiq-delivers: {leaves: sidekiq, enters: fediverse, description: Delivers activities to remote inboxes, technology: 'HTTPS, ActivityPub, HTTP signatures'}
+  web-uses-postgres: {leaves: web, enters: postgres, description: Reads and writes data, technology: SQL}
+  web-uses-redis: {leaves: web, enters: redis, description: Reads feeds and enqueues jobs, technology: Redis protocol}
+  web-uses-search: {leaves: web, enters: search, description: Runs searches, technology: HTTP}
+  web-uses-storage: {leaves: web, enters: object-storage, description: Uploads media, technology: S3 API}
+  sidekiq-uses-postgres: {leaves: sidekiq, enters: postgres, description: Reads and writes data, technology: SQL}
+  sidekiq-uses-redis: {leaves: sidekiq, enters: redis, description: Takes jobs and writes feeds, technology: Redis protocol}
+  sidekiq-indexes: {leaves: sidekiq, enters: search, description: Indexes posts, technology: HTTP}
+  sidekiq-uses-storage: {leaves: sidekiq, enters: object-storage, description: Stores processed media, technology: S3 API}
+  sidekiq-sends-email: {leaves: sidekiq, enters: smtp, description: Sends email, technology: SMTP}
+  streaming-uses-redis: {leaves: streaming, enters: redis, description: Subscribes to timeline events, technology: Redis pub/sub}
+  streaming-uses-postgres: {leaves: streaming, enters: postgres, description: Checks access tokens and filters, technology: SQL}
+  web-ui-calls-rest: {leaves: web-ui, enters: rest-api, description: Reads timelines and posts, technology: HTTPS}
+  web-ui-moderates: {leaves: web-ui, enters: admin, description: Handles reports and domain blocks, technology: HTTPS}
+  apps-call-rest: {leaves: client-apps, enters: rest-api, description: Reads timelines and posts, technology: 'HTTPS, OAuth 2'}
+  fediverse-posts-inbox: {leaves: fediverse, enters: activitypub, description: Delivers activities to the inbox, technology: 'HTTPS, ActivityPub, HTTP signatures'}
+  rest-api-uses-postgres: {leaves: rest-api, enters: postgres, description: Reads and writes accounts and posts, technology: SQL}
+  activitypub-uses-postgres: {leaves: activitypub, enters: postgres, description: Reads actors and stores remote posts, technology: SQL}
+  admin-uses-postgres: {leaves: admin, enters: postgres, description: Reads reports and writes moderation actions, technology: SQL}
+  rest-api-uses-redis: {leaves: rest-api, enters: redis, description: Reads feeds and enqueues jobs, technology: Redis protocol}
+  activitypub-enqueues: {leaves: activitypub, enters: redis, description: Enqueues inbox processing jobs, technology: Redis protocol}
+  rest-api-searches: {leaves: rest-api, enters: search, description: Runs searches, technology: HTTP}
+  rest-api-uploads: {leaves: rest-api, enters: object-storage, description: Uploads media, technology: S3 API}
+
+environments:
+  social-production: {name: mastodon.social production, serves: [mastodon-social]}
+  compose-install: {name: Docker Compose reference install, serves: [mastodon], operator: Server operator}
+
+deploymentNodes:
+  cloud-region:
+    name: Cloud region
+    technology: Managed Kubernetes
+    belongs: social-production
+  app-pool:
+    in: cloud-region
+    name: Application node pool
+    technology: Kubernetes
+  data-nodes:
+    in: cloud-region
+    name: Data nodes
+    technology: Managed PostgreSQL, Redis and OpenSearch
+  compose-host:
+    name: Operator's server
+    technology: Docker Compose
+    belongs: compose-install
+
+containerInstances:
+  web-instance: {in: app-pool, instantiates: web}
+  sidekiq-instance: {in: app-pool, instantiates: sidekiq}
+  streaming-instance: {in: app-pool, instantiates: streaming}
+  postgres-instance: {in: data-nodes, instantiates: postgres}
+  redis-instance: {in: data-nodes, instantiates: redis}
+  search-instance: {in: data-nodes, instantiates: search}
+  compose-web-instance: {in: compose-host, instantiates: web}
+  compose-sidekiq-instance: {in: compose-host, instantiates: sidekiq}
+  compose-streaming-instance: {in: compose-host, instantiates: streaming}
+  compose-postgres-instance: {in: compose-host, instantiates: postgres}
+  compose-redis-instance: {in: compose-host, instantiates: redis}
+  compose-search-instance: {in: compose-host, instantiates: search}
+
+infrastructureNodes:
+  ingress: {in: cloud-region, name: Ingress and CDN, technology: 'nginx, CDN'}
+
+deploymentDiagrams:
+  deploy-social:
+    depicts: [mastodon-system]
+    covers: social-production
+    notDeployed:
+      web-ui: Served by the web container and runs in the user's browser
+  deploy-compose:
+    depicts: [mastodon-system]
+    covers: compose-install
+    notDeployed:
+      web-ui: Served by the web container and runs in the user's browser
+
+dataElements:
+  account: {classification: confidential, description: 'Email, password hash, IP addresses and settings', triggers: [inf-dsa]}
+  post: {classification: public, description: Posts and their visibility; direct messages are not end-to-end encrypted}
+  report: {classification: confidential, description: 'Report, reporter and moderation decision', triggers: [inf-dsa]}
+
+# Couldn't express
+# - Software versus server. Both influencers scope only mastodon.social, but the
+#   covenant still reaches the software's users: every listed server must meet it.
+#   I used "delegated" to the server operator; there's no way to say the obligation
+#   passes through to whoever runs the software.
+# - Other servers adopting our rules. The covenant is a governance package that
+#   thousands of independent servers adopt. That's exactly the "define once, adopt
+#   many times" case, but it lives across organisations I don't control and can't
+#   import from.
+# - Server rules as a user-facing document. They're partly a guideline and partly
+#   a contract with users. I linked them as a guideline and an external reference
+#   that nothing uses.
+# - Moderation decisions crossing servers. Defederation is a policy decision
+#   about another party, and reports forwarded from other servers carry obligations.
+#   I had no way to say who decides to defederate or on what grounds.
+# - Funding and sustainability (donations, Patreon, sponsors). This is the
+#   project's biggest real risk, but it doesn't endanger any user outcome directly.
+# - The software product's roadmap: features in progress for the next release,
+#   like quote posts.

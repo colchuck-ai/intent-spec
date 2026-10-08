@@ -1,0 +1,22 @@
+# breaks: DFD-8 /dataFlows/f
+# The flow represents r (shopper to shop), but its end pr represents the warehouse.
+intentSpec: "0.1"
+id: dfd-8
+version: 0.1.0
+stage: proposed
+
+dataElements:
+  de: {classification: internal}
+people:
+  a: {name: Shopper, description: Buys things}
+systems:
+  s: {name: Shop, description: The web shop}
+  other: {name: Warehouse, description: Ships orders}
+relationships:
+  r: {leaves: a, enters: s, technology: HTTPS}
+externalEntities:
+  x: {label: Shopper, represents: a}
+processes:
+  pr: {label: Warehouse, represents: other}
+dataFlows:
+  f: {label: Orders, connects: [x, pr], represents: [r], carries: [de]}

@@ -1,0 +1,126 @@
+{
+  "seed": "intent-spec-anneal-2026-10-08",
+  "config": {
+    "weights": {
+      "P1": 10,
+      "P2": 3,
+      "P3": 1,
+      "errors": 10,
+      "size": 0.5,
+      "departures": 50
+    },
+    "thresholds": {
+      "hot": {
+        "max": 10
+      },
+      "warm": {
+        "max": 3
+      },
+      "cool": {
+        "max": 0
+      },
+      "frozen": {
+        "max": 0,
+        "strict": true
+      }
+    },
+    "sizes": {
+      "hot": [
+        "local",
+        "additive",
+        "structural",
+        "unifying"
+      ],
+      "warm": [
+        "local",
+        "additive",
+        "structural"
+      ],
+      "cool": [
+        "local",
+        "additive"
+      ],
+      "frozen": [
+        "local"
+      ]
+    },
+    "explore_at": [
+      "hot",
+      "warm"
+    ],
+    "initial_temperature": "hot",
+    "reheat": 1.5,
+    "stop": 1.25,
+    "panel": {
+      "core": [
+        "product-management",
+        "architecture",
+        "threat-modeling",
+        "governance",
+        "agent-user",
+        "simplicity-advocate"
+      ],
+      "specialists": [
+        "jobs-to-be-done",
+        "job-executor",
+        "devops",
+        "risk-management",
+        "hcgf",
+        "compliance",
+        "model-portability"
+      ],
+      "sample": 3,
+      "examples_each": 2
+    },
+    "eligibility": {
+      "not_archived": true,
+      "has_source": true,
+      "min_stars": 1000,
+      "updated_since": "2025-10-08"
+    },
+    "products": "anneal/products-2026-10-08.json"
+  },
+  "round": 2,
+  "temperature": "hot",
+  "benchmark": [
+    "home-assistant",
+    "mastodon",
+    "openemr",
+    "plausible-growth",
+    "plausible-mvp",
+    "shiftly",
+    "shiftly-governance",
+    "vaultwarden"
+  ],
+  "modeled_products": [
+    "plausible-analytics",
+    "vaultwarden",
+    "home-assistant",
+    "mastodon",
+    "openemr"
+  ],
+  "drawn_tags": [],
+  "rounds": {
+    "2": {
+      "complete": true,
+      "note": "rounds 1-2 ran under the earlier review loop; no annealing record"
+    }
+  },
+  "best": {
+    "E": 202.0,
+    "round": 2,
+    "examples": [
+      "home-assistant",
+      "mastodon",
+      "openemr",
+      "plausible-growth",
+      "plausible-mvp",
+      "shiftly",
+      "shiftly-governance",
+      "vaultwarden"
+    ],
+    "commit": "5af736d3a6edb81ef1abb62a6817f56c28b8e7e0",
+    "note": "baseline before round 3"
+  },
+  "frozen": false
+}

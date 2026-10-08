@@ -1,0 +1,30 @@
+# breaks: C4-10 /relationships/r
+intentSpec: "0.1"
+id: c4-10
+version: 0.1.0
+stage: proposed
+
+jobExecutors:
+  e: {description: Shop owner}
+jobs:
+  j: {statement: Know what sold this week, motivates: e}
+outcomes:
+  o: {in: j, statement: Minimize the time to see weekly sales}
+requirements:
+  q: {statement: Weekly sales report, verification: Demo, serves: [o]}
+products:
+  p: {}
+environments:
+  prod: {serves: [p]}
+deploymentNodes:
+  n: {belongs: prod}
+infrastructureNodes:
+  lb: {in: n, technology: Load balancer}
+people:
+  a: {name: Shopper, description: Buys things}
+relationships:
+  r: {leaves: a, enters: lb, technology: HTTPS}
+dynamicDiagrams:
+  dd: {illustrates: q}
+dynamicSteps:
+  st: {in: dd, follows: r, order: 1}

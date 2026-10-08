@@ -1,0 +1,11 @@
+# breaks: REF-3 /metrics/m
+# shiftly's document stage is proposed, so its outcome is proposed [DOC-2].
+intentSpec: "0.1"
+id: ref-3-import
+version: 0.1.0
+stage: ratified
+imports:
+  s: {source: ../shiftly.yaml, version: ^1.0.0}
+
+metrics:
+  m: {target: Under 5% of shifts, frequency: Monthly, measures: [s:fewer-short-shifts]}

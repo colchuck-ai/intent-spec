@@ -1,0 +1,25 @@
+# breaks: GRC-15 /adoptions/a
+# The inheritance chain ends at a delegated adoption.
+intentSpec: "0.1"
+id: grc-15
+version: 0.1.0
+stage: proposed
+
+influencers:
+  inf: {kinds: [internal], scopeRationale: The founders require it}
+policies:
+  pol: {statement: Protect customer data, approver: Founders, satisfies: [inf]}
+controlObjectives:
+  co: {statement: Customer data is protected, supports: [pol]}
+standards:
+  std: {statement: Encrypt customer data at rest, addresses: [co]}
+controls:
+  ctl: {statement: Disks are encrypted, owner: Ops lead, safeguard: technical, enforces: [std], achieves: [co]}
+assessmentObjectives:
+  ao: {assesses: ctl, verifies: [std], methods: [examine], evidence: Disk configuration}
+products:
+  p: {}
+  platform: {}
+adoptions:
+  a1: {mode: delegated, adopts: ctl, governs: platform, delegatedTo: Self-hosting operator, decidedBy: Founders, rationale: The operator runs the disks}
+  a: {mode: inherited, adopts: ctl, governs: p, decidedBy: Founders, inherits: a1}

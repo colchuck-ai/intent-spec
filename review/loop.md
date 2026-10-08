@@ -17,10 +17,12 @@ Never compute energy, pick a product or reviewer, or decide keep or revert by ha
 | `status` | Prints the round, step, temperature, energy history, best energy and the next action. |
 | `begin` | Starts the next round: draws the probe and the panel with the round's seed, writes them to `state.json`, pours the molecule and creates one review step per panelist. Re-running it for a begun round prints the same draw. |
 | `measure` | After triage: computes energy on the benchmark and on the probe, applies the uphill rule to last round's moves, sets this round's temperature, updates the best copy and runs the stop check. Prints every decision. |
+| `move next` | Prints the next move the runner may take: ready, not gated, its size allowed at this temperature, not yet judged this round. Prints `none` when there is none. |
 | `move start <bead>` | Before a fixer starts: records the size, departures and harness errors at the current commit. |
 | `move judge <bead>` | After the fixer and critic: computes ΔE, compares it with the threshold, and keeps or reverts the move's commits. Prints `kept`, `kept uphill` or `reverted`, with the arithmetic. |
 | `end` | Closes the round: the probe joins the benchmark, the round's numbers go into `state.json`, and the summary goes onto the molecule. |
 | `reset-to-best` | Copies `../anneal/best/` over the current model, rules and examples. Run it only on a human's decision. |
+| `energy` | Prints the current model's energy on the benchmark, with its parts. |
 
 ### Energy
 
@@ -33,7 +35,7 @@ E(S) = 10·P1 + 3·P2 + 1·P3     open findings with triage:accept on examples i
      + 50·departures           `%% departure` lines in ../erd.md
 ```
 
-S is a set of examples. Comparisons between rounds always use the same S, the benchmark as it stood at the earlier round, so that adding a probe never looks like progress or regress. Rejected and duplicate findings count for nothing, so triage rejects anything out of scope instead of deferring it.
+S is a set of examples. Comparisons between rounds always use the same S, the benchmark as it stood at the earlier round, so that adding a probe never looks like progress or regress. The best copy is always compared on the example set it was first measured on. Energy *per example* counts only the findings and errors terms, divided by the number of examples; reheating and the stop check compare it between the probe and the benchmark. Rejected and duplicate findings count for nothing, so triage rejects anything out of scope instead of deferring it.
 
 A departure is any place the model leaves JTBD, C4, DFD3 or HCGF. Each one is declared in `../erd.md` as `%% departure DEP-n: <model>: <what changed> because <evidence>`, added by the move that makes it. An undeclared departure is a P1 finding.
 
@@ -163,10 +165,10 @@ You propose moves that no finding asked for. The search only runs you while hot 
 
 You run the round's moves one at a time so the orchestrator doesn't have to.
 
-1. Loop: take the first bead from `bd ready --label move --label round:<n>` whose size the temperature allows and that no open gate blocks. If there is none, close the anneal step and stop.
+1. Loop: take the bead `uv run anneal.py move next` prints. If it prints `none`, close the anneal step and stop.
 2. Run `uv run anneal.py move start <bead>`.
 3. Dispatch one fixer subagent with the Fix section and wait. Then dispatch one critic subagent with the Critic section and wait. Never run two moves at once.
-4. Run `uv run anneal.py move judge <bead>`. It keeps or reverts the move.
+4. Run `uv run anneal.py move judge <bead>`. It keeps or reverts the move. It closes explorer moves; a finding stays open unless the critic closed it as resolved, and a reverted one is labelled `move:reverted` so it isn't retried this round.
 5. Check that the working tree is clean apart from `.beads/`. If it isn't, or a fixer escalated, stop.
 6. When the loop ends, reply with one line: "kept <n> (uphill <u>), reverted <r>; stopped: <reason or queue empty>; escalated: <ids>".
 

@@ -1,0 +1,9 @@
+# breaks: SCHEMA-LINK /jobs/j
+# A job without its required motivates link.
+intentSpec: "0.1"
+id: schema-link
+version: 0.1.0
+stage: proposed
+
+jobs:
+  j: {statement: Know what sold this week}

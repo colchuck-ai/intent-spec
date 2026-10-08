@@ -1,0 +1,16 @@
+# breaks: C4-25 /relationships/r
+intentSpec: "0.1"
+id: c4-25
+version: 0.1.0
+stage: proposed
+
+systems:
+  s: {name: Shop, description: The web shop}
+containers:
+  c: {in: s, kind: application, name: Web app, description: Serves the shop, technology: Python}
+components:
+  k: {in: c, name: Checkout, description: Takes payment, technology: Python}
+people:
+  a: {name: Shopper, description: Buys things}
+relationships:
+  r: {leaves: a, enters: c, technology: HTTPS}

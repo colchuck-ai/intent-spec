@@ -1,0 +1,15 @@
+# breaks: C4-24 /deploymentDiagrams/dg
+# notDeployed names tracker, which is not a container of s.
+intentSpec: "0.1"
+id: c4-24
+version: 0.1.0
+stage: proposed
+
+systems:
+  s: {name: Shop, description: The web shop}
+products:
+  p: {}
+environments:
+  prod: {serves: [p]}
+deploymentDiagrams:
+  dg: {depicts: [s], covers: prod, notDeployed: {tracker: Runs in the browser}}

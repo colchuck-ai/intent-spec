@@ -1,0 +1,16 @@
+# breaks: C4-23 /deploymentDiagrams/dg
+intentSpec: "0.1"
+id: c4-23
+version: 0.1.0
+stage: proposed
+
+systems:
+  s: {name: Shop, description: The web shop, owner: Shop team}
+containers:
+  c: {in: s, kind: application, name: Web app, description: Serves the shop, technology: Python}
+products:
+  p: {}
+environments:
+  prod: {serves: [p]}
+deploymentDiagrams:
+  dg: {depicts: [s], covers: prod}

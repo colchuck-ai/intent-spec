@@ -1,0 +1,14 @@
+# breaks: REF-4 /metrics/m
+intentSpec: "0.1"
+id: ref-4
+version: 0.1.0
+stage: ratified
+
+jobExecutors:
+  e: {description: Shop owner}
+jobs:
+  j: {statement: Know what sold this week, motivates: e}
+outcomes:
+  o: {stage: deprecated, deprecationRationale: Nobody asks for it, in: j, statement: Minimize the time to see weekly sales}
+metrics:
+  m: {target: Under a minute, frequency: Weekly, measures: [o]}

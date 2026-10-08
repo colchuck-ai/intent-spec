@@ -1,0 +1,11 @@
+# breaks: REF-4 /dynamicDiagrams/dd
+# plausible-growth deprecates its requirement referrer-list.
+intentSpec: "0.1"
+id: ref-4-import
+version: 0.1.0
+stage: ratified
+imports:
+  pg: {source: ../plausible-growth.yaml, version: ^1.0.0}
+
+dynamicDiagrams:
+  dd: {illustrates: pg:referrer-list}

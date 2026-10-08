@@ -1,0 +1,20 @@
+# breaks: DFD-9 /dataFlows/f
+intentSpec: "0.1"
+id: dfd-9
+version: 0.1.0
+stage: proposed
+
+dataElements:
+  de: {classification: internal}
+people:
+  a: {name: Shopper, description: Buys things}
+systems:
+  s: {name: Shop, description: The web shop}
+relationships:
+  r: {leaves: a, enters: s, technology: HTTPS}
+externalEntities:
+  x: {label: Shopper, represents: a}
+processes:
+  pr: {label: Shop, represents: s}
+dataFlows:
+  f: {label: Orders, connects: [x, pr], leaves: pr, represents: [r], carries: [de]}

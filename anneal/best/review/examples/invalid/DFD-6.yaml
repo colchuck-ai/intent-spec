@@ -1,0 +1,12 @@
+# breaks: DFD-6 /dataFlows/f
+intentSpec: "0.1"
+id: dfd-6
+version: 0.1.0
+stage: proposed
+
+dataElements:
+  de: {classification: internal}
+processes:
+  pr: {label: Web app}
+dataFlows:
+  f: {label: Orders, connects: [pr], carries: [de]}
