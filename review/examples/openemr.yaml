@@ -122,6 +122,10 @@ requirements:
     statement: Patient documents can be encrypted at rest
     verification: Inspect stored documents with encryption enabled
     implements: [adopt-doc-encryption-emr]
+  partner-authentication:
+    statement: E-prescribing, lab and clearinghouse connections authenticate each partner with its own credentials over TLS and validate its messages
+    verification: Interface test of a connection without partner credentials being refused
+    implements: [adopt-partner-emr]
   cloud-tls:
     statement: OpenEMR Cloud terminates TLS at the load balancer with a managed certificate
     verification: Deployment template review
@@ -373,7 +377,7 @@ containers:
     description: PHP application serving clinical, billing, portal and API functions
     kind: application
     technology: PHP, Apache
-    satisfies: [role-based-access, multi-factor-login, tamper-evident-audit]
+    satisfies: [role-based-access, multi-factor-login, tamper-evident-audit, partner-authentication]
   database:
     in: openemr-system
     name: Database
