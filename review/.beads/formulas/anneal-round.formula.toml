@@ -1,0 +1,62 @@
+formula = "anneal-round"
+description = "One round of the annealing loop for intent-spec. Poured by `uv run anneal.py begin`; see review/loop.md."
+version = 1
+type = "workflow"
+
+[vars.round]
+description = "Round number"
+required = true
+pattern = "^[0-9]+$"
+
+[vars.probe]
+description = "Snapshot id of the probe product drawn for this round"
+required = true
+pattern = "^[a-z0-9][a-z0-9-]*$"
+
+[[steps]]
+id = "author"
+title = "Round {{round}} author: probe {{probe}}"
+description = "Write the probe example. anneal.py begin fills in the product. Follow loop.md, Author."
+labels = ["phase:author"]
+
+[[steps]]
+id = "review"
+title = "Round {{round}} review"
+description = "Parent of one review step per panelist, created by anneal.py begin. Closes when they all close. Follow loop.md, Review."
+labels = ["phase:review"]
+needs = ["author"]
+
+[[steps]]
+id = "triage"
+title = "Round {{round}} triage"
+description = "Follow loop.md, Triage."
+labels = ["phase:triage"]
+needs = ["review"]
+
+[[steps]]
+id = "measure"
+title = "Round {{round}} measure"
+description = "Run uv run anneal.py measure. It closes this step, and closes explore when the temperature doesn't allow it."
+labels = ["phase:measure"]
+needs = ["triage"]
+
+[[steps]]
+id = "explore"
+title = "Round {{round}} explore"
+description = "Follow loop.md, Explorer."
+labels = ["phase:explore"]
+needs = ["measure"]
+
+[[steps]]
+id = "anneal"
+title = "Round {{round}} anneal"
+description = "Follow loop.md, Move runner."
+labels = ["phase:anneal"]
+needs = ["explore"]
+
+[[steps]]
+id = "end"
+title = "Round {{round}} end"
+description = "Run uv run anneal.py end."
+labels = ["phase:end"]
+needs = ["anneal"]
