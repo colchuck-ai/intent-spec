@@ -24,11 +24,12 @@ RETURN '/<key>/' + n.id AS pointer, '<what is wrong>' AS detail
 - Containment is a link: "X contains Y" in rule prose means `(y)-[:IN]->(x)`.
 - **Stage [DOC-2]:** an item's stage is `coalesce(n.stage, d.stage)` with `d = (:Document {doc: $doc})`. Use this whenever a rule names a stage.
 - **Derivations** (`%% derived SECTION-n`) are not files. Write their logic into each rule that cites them, with a comment naming the derivation ID.
-- Imported targets are `(:Ref:Imported {ref: 'alias:id'})` and external references are `(:ExternalReference)` items. Per REF-2 and REF-5, rules that inspect a link's target skip both.
+- Imported targets are `(:Ref:Imported {ref: 'alias:id'})` and external references are `(:ExternalReference)` items. Per REF-2 and REF-5, rules that inspect a link's target skip both, unless they follow imports.
+- **Following imports:** when the imported document is loaded, the stub has `-[:RESOLVES_TO]->` the item there (see `../README.md`). Follow it with `OPTIONAL MATCH (x)-[:RESOLVES_TO]->(xi) WITH coalesce(xi, x) AS t`, or `()-[:RESOLVES_TO*0..1]->(t:Label)`. Never count an item from another document toward coverage (REF-5): match the items a coverage rule iterates with `doc: $doc`.
 
 ## Rules that cannot be checked here
 
-A rule that needs more than one loaded document, such as DOC-1 (compare with the previous version) or anything that reads a lockfile snapshot, gets no file. Say so when you hand back.
+A rule that compares two versions of a document, such as DOC-1 (compare with the previous version) or RISK-5, gets no file. Say so when you hand back.
 
 ## Testing a rule
 

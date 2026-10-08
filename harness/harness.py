@@ -11,6 +11,8 @@ The mapping comes from ../erd.md, so it follows the model without code changes:
 - every link field becomes a relationship named after its verb (in -> :IN), with
   the original verb in r.verb and list position in r.idx
 - the ERD itself is loaded as :EntityType nodes joined by :LINK relationships
+- an alias:id reference becomes a :Ref:Imported stub; when the import's source names another
+  loaded document (by file stem), the stub -[:RESOLVES_TO]-> that document's item
 """
 
 from __future__ import annotations
@@ -313,6 +315,42 @@ def load_doc(session, path: Path, entities: dict[str, Entity]) -> str:
     return doc
 
 
+def source_stem(source: str) -> str:
+    """The file stem an import's source names, e.g. ../shiftly-governance.yaml -> shiftly-governance."""
+    name = str(source).rstrip("/").rsplit("/", 1)[-1]
+    for ext in (".yaml", ".yml", ".json"):
+        if name.endswith(ext):
+            return name[: -len(ext)]
+    return name
+
+
+def link_imports(session) -> None:
+    """Follow imports between co-loaded documents, with no lockfile.
+
+    An import whose source names a loaded document (by file stem) gets (:Import)-[:LOADED_AS]->(:Document),
+    and each alias:id stub of that import gets -[:RESOLVES_TO]-> the item with that id in that document.
+    A stub left without RESOLVES_TO although its import is LOADED_AS names nothing there (REF-1).
+    Neither relationship has a verb, so export ignores both. Rebuilt from scratch after every load.
+    """
+    session.run("MATCH ()-[r:RESOLVES_TO|LOADED_AS]->() DELETE r")
+    rows = [
+        {"doc": r["doc"], "alias": r["alias"], "target": source_stem(r["source"])}
+        for r in session.run("MATCH (i:Import) WHERE i.source IS NOT NULL RETURN i.doc AS doc, i.alias AS alias, i.source AS source")
+    ]
+    session.run(
+        "UNWIND $rows AS r MATCH (i:Import {doc: r.doc, alias: r.alias}), (d:Document {doc: r.target}) "
+        "WHERE r.target <> r.doc MERGE (i)-[:LOADED_AS]->(d)",
+        rows=rows,
+    )
+    session.run(
+        "MATCH (x:Ref:Imported) "
+        "WITH x, split(x.ref, ':')[0] AS alias "
+        "MATCH (:Document {doc: x.doc})-[:HAS]->(:Import {alias: alias})-[:LOADED_AS]->(d:Document) "
+        "MATCH (t:Item {doc: d.doc, id: substring(x.ref, size(alias) + 1)}) "
+        "MERGE (x)-[:RESOLVES_TO]->(t)"
+    )
+
+
 # ---------------------------------------------------------------- export
 
 
@@ -542,6 +580,7 @@ def main() -> None:
             paths = [doc_path(d) for d in args.docs] or all_docs()
             for path in paths:
                 print(f"loaded {load_doc(s, path, entities)} from {show(path)}")
+            link_imports(s)
             return
         docs = [Path(d).stem for d in args.docs] or [
             r["doc"] for r in s.run("MATCH (d:Document) RETURN d.doc AS doc ORDER BY doc")]

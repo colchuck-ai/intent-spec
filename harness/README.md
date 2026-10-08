@@ -35,10 +35,21 @@ The mapping is read from `../erd.md`, so it follows the model without code chang
 | Item `/containers/core` | `(:Item:Container {doc, id: 'core', type: 'CONTAINER', ...attributes})` |
 | Link field `in: home-assistant` | `-[:IN {verb: 'in'}]->`, with `idx` for list order |
 | `alias:id` target | `(:Ref:Imported {ref})` stub |
+| Import whose `source` names a loaded document by file stem (`source: shiftly-governance.yaml` names `shiftly-governance`) | `(:Import)-[:LOADED_AS]->(:Document)` |
+| `alias:id` target of such an import | the stub, then `-[:RESOLVES_TO]->(:Item {doc: <that document>, id})` |
 | Target that resolves to nothing | `(:Ref:Unresolved {ref})` stub, reported by REF-1 |
 | ERD entity types and links | `(:EntityType {name, key, label})-[:LINK {verb, many, required}]->(:EntityType)` |
 
-All seven examples share one database (Community edition allows one), so every node carries `doc`, the name of the file it came from (e.g. `plausible-mvp`). Filter on it in queries.
+All the examples share one database (Community edition allows one), so every node carries `doc`, the name of the file it came from (e.g. `plausible-mvp`). Filter on it in queries.
+
+### Imports between loaded documents
+
+There is no lockfile. When an import's `source` names another document loaded in the same graph, `load` connects each `alias:id` stub to the item with that id in that document (`RESOLVES_TO`), so rules can follow it. For example, `shiftly` imports `shiftly-governance` as `gov`, selects the profile `gov:shiftly-baseline` and adopts `gov:volunteer-data-minimisation`. The links are rebuilt after every `load`, so load the imported document too (`load` with no arguments loads every example).
+
+- The rules that follow imports are GRC-10 (a selected profile's controls), GRC-28 (a control's influencers), REF-3 and REF-4 (the target's stage, its own or else its document's) and REF-6 (the target's type). REF-1 reports an `alias:id` whose import's document is loaded but declares no such id.
+- When the imported document is not loaded, the stub stays unresolved and these rules skip it, as before.
+- Imported items never count as local (REF-5): coverage rules match items with `doc: $doc`, and `RESOLVES_TO` only ever leaves a stub.
+- `export` writes only the items of the document it exports. `RESOLVES_TO` and `LOADED_AS` have no `verb`, so they never reach a YAML file.
 
 ## Queries to try
 
@@ -69,8 +80,6 @@ Each rule is a file in `rules/` holding one Cypher query. Its header names the r
 ```
 
 The query receives `$doc` and returns one row per problem, with `pointer` (the JSON pointer `/<key>/<id>` from erd.md's reference serialization) and optionally `detail`. `check` exits non-zero when an error-severity rule finds anything.
-
-An item's `ruleWaivers` map (rule ID to rationale) waives a warning-severity rule on that item: `check` prints it as `waived` with the rationale instead of as a warning. Waivers never silence an error-severity rule; DOC-3 reports any waiver of one, or of an unknown rule ID. Rule IDs and severities are loaded from `../erd.md` as `(:Rule {id, severity})` nodes.
 
 ## Agents
 

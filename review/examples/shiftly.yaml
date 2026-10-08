@@ -4,12 +4,16 @@ intentSpec: "0.1"
 id: shiftly
 version: 0.1.0
 stage: proposed
+# Company governance is defined once in shiftly-governance.yaml; Shiftly adopts it through the baseline profile.
+imports:
+  gov: {source: shiftly-governance.yaml, version: ^1.0.0}
 
 products:
   shiftly:
     name: Shiftly
     description: Helps small food banks fill volunteer shifts without a coordinator phoning people.
     targets: [fill-shifts, sign-up-for-shift, choose-scheduling-tool]
+    selects: [gov:shiftly-baseline]
 
 jobExecutors:
   volunteer-coordinator:
@@ -92,6 +96,7 @@ requirements:
     verification: Data inventory review before launch
     serves: [number-stays-private]
     executes: [minimise-volunteer-data]
+    implements: [adopt-volunteer-data]
   free-for-small-food-banks:
     statement: Shiftly is free for food banks with fewer than 50 active volunteers
     verification: Pricing page and billing plans reviewed before launch
@@ -137,6 +142,9 @@ treatments:
     reviewBy: 2027-01-15
     rationale: We don't know real volumes yet; we'll revisit after the first three pilot food banks
     treats: [sms-cost]
+
+adoptions:
+  adopt-volunteer-data: {mode: system, adopts: gov:volunteer-data-minimisation, governs: shiftly, owner: Product lead}
 
 # Couldn't express
 # - What we still need to learn. The whole product is a bet ("coordinators will
