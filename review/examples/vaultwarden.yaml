@@ -405,6 +405,8 @@ threats:
     category: information-disclosure
     appliesTo: [process]
     description: A process is tricked into making requests that reveal internal resources
+    ruleWaivers:
+      RISK-2: Its safeguard is icon-fetch-guard, a requirement that executes reduce-icon-ssrf, but threatens can't target a requirement and RISK-7 forbids r-ssrf-api citing the requirement that executes its own reduce treatment
   t-spoofed-party:
     category: spoofing
     appliesTo: [external-entity]
@@ -459,8 +461,8 @@ threatReviews:
 #   of them obvious.
 # - No threat threatens client-side-encryption, because `threatens` targets
 #   controls only and this is a requirement.
-# - The same gap leaves t-server-side-request linked to nothing (RISK-2 warns).
-#   Its safeguard is the requirement icon-fetch-guard, which executes
-#   reduce-icon-ssrf, but `threatens` can't target a requirement and the risk
-#   review r-ssrf-api can't cite one.
+# - The same gap leaves t-server-side-request linked to nothing. Its safeguard
+#   is the requirement icon-fetch-guard, which executes reduce-icon-ssrf, but
+#   `threatens` can't target a requirement and the risk review r-ssrf-api can't
+#   cite one. RISK-2 is waived on t-server-side-request with that rationale.
 # - Likelihood or impact for any risk.

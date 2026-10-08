@@ -393,6 +393,8 @@ threats:
     category: tampering
     appliesTo: [process]
     description: Code running in a process is replaced or modified
+    ruleWaivers:
+      RISK-2: Its safeguard is signed-images, a requirement that executes reduce-update-supply-chain, but threatens can't target a requirement and RISK-7 forbids a risk review citing the requirement that executes its own reduce treatment
 
 threatReviews:
   r-spoof-tinkerer: {reviews: t-spoofed-party, inspects: [ee-tinkerer], disposition: risk, raises: exposed-instances}
@@ -415,7 +417,8 @@ threatReviews:
 #   and one DFD, so a threat review can't be covered on HAOS and a risk on
 #   Container: the registry, version-service and frontend-tampering reviews
 #   fall back to risk for both, which leaves process tampering with no review
-#   that cites a safeguard (RISK-2 warns).
+#   that cites a safeguard. RISK-2 is waived on t-process-tampering with that
+#   rationale.
 #   Supervised and Core installs are left out.
 # - Add-ons and custom integrations. Third-party code runs inside our trust
 #   boundary. They're neither our containers nor an external system, and there are
