@@ -1,0 +1,20 @@
+# breaks: DFD-3 /externalEntities/x
+intentSpec: "0.1"
+id: dfd-3
+version: 0.1.0
+stage: proposed
+
+systems:
+  s: {name: Shop, description: The web shop, owner: Shop team}
+containers:
+  c: {in: s, kind: application, name: Web app, description: Serves the shop, technology: Python}
+dataElements:
+  de: {classification: internal}
+externalEntities:
+  x: {label: Shop, represents: s}
+processes:
+  pr: {label: Web app, represents: c}
+dataFlows:
+  f: {label: Orders, connects: [x, pr], carries: [de]}
+dataFlowDiagrams:
+  d: {level: detail, depicts: s, includes: [x, pr]}

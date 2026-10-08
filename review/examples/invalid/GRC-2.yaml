@@ -1,0 +1,8 @@
+# breaks: GRC-2 /policies/pol
+intentSpec: "0.1"
+id: grc-2
+version: 0.1.0
+stage: proposed
+
+policies:
+  pol: {statement: Protect customer data, approver: Founders}

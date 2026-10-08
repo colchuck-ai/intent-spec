@@ -1,0 +1,9 @@
+# breaks: DOC-3 /people/a
+# Waives C4-11, an error-severity rule.
+intentSpec: "0.1"
+id: doc-3
+version: 0.1.0
+stage: proposed
+
+people:
+  a: {name: Shopper, description: Buys things, ruleWaivers: {C4-11: Not an error we care about}}

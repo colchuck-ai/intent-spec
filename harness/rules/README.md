@@ -33,14 +33,16 @@ A rule that compares two versions of a document, such as DOC-1 (compare with the
 
 ## Testing a rule
 
-The seven example documents are shared, so never change their nodes. To test:
+Every rule has a regression test in `../../review/examples/invalid` (see `../README.md`): a minimal document that breaks it, named `<RULE-ID>.yaml`, whose first line is `# breaks: <RULE-ID> <pointer>`. Add one with each new rule and run `uv run harness.py test`. To explore a rule further:
+
+The example documents are shared, so never change their nodes. To test:
 
 1. Copy an example YAML into the scratchpad as `t-<your-batch>-<example>.yaml`. The file name becomes its `doc`.
 2. `uv run harness.py load <path>`
 3. Plant violations with Cypher on that doc only, then run `uv run harness.py check --rules <ids> t-<your-batch>-<example>`. Every rule must fire at least once on a planted violation and stay silent on a clean copy.
 4. Remove your doc: `MATCH (n {doc: 't-...'}) DETACH DELETE n`.
 
-Finally, run your rules on all seven examples: `uv run harness.py check --rules <ids> home-assistant mastodon openemr plausible-growth plausible-mvp shiftly vaultwarden`. When a rule flags an example, decide which side is wrong:
+Finally, run your rules on all the examples: `uv run harness.py load`, then `uv run harness.py check --rules <ids>`. When a rule flags an example, decide which side is wrong:
 
 - **The rule is wrong:** fix the rule.
 - **The example or the ERD is wrong:** don't edit either. File a bead from `intent-spec/review`:

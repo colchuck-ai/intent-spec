@@ -1,0 +1,18 @@
+# breaks: C4-28 /products/p
+intentSpec: "0.1"
+id: c4-28
+version: 0.1.0
+stage: ratified
+
+products:
+  p: {targets: [j]}
+jobExecutors:
+  e: {description: Shop owner}
+jobs:
+  j: {statement: Know what sold this week, motivates: e}
+outcomes:
+  o: {in: j, statement: Minimize the time to see weekly sales, disposition: deferred, rationale: After launch}
+systems:
+  s: {name: Shop, description: The web shop, owner: Shop team, realizes: [p]}
+containers:
+  c: {in: s, kind: application, name: Web app, description: Serves the shop, technology: Python}

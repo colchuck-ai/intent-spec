@@ -18,6 +18,7 @@ docker compose up -d           # Neo4j 5 Community; Browser at http://localhost:
 uv run harness.py load         # load every example in review/examples, plus the ERD meta-graph
 uv run harness.py check        # run the rules in rules/*.cypher
 uv run harness.py export       # write loaded documents back to their YAML files
+uv run harness.py test         # run the invalid examples in review/examples/invalid as rule regression tests
 ```
 
 If `docker` can't reach the daemon although Docker Desktop is running, run `docker context use desktop-linux` (or prefix commands with `DOCKER_CONTEXT=desktop-linux`).
@@ -80,6 +81,12 @@ Each rule is a file in `rules/` holding one Cypher query. Its header names the r
 ```
 
 The query receives `$doc` and returns one row per problem, with `pointer` (the JSON pointer `/<key>/<id>` from erd.md's reference serialization) and optionally `detail`. `check` exits non-zero when an error-severity rule finds anything.
+
+## Rule regression tests
+
+Each file in `../review/examples/invalid` is a small document that breaks one rule. Its first line names the rule and where it fires, `# breaks: <RULE-ID> <pointer>`; further `# also: <RULE-ID> <pointer>` lines name any other finding it expects. `test` loads each file with the documents it imports, checks it, and passes only when its unwaived findings (errors and warnings) are exactly those. It then deletes the file's nodes, prints one line per file and a summary, and exits non-zero when any file fails. Pass names (e.g. `uv run harness.py test GRC-10`) to run some. The invalid examples are kept out of `load` and `check`, which read only the top level of `review/examples`.
+
+An item's `ruleWaivers` map (rule ID to rationale) waives a warning-severity rule on that item: `check` prints it as `waived` with the rationale instead of as a warning. Waivers never silence an error-severity rule; DOC-3 reports any waiver of one, or of an unknown rule ID. Rule IDs and severities are loaded from `../erd.md` as `(:Rule {id, severity})` nodes.
 
 ## Agents
 

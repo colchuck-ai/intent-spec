@@ -1,0 +1,10 @@
+# breaks: GRC-33 /influencers/i
+intentSpec: "0.1"
+id: grc-33
+version: 0.1.0
+stage: proposed
+
+products:
+  p: {}
+influencers:
+  i: {kinds: [internal], scopeRationale: The founders require it}

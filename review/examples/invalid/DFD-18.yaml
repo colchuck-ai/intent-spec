@@ -1,0 +1,12 @@
+# breaks: DFD-18 /dataFlowDiagrams/d
+intentSpec: "0.1"
+id: dfd-18
+version: 0.1.0
+stage: proposed
+
+systems:
+  s: {name: Shop, description: The web shop}
+processes:
+  pr: {label: Web app}
+dataFlowDiagrams:
+  d: {level: detail, depicts: s, includes: [pr]}

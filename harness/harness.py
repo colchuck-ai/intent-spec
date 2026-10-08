@@ -32,6 +32,7 @@ from ruamel.yaml.comments import CommentedMap, CommentedSeq
 ROOT = Path(__file__).resolve().parent.parent
 ERD = ROOT / "erd.md"
 EXAMPLES = ROOT / "review" / "examples"
+INVALID = EXAMPLES / "invalid"
 RULES = Path(__file__).resolve().parent / "rules"
 
 URI = os.environ.get("NEO4J_URI", "bolt://localhost:7687")
@@ -351,6 +352,34 @@ def link_imports(session) -> None:
     )
 
 
+def import_paths(path: Path) -> list[Path]:
+    """Files a document imports, found beside it by source, or among the examples by file stem."""
+    data = plain(yaml_rt().load(path)) or {}
+    found = []
+    for imp in (data.get("imports") or {}).values():
+        source = str((imp or {}).get("source", ""))
+        stem = source_stem(source)
+        for cand in (path.parent / source, path.parent / f"{stem}.yaml", EXAMPLES / f"{stem}.yaml"):
+            if source and cand.is_file():
+                found.append(cand.resolve())
+                break
+    return found
+
+
+def load_with_imports(session, path: Path, entities: dict[str, Entity], seen: set[Path] | None = None) -> list[str]:
+    """Load a document and, first, everything it imports (transitively). Returns the loaded doc names."""
+    seen = set() if seen is None else seen
+    path = path.resolve()
+    if path in seen:
+        return []
+    seen.add(path)
+    docs = []
+    for dep in import_paths(path):
+        docs += load_with_imports(session, dep, entities, seen)
+    docs.append(load_doc(session, path, entities))
+    return docs
+
+
 # ---------------------------------------------------------------- export
 
 
@@ -519,31 +548,85 @@ def load_waivers(session, doc: str) -> dict[str, dict[str, str]]:
     return out
 
 
+def findings(session, doc: str, rules: list[Rule]):
+    """Yield (rule, pointer, detail, rationale) per problem; rationale is set when a warning is waived.
+
+    A rule whose query fails yields (rule, None, error message, None).
+    """
+    waivers = load_waivers(session, doc)
+    for rule in rules:
+        try:
+            rows = session.run(rule.query, doc=doc).data()
+        except Exception as exc:  # a broken rule file must not stop the others
+            yield rule, None, str(exc).splitlines()[0], None
+            continue
+        for row in rows:
+            # Only a warning can be waived; a waiver of an error rule is itself reported by DOC-3.
+            rationale = waivers.get(row["pointer"], {}).get(rule.id) if rule.severity == "warning" else None
+            yield rule, row["pointer"], row.get("detail", ""), rationale
+
+
 def check(session, docs: list[str], only: set[str] | None = None) -> int:
     failures = 0
     rules = [r for r in load_rules() if not only or r.id in only]
     for doc in docs:
-        waivers = load_waivers(session, doc)
-        for rule in rules:
-            try:
-                rows = session.run(rule.query, doc=doc).data()
-            except Exception as exc:  # a broken rule file must not stop the others
+        for rule, pointer, detail, rationale in findings(session, doc, rules):
+            if pointer is None:
                 failures += 1
-                print(f"{doc}: rule-error {rule.id} {rule.file.name}: {exc}".splitlines()[0])
-                continue
-            for row in rows:
-                detail = row.get("detail", "")
-                # Only a warning can be waived; a waiver of an error rule is itself reported by DOC-3.
-                rationale = waivers.get(row["pointer"], {}).get(rule.id) if rule.severity == "warning" else None
-                if rationale is not None:
-                    print(f"{doc}: waived {rule.id} {row['pointer']} {detail}".rstrip())
-                    print(f"    rationale: {rationale}")
-                    continue
+                print(f"{doc}: rule-error {rule.id} {rule.file.name}: {detail}")
+            elif rationale is not None:
+                print(f"{doc}: waived {rule.id} {pointer} {detail}".rstrip())
+                print(f"    rationale: {rationale}")
+            else:
                 failures += rule.severity == "error"
-                print(f"{doc}: {rule.severity} {rule.id} {row['pointer']} {detail}".rstrip())
+                print(f"{doc}: {rule.severity} {rule.id} {pointer} {detail}".rstrip())
                 if rule.hint:
                     print(f"    hint: {rule.hint}")
     return failures
+
+
+EXPECT_RE = re.compile(r"^#\s*(breaks|also):\s*(\S+)\s+(\S+)\s*$")
+
+
+def test(session, entities: dict[str, Entity], paths: list[Path]) -> int:
+    """Run each invalid example as a rule regression test.
+
+    The first line of the file is `# breaks: <RULE-ID> <pointer>`; further `# also: <RULE-ID> <pointer>` lines
+    list other expected findings. The test passes when the unwaived findings (errors and warnings) on the
+    document are exactly those, and no rule fails to run.
+    """
+    rules = load_rules()
+    rule_ids = {r.id for r in rules}
+    failed = 0
+    for path in paths:
+        lines = path.read_text().splitlines()
+        first = EXPECT_RE.match(lines[0]) if lines else None
+        expected = {(m.group(2), m.group(3)) for line in lines if (m := EXPECT_RE.match(line))}
+        problems = []
+        if first is None or first.group(1) != "breaks":
+            problems.append("first line is not '# breaks: <RULE-ID> <pointer>'")
+        problems += [f"unknown rule {rid}" for rid, _ in sorted(expected) if rid not in rule_ids]
+        doc = path.stem
+        try:
+            load_with_imports(session, path, entities)
+            link_imports(session)
+            actual = set()
+            for rule, pointer, detail, rationale in findings(session, doc, rules):
+                if pointer is None:
+                    problems.append(f"rule-error {rule.id}: {detail}")
+                elif rationale is None:
+                    actual.add((rule.id, pointer))
+        finally:
+            session.run("MATCH (n {doc: $doc}) DETACH DELETE n", doc=doc)
+        problems += [f"missing {r} {p}" for r, p in sorted(expected - actual)]
+        problems += [f"unexpected {r} {p}" for r, p in sorted(actual - expected)]
+        if problems:
+            failed += 1
+            print(f"FAIL {show(path)}: " + "; ".join(problems))
+        else:
+            print(f"ok   {show(path)}: {first.group(2)} {first.group(3)}")
+    print(f"{len(paths) - failed} passed, {failed} failed, {len(paths)} invalid examples")
+    return failed
 
 
 # ---------------------------------------------------------------- CLI
@@ -561,6 +644,7 @@ def main() -> None:
         ("load", "load documents (default: every example) into Neo4j, replacing what is there"),
         ("export", "write loaded documents back to their YAML files"),
         ("check", "run the Cypher rules in harness/rules against loaded documents"),
+        ("test", "run each invalid example (default: review/examples/invalid) and expect exactly the rule it names"),
     ]:
         sp = sub.add_parser(name, help=helptext)
         sp.add_argument("docs", nargs="*", help="example names (e.g. openemr) or YAML paths")
@@ -582,6 +666,11 @@ def main() -> None:
                 print(f"loaded {load_doc(s, path, entities)} from {show(path)}")
             link_imports(s)
             return
+        if args.cmd == "test":
+            load_meta(s, entities)
+            paths = [Path(d).resolve() if Path(d).suffix else INVALID / f"{d}.yaml" for d in args.docs] \
+                or sorted(INVALID.glob("*.yaml"))
+            sys.exit(1 if test(s, entities, paths) else 0)
         docs = [Path(d).stem for d in args.docs] or [
             r["doc"] for r in s.run("MATCH (d:Document) RETURN d.doc AS doc ORDER BY doc")]
         if args.cmd == "export":

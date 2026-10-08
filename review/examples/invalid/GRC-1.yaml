@@ -1,0 +1,8 @@
+# breaks: GRC-1 /influencers/i
+intentSpec: "0.1"
+id: grc-1
+version: 0.1.0
+stage: proposed
+
+influencers:
+  i: {kinds: [regulatory], scopeRationale: We process card data}

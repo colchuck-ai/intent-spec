@@ -1,0 +1,15 @@
+# breaks: DFD-13 /processes/pr
+intentSpec: "0.1"
+id: dfd-13
+version: 0.1.0
+stage: proposed
+
+systems:
+  s: {name: Shop, description: The web shop, owner: Shop team}
+containers:
+  c: {in: s, kind: application, name: Web app, description: Serves the shop, technology: Python}
+processes:
+  pr: {label: Web app}
+trustBoundaries:
+  tb1: {label: Server, crossing: HTTPS only, relies: [c], encloses: [pr]}
+  tb2: {label: Office, crossing: VPN only, relies: [c], encloses: [pr]}

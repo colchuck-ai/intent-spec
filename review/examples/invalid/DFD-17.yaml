@@ -1,0 +1,11 @@
+# breaks: DFD-17 /dataFlowDiagrams/d
+# A context-level DFD that includes no process.
+intentSpec: "0.1"
+id: dfd-17
+version: 0.1.0
+stage: proposed
+
+systems:
+  s: {name: Shop, description: The web shop}
+dataFlowDiagrams:
+  d: {level: context, depicts: s}

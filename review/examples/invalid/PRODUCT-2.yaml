@@ -1,0 +1,12 @@
+# breaks: PRODUCT-2 /jobs/j
+intentSpec: "0.1"
+id: product-2
+version: 0.1.0
+stage: ratified
+
+products:
+  p: {targets: [j]}
+jobExecutors:
+  e: {description: Shop owner}
+jobs:
+  j: {statement: Know what sold this week, motivates: e}

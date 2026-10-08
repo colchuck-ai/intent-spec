@@ -1,0 +1,10 @@
+# breaks: DFD-4 /processes/pr
+intentSpec: "0.1"
+id: dfd-4
+version: 0.1.0
+stage: proposed
+
+systems:
+  s: {name: Payments, description: Card payments provider, external: true}
+processes:
+  pr: {label: Payments, represents: s}

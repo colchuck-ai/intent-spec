@@ -1,0 +1,8 @@
+# breaks: PRODUCT-6 /requirements/q
+intentSpec: "0.1"
+id: product-6
+version: 0.1.0
+stage: proposed
+
+requirements:
+  q: {statement: Weekly sales report, verification: Demo}

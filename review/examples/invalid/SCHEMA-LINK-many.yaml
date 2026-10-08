@@ -1,0 +1,12 @@
+# breaks: SCHEMA-LINK /jobs/j
+# A to-one link (motivates) with two targets.
+intentSpec: "0.1"
+id: schema-link-many
+version: 0.1.0
+stage: proposed
+
+jobExecutors:
+  e1: {description: Shop owner}
+  e2: {description: Shop manager}
+jobs:
+  j: {statement: Know what sold this week, motivates: [e1, e2]}

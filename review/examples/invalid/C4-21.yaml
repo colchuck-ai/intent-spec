@@ -1,0 +1,8 @@
+# breaks: C4-21 /deploymentNodes/n
+intentSpec: "0.1"
+id: c4-21
+version: 0.1.0
+stage: proposed
+
+deploymentNodes:
+  n: {technology: Ubuntu}

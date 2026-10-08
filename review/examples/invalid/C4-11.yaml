@@ -1,0 +1,10 @@
+# breaks: C4-11 /relationships/r
+intentSpec: "0.1"
+id: c4-11
+version: 0.1.0
+stage: proposed
+
+people:
+  a: {name: Shopper, description: Buys things}
+relationships:
+  r: {leaves: a, enters: a, technology: Phone}

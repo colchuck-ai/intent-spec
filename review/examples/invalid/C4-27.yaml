@@ -1,0 +1,26 @@
+# breaks: C4-27 /requirements/q
+# q is satisfied only by a node in staging, not in prod, which dg covers.
+intentSpec: "0.1"
+id: c4-27
+version: 0.1.0
+stage: ratified
+
+products:
+  p: {targets: [j]}
+jobExecutors:
+  e: {description: Shop owner}
+jobs:
+  j: {statement: Know what sold this week, motivates: e}
+outcomes:
+  o: {in: j, statement: Minimize the time to see weekly sales}
+requirements:
+  q: {statement: Weekly sales report, verification: Demo, serves: [o]}
+systems:
+  s: {name: Shop, description: The web shop, owner: Shop team}
+environments:
+  prod: {serves: [p]}
+  staging: {serves: [p]}
+deploymentNodes:
+  staging-host: {belongs: staging, satisfies: [q]}
+deploymentDiagrams:
+  dg: {depicts: [s], covers: prod}

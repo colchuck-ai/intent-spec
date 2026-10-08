@@ -1,0 +1,22 @@
+# breaks: GRC-3 /assessmentObjectives/ao
+# ao verifies std2, which ctl does not enforce.
+intentSpec: "0.1"
+id: grc-3
+version: 0.1.0
+stage: proposed
+
+influencers:
+  inf: {kinds: [internal], scopeRationale: The founders require it}
+policies:
+  pol: {statement: Protect customer data, approver: Founders, satisfies: [inf]}
+controlObjectives:
+  co: {statement: Customer data is protected, supports: [pol]}
+standards:
+  std: {statement: Encrypt customer data at rest, addresses: [co]}
+  std2: {statement: Rotate keys yearly, addresses: [co]}
+controls:
+  ctl: {statement: Disks are encrypted, owner: Ops lead, safeguard: technical, enforces: [std], achieves: [co]}
+  ctl2: {statement: Keys are rotated, owner: Ops lead, safeguard: technical, enforces: [std2], achieves: [co]}
+assessmentObjectives:
+  ao: {assesses: ctl, verifies: [std2], methods: [examine], evidence: Disk configuration}
+  ao2: {assesses: ctl2, verifies: [std2], methods: [examine], evidence: Key rotation log}

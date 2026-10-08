@@ -1,0 +1,20 @@
+# breaks: GRC-25 /systems/s
+intentSpec: "0.1"
+id: grc-25
+version: 0.1.0
+stage: proposed
+
+systems:
+  s: {name: Payments, description: Card payments provider, external: true}
+externalReferences:
+  law: {title: Card data law}
+influencers:
+  i: {kinds: [statutory], scopeRationale: We handle card data, cites: law}
+dataElements:
+  card: {classification: restricted, triggers: [i]}
+externalEntities:
+  x: {label: Payments, represents: s}
+processes:
+  pr: {label: Checkout}
+dataFlows:
+  f: {label: Card details, connects: [x, pr], carries: [card]}

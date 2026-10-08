@@ -1,0 +1,27 @@
+# breaks: GRC-14 /adoptions/a
+intentSpec: "0.1"
+id: grc-14
+version: 0.1.0
+stage: proposed
+
+influencers:
+  inf: {kinds: [internal], scopeRationale: The founders require it}
+policies:
+  pol: {statement: Protect customer data, approver: Founders, satisfies: [inf]}
+controlObjectives:
+  co: {statement: Customer data is protected, supports: [pol]}
+standards:
+  std: {statement: Encrypt customer data at rest, addresses: [co]}
+controls:
+  ctl: {statement: Disks are encrypted, owner: Ops lead, safeguard: technical, enforces: [std], achieves: [co]}
+  ctl2: {statement: Backups are encrypted, owner: Ops lead, safeguard: technical, enforces: [std], achieves: [co]}
+assessmentObjectives:
+  ao: {assesses: ctl, verifies: [std], methods: [examine], evidence: Disk configuration}
+  ao2: {assesses: ctl2, verifies: [std], methods: [examine], evidence: Backup configuration}
+products:
+  p: {}
+procedures:
+  proc: {steps: Check the backups, owner: Ops lead, overseer: Founders, operationalizes: ctl2}
+adoptions:
+  a1: {mode: procedure, adopts: ctl2, governs: p, follows: [proc], owner: Ops lead}
+  a: {mode: inherited, adopts: ctl, governs: p, decidedBy: Founders, inherits: a1}

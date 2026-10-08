@@ -1,0 +1,10 @@
+# breaks: DFD-21 /trustBoundaries/tb
+intentSpec: "0.1"
+id: dfd-21
+version: 0.1.0
+stage: proposed
+
+systems:
+  s: {name: Shop, description: The web shop}
+trustBoundaries:
+  tb: {label: Server, crossing: HTTPS only, relies: [s]}

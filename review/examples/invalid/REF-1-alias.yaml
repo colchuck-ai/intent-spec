@@ -1,0 +1,9 @@
+# breaks: REF-1 /products/p
+# The alias nope is not in imports.
+intentSpec: "0.1"
+id: ref-1-alias
+version: 0.1.0
+stage: proposed
+
+products:
+  p: {targets: [nope:ghost]}

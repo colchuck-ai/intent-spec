@@ -23,3 +23,5 @@ There is no schema yet. These documents follow the reference serialization appen
 - Every other top-level key is an entity type in camelCase plural (`jobs`, `people`, `dataFlows`), mapping item IDs to items. Nothing nests: containment is the `in` link on the contained item, and an item's JSON pointer is `/<type>/<id>`.
 - IDs are kebab-case and unique across the whole document. A reference is a local ID, an `alias:id` from `imports`, or the ID of an item in `externalReferences`.
 - Links are fields named after the ERD verb, holding one reference when to-one and a list when to-many.
+
+`invalid/` holds one small document per rule that breaks it, used as the harness's rule regression tests (see `invalid/README.md`). They are not examples of the model and are not loaded with these.
