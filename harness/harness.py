@@ -31,6 +31,7 @@ from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
 ROOT = Path(__file__).resolve().parent.parent
 ERD = ROOT / "erd.md"
+MODEL = ROOT / "model.md"
 EXAMPLES = ROOT / "review" / "examples"
 INVALID = EXAMPLES / "invalid"
 RULES = Path(__file__).resolve().parent / "rules"
@@ -138,6 +139,7 @@ def parse_rule_ids(path: Path = ERD) -> dict[str, str]:
 
 NON_AREAS = {"Overview", "Conventions", "Reference serialization"}
 ANCHOR_RE = re.compile(r"^Anchor:\s*(\w+)")
+ANCHOR_WORDS = ["exact", "close", "broad", "narrow", "related", "added", "departure"]
 ENUM_TYPE_RE = re.compile(r"^enum(\[\])?\s*\((.*)\)$")
 # Cardinality words to Mermaid markers: target side, then source side ("each target has ...").
 RIGHT = {"exactly one": "||", "zero or one": "o|", "zero or more": "o{", "one or more": "|{"}
@@ -222,6 +224,178 @@ def parse_model(path: Path) -> Model:
             continue
         i += 1
     return m
+
+
+# ---------------------------------------------------------------- lint
+
+
+def lint(path: Path, rules_dir: Path, invalid_dir: Path) -> list[str]:
+    """Shape problems in model.md, one line each: '<CHECK-ID> <location>: <message>'."""
+    lines = path.read_text().splitlines()
+    out: list[str] = []
+    sections = [l[3:].strip() for l in lines if l.startswith("## ")]
+    for name in ("Overview", "Conventions"):
+        if name not in sections:
+            out.append(f"MD-SECTIONS model: missing section {name}")
+    if sections[:2] != ["Overview", "Conventions"] and {"Overview", "Conventions"} <= set(sections):
+        out.append("MD-SECTIONS model: Overview must come first, then Conventions")
+    if not [s for s in sections if s not in NON_AREAS]:
+        out.append("MD-SECTIONS model: no area sections")
+    sections_ = element_sections(lines)
+    seen: set[str] = set()
+    for name, _ in sections_:
+        if not re.fullmatch(r"[A-Z_]+", name):
+            out.append(f"MD-NAME {name}: element names match ^[A-Z_]+$")
+        if name in seen:
+            out.append(f"MD-NAME {name}: element appears more than once")
+        seen.add(name)
+    for name, body in sections_:
+        out += lint_tables(name, body)
+        for i, l in enumerate(body):
+            if l.strip() == LINK_HEADER:
+                for row in table_rows(body, i)[0]:
+                    if len(row) != 4:
+                        continue
+                    verb, targets = row[0], row[1]
+                    if not re.fullmatch(r"[a-z][A-Za-z]*", verb):
+                        out.append(f"MD-VERB {name}.{verb}: a link verb is one word")
+                    for t in targets.split(" or "):
+                        if t.strip() not in seen:
+                            out.append(f"MD-TARGET {name}.{verb}: no element {t.strip()}")
+    out += lint_rules(lines)
+    out += lint_queries(lines, rules_dir, invalid_dir)
+    for name, body in sections_:
+        prose = [l for l in body if l.strip() and not l.startswith(("|", "- ", "**", "Anchor:", "Attributes: none", "Links: none"))]
+        if not prose:
+            out.append(f"MD-ELEMENT {name}: no definition")
+        anchors = [m for l in body if (m := ANCHOR_RE.match(l))]
+        if not anchors:
+            out.append(f"MD-ELEMENT {name}: no Anchor line")
+        for a in anchors:
+            word = a.group(1)
+            if word not in ANCHOR_WORDS:
+                out.append(f"MD-ANCHOR {name}: anchor is {', '.join(ANCHOR_WORDS[:-1])} or {ANCHOR_WORDS[-1]}, not {word}")
+            elif word == "departure" and not re.search(r"\(decision: [\w-]+\)", a.string):
+                out.append(f"MD-ANCHOR {name}: a departure names its decision as (decision: <bead id>)")
+        for kind in ("Attributes", "Links"):
+            header = "| Attribute |" if kind == "Attributes" else "| Link |"
+            if not any(l.startswith(header) or l.startswith(f"{kind}: none") for l in body):
+                out.append(f"MD-ELEMENT {name}: no {kind} table (or '{kind}: none.')")
+    return out
+
+
+ATTR_HEADER = "| Attribute | Type | Required | Meaning |"
+LINK_HEADER = "| Link | Target | Cardinality | Meaning |"
+TYPE_RE = re.compile(r"^(string|int|date|boolean|map|enum\s*\([^)]*\))(\[\])?$|^enum\[\]\s*\([^)]*\)$")
+CARD_WORDS = "exactly one|zero or one|zero or more|one or more"
+CARD_RE = re.compile(rf"^({CARD_WORDS})(; each target has ({CARD_WORDS}))?$")
+
+
+def lint_tables(name: str, body: list[str]) -> list[str]:
+    out = []
+    for i, l in enumerate(body):
+        if not (l.startswith("| Attribute") or l.startswith("| Link")) or (i and body[i - 1].startswith("|")):
+            continue
+        kind, header = ("Attributes", ATTR_HEADER) if l.startswith("| Attribute") else ("Links", LINK_HEADER)
+        if l.strip() != header:
+            out.append(f"MD-TABLE {name}: {kind} header must be {header}")
+            continue
+        rows, _ = table_rows(body, i)
+        for row in rows:
+            if len(row) != 4:
+                out.append(f"MD-TABLE {name}: {kind} row needs 4 cells: {'|'.join(row)}")
+                continue
+            if kind == "Attributes":
+                attr, typ, req, _ = row
+                if not TYPE_RE.match(typ):
+                    out.append(f"MD-TABLE {name}.{attr}: unknown type {typ}")
+                if req not in ("yes", "no", "one or more") and not req.startswith(("when ", "unless ")):
+                    out.append(f"MD-TABLE {name}.{attr}: Required is yes, no, one or more, or starts with 'when ' or 'unless '")
+            else:
+                verb, _, card, _ = row
+                if not CARD_RE.match(card):
+                    out.append(f"MD-TABLE {name}.{verb}: Cardinality is exactly one, zero or one, zero or more or one or more, "
+                               "optionally '; each target has <one of those>'")
+    return out
+
+
+def rule_items(lines: list[str]) -> list[tuple[str, str, str]]:
+    """(location, list kind, line) for every bullet under a **Rules** or **Derived** heading."""
+    out, loc, listing = [], "", ""
+    for l in lines:
+        if l.startswith("## ") or l.startswith("### "):
+            loc, listing = l.lstrip("#").strip(), ""
+        elif l in ("**Rules**", "**Derived**", "**Guidance**"):
+            listing = l.strip("*")
+        elif l.startswith("- ") and listing in ("Rules", "Derived"):
+            out.append((loc, listing, l))
+    return out
+
+
+def lint_rules(lines: list[str]) -> list[str]:
+    out, seen, statements = [], set(), {}
+    retired = [x.strip() for l in lines if (m := ID_LIST_RE.match(l)) and m.group(1) == "Retired"
+               for x in m.group(2).split(",")]
+    for loc, listing, l in rule_items(lines):
+        m = RULE_ITEM_RE.match(l)
+        if not m or (listing == "Rules") != bool(m.group(2)):
+            out.append(f"MD-RULE {loc}: malformed rule item: {l}")
+            continue
+        rid = m.group(1)
+        if rid in seen:
+            out.append(f"MD-RULE {rid}: ID used more than once")
+        if rid in retired:
+            out.append(f"MD-RULE {rid}: retired ID reused")
+        seen.add(rid)
+        statements[rid] = m.group(3)
+    for rid, text in statements.items():
+        for cited in re.findall(r"\[([A-Z0-9]+-\d+)\]", text):
+            if cited not in seen:
+                out.append(f"MD-CITE {rid}: cites unknown ID {cited}")
+    return out
+
+
+def lint_queries(lines: list[str], rules_dir: Path, invalid_dir: Path) -> list[str]:
+    lists = {m.group(1): [x.strip() for x in m.group(2).split(",") if x.strip()]
+             for l in lines if (m := ID_LIST_RE.match(l))}
+    unchecked, generated = set(lists.get("Not checked by a query", [])), set(lists.get("Generated checks", []))
+    rules = [m.group(1) for _, kind, l in rule_items(lines) if kind == "Rules" and (m := RULE_ITEM_RE.match(l))]
+    queries = {dict(re.findall(r"^//\s*(\w+):\s*(.+)$", f.read_text(), re.M)).get("id", f.stem)
+               for f in rules_dir.glob("*.cypher")}
+    broken = {m.group(1) for f in invalid_dir.glob("*.yaml")
+              if (m := re.match(r"#\s*breaks:\s*(\S+)", f.read_text()))}
+    out = []
+    for rid in rules:
+        if rid in unchecked:
+            if rid in queries:
+                out.append(f"MD-QUERY {rid}: listed as not checked by a query, but has a query file")
+            continue
+        if rid not in queries:
+            out.append(f"MD-QUERY {rid}: no query file in the rules directory")
+        if rid not in broken:
+            out.append(f"MD-QUERY {rid}: no invalid example names it")
+    for q in sorted(queries - set(rules) - generated):
+        out.append(f"MD-QUERY {q}: query file has no rule in the model")
+    for g in sorted(generated - broken):
+        out.append(f"MD-QUERY {g}: no invalid example names it")
+    return out
+
+
+def element_sections(lines: list[str]) -> list[tuple[str, list[str]]]:
+    """(name, body lines) for every ### element under an area section."""
+    out, area, name, body = [], "", None, []
+    for l in lines + ["## end"]:
+        if l.startswith("## ") or l.startswith("### "):
+            if name is not None:
+                out.append((name, body))
+            name, body = None, []
+            if l.startswith("## "):
+                area = l[3:].strip()
+            elif area not in NON_AREAS:
+                name = l[4:].strip()
+        elif name is not None:
+            body.append(l)
+    return out
 
 
 def rel_type(verb: str) -> str:
@@ -746,7 +920,17 @@ def main() -> None:
         if name == "check":
             sp.add_argument("--rules", help="comma-separated rule ids to run (default: all)")
     sub.add_parser("meta", help="load only the ERD meta-graph")
+    lp = sub.add_parser("lint", help="check model.md keeps its shape")
+    lp.add_argument("model", nargs="?", default=str(MODEL))
+    lp.add_argument("--rules", default=str(RULES), help="directory of rule queries")
+    lp.add_argument("--invalid", default=str(INVALID), help="directory of invalid examples")
     args = p.parse_args()
+
+    if args.cmd == "lint":
+        problems = lint(Path(args.model), Path(args.rules), Path(args.invalid))
+        for line in problems:
+            print(line)
+        sys.exit(1 if problems else 0)
 
     entities = parse_erd()
     with GraphDatabase.driver(URI, auth=AUTH, notifications_min_severity="OFF") as driver, driver.session() as s:
