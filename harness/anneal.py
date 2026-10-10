@@ -548,6 +548,12 @@ def cmd_end(state: dict) -> None:
     print(summary)
 
 
+def changed_elements(old: Path, new: Path) -> list[str]:
+    """Elements of `new` that are added or whose section differs from `old`, in `new`'s order."""
+    before = {n: "\n".join(b).strip() for n, b in h.element_sections(old.read_text().splitlines())}
+    return [n for n, b in h.element_sections(new.read_text().splitlines()) if before.get(n) != "\n".join(b).strip()]
+
+
 def main() -> None:
     p = argparse.ArgumentParser(prog="anneal", description=__doc__.split("\n")[0])
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -562,7 +568,13 @@ def main() -> None:
     sub.add_parser("end")
     sub.add_parser("reset-to-best")
     sub.add_parser("energy", help="print the energy of the current model on the benchmark")
+    ev = sub.add_parser("eval", help="list the elements to evaluate: added or changed since the old model")
+    ev.add_argument("--old", default=str(BEST / "model.md"), help="default: the best copy")
+    ev.add_argument("--new", default=str(h.MODEL))
     args = p.parse_args()
+    if args.cmd == "eval":
+        print("\n".join(changed_elements(Path(args.old), Path(args.new))))
+        return
     state = load_state()
     if args.cmd == "status":
         cmd_status(state)
