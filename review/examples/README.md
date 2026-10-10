@@ -17,11 +17,11 @@ The documents were written by one neutral author from public information. They a
 
 ## Shape
 
-There is no schema yet. These documents follow the reference serialization appendix of `erd.md`, which fixes the top-level keys, the ID pattern, the reference syntax and when a field holds one value or a list. In short:
+There is no schema yet. These documents follow the reference serialization section of `model.md`, which fixes the top-level keys, the ID pattern, the reference syntax and when a field holds one value or a list. In short:
 
 - The header holds the `DOCUMENT` fields: `intentSpec`, `id`, `version` and `stage`. Imports, when present, go in `imports`, a map from alias to `{source, version}`.
 - Every other top-level key is an entity type in camelCase plural (`jobs`, `people`, `dataFlows`), mapping item IDs to items. Nothing nests: containment is the `in` link on the contained item, and an item's JSON pointer is `/<type>/<id>`.
 - IDs are kebab-case and unique across the whole document. A reference is a local ID, an `alias:id` from `imports`, or the ID of an item in `externalReferences`.
-- Links are fields named after the ERD verb, holding one reference when to-one and a list when to-many.
+- Links are fields named after the model's link verb, holding one reference when to-one and a list when to-many.
 
 `invalid/` holds one small document per rule that breaks it, used as the harness's rule regression tests (see `invalid/README.md`). They are not examples of the model and are not loaded with these.

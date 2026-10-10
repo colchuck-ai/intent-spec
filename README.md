@@ -16,6 +16,15 @@ The model should be:
 
 The model is the deliverable. How it is stored, whether as YAML files, SQL tables or a graph database, is not.
 
+## What a solution contains
+
+A solution, the thing the search changes and keeps a best copy of, is two things:
+
+- **[model.md](model.md), the model.** An overview diagram generated from the rest, then one section per element (entity type) that gives its definition, its anchor to the source model (INV-9), its attributes, its links and the rules checked from it. Structure, meaning and rules sit together, so a change to an element touches one place. `harness.py lint` checks the file keeps this shape.
+- **[review/examples](review/examples), the examples the model is fitted to.** Fixers change them together with the model, so they belong to the solution.
+
+The rest is how a solution is tested, not part of it: the Cypher queries in [harness/rules](harness/rules) are one checker for one kind of storage (INV-11), and the invalid examples in `review/examples/invalid` are regression tests, one per rule.
+
 ## How we get there
 
 We treat the design as a search for the best model, not the first one that works. A model that fits the few products checked so far can sit in a local minimum: every finding against it looks fixed, but only because nothing has pushed on it from a new direction. A search that only ever moves downhill stops in the first dip it finds.
@@ -28,7 +37,7 @@ The process is being rebuilt around this design. A harness (`anneal/`) makes eve
 
 ### The parts
 
-**State.** One current model: [erd.md](erd.md) and its rules. A copy of the best model found so far is kept next to it, together with the examples that match it, so the search can always return to it.
+**State.** One current model: [model.md](model.md). A copy of the best model found so far is kept next to it, together with the examples that match it, so the search can always return to it.
 
 **Energy.** One number for how far the model is from where it should be, computed the same way every round:
 
@@ -39,7 +48,7 @@ E = 10·P1 + 3·P2 + 1·P3       open accepted findings against the model
   + 50·departures             places the model leaves JTBD, C4, DFD3 or HCGF
 ```
 
-Departures are weighted far above a P1, so leaving an established model pays off only when it resolves several P1s' worth of findings (INV-9, INV-10). Each departure is declared in the ERD, so the count is mechanical.
+Departures are weighted far above a P1, so leaving an established model pays off only when it resolves several P1s' worth of findings (INV-9, INV-10). Each departure is declared on its element's `Anchor:` line in the model, so the count is mechanical.
 
 **Benchmark and probe.** Energy is measured on the **benchmark**, the examples the model has already been fitted to. Each round also adds one **probe**: a software product the fixers have never seen. Its energy is reported separately, because it shows whether the model generalizes or has only been fitted to what it has seen. After its round the probe joins the benchmark. Probes come from a pinned snapshot of [awesome-selfhosted-data](https://github.com/awesome-selfhosted/awesome-selfhosted-data): 1,353 open-source products across 95 tags such as CRM, health, money, e-commerce, IoT and generative AI ([anneal/products-2026-10-08.json](anneal), CC BY-SA 3.0). Open source matters, because the author of a probe models it from the product's own public docs, code and security pages. A mechanical rule decides eligibility: not archived, at least 1,000 stars, updated in the past year. That leaves 729 products in 82 tags. Each draw picks a tag first and then a product within it, from a seeded shuffle without replacement, so probes spread across domains rather than following popularity, and the order can be replayed.
 
@@ -86,7 +95,7 @@ flowchart TD
 
 | What | Where | Why |
 |---|---|---|
-| The current model and examples | `erd.md`, `harness/rules`, `review/examples` | the state being annealed |
+| The current model and examples | `model.md`, `harness/rules`, `review/examples` | the state being annealed |
 | The best model so far | `anneal/best/` (model, rules and matching examples) | to compare or reset without git archaeology |
 | Round, temperature, seed, probe cursor, energy history | `anneal/state.json` | so every mechanical step can be replayed |
 | The company snapshot and eligibility | `anneal/companies-*.json` | the source of probes |
@@ -98,7 +107,7 @@ Everything else is derived. All of it lives in git, so the orchestrating agent k
 
 ## Repository
 
-- [erd.md](erd.md): the model, which holds its entities, links and rules.
+- [model.md](model.md): the model: structure, meaning and rules, one section per element.
 - [review](review): example companies, reviewer personas and the review loop.
 - [harness](harness): the Neo4j test harness and the rules written as Cypher.
 - [anneal](anneal): the annealing state, the best model so far and the company snapshot.

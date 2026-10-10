@@ -1,6 +1,6 @@
 # Writing rules
 
-Each rule in `../../erd.md` (`%% rule SECTION-n: ...`) is one file here, `SECTION-n.cypher`, holding one Cypher query.
+Each rule in `../../model.md` (a `- **AREA-n** (error|warning): ...` item) is one file here, `AREA-n.cypher`, holding one Cypher query. `harness.py lint` checks that every rule has a query and an invalid example, and every query has a rule.
 
 ## File format
 
@@ -13,7 +13,7 @@ RETURN '/<key>/' + n.id AS pointer, '<what is wrong>' AS detail
 ```
 
 - **severity** is `warning` for a rule marked `(should)` and `error` for every other rule.
-- The query receives `$doc` and returns one row per problem. `pointer` is the item's JSON pointer `/<key>/<id>` (erd.md, reference serialization). Get `<key>` from `(:EntityType {name: n.type}).key`, or write it literally when the type is fixed. `detail` is optional.
+- The query receives `$doc` and returns one row per problem. `pointer` is the item's JSON pointer `/<key>/<id>` (model.md, reference serialization). Get `<key>` from `(:EntityType {name: n.type}).key`, or write it literally when the type is fixed. `detail` is optional.
 - Match only items in the document: `(n:Item {doc: $doc})`, or a label such as `(:Product {doc: $doc})`.
 
 ## Mapping reminders
@@ -45,5 +45,5 @@ The example documents are shared, so never change their nodes. To test:
 Finally, run your rules on all the examples: `uv run harness.py load`, then `uv run harness.py check --rules <ids>`. When a rule flags an example, decide which side is wrong:
 
 - **The rule is wrong:** fix the rule.
-- **The example or the ERD is wrong:** don't edit either. File a bead from `intent-spec/review`:
+- **The example or the model is wrong:** don't edit either. File a bead from `intent-spec/review`:
   `bd create --type task --priority P2 --labels harness-finding,rule:<ID> --title "<doc> <pointer>: <problem>" --description "<rule text, what the graph shows, suggested fix>"`

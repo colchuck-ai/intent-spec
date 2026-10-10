@@ -1,6 +1,6 @@
 # Invalid examples
 
-Rule regression tests for the harness. Each document here breaks one rule in `../../../erd.md` (or one of the harness's SCHEMA checks) and is otherwise valid, kept as small as the rule allows. They are not examples of the model, and `load` and `check` never read them.
+Rule regression tests for the harness. Each document here breaks one rule in `../../../model.md` (or one of the harness's SCHEMA checks) and is otherwise valid, kept as small as the rule allows. They are not examples of the model, and `load` and `check` never read them.
 
 The first line names the rule and the pointer where it fires:
 
