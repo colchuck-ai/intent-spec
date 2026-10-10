@@ -90,3 +90,19 @@ def test_without_replacement_and_tag_spread():
 def test_panel_prefers_unseen():
     p = a.draw_panel(["x"], [], 0, ["e1", "e2", "e3"], {"x": {"e1", "e2"}}, 1, "s", 1)
     assert p["x"] == ["e3"]
+
+
+FIX = Path(__file__).resolve().parent / "fixtures" / "model"
+
+
+def test_model_size_counts_elements_links_and_rules():
+    assert a.model_size(FIX / "clean.md") == {"entities": 5, "links": 4, "rules": 4, "size": 13}
+
+
+def test_departures_count_declared_anchor_departures(tmp_path):
+    assert a.departures(FIX / "clean.md") == 0
+    text = (FIX / "clean.md").read_text().replace(
+        "Anchor: exact — JTBD job.", "Anchor: departure — JTBD job, stored per product (decision: review-abc).")
+    path = tmp_path / "model.md"
+    path.write_text(text)
+    assert a.departures(path) == 1

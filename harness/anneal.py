@@ -28,7 +28,7 @@ FORMULA = "anneal-round"
 
 TEMPS = ["frozen", "cool", "warm", "hot"]  # coldest first
 SIZES = ["local", "additive", "structural", "unifying"]
-DEPARTURE_RE = re.compile(r"^\s*%%\s*departure\s+DEP-\d+", re.M)
+DEPARTURE_RE = re.compile(r"^Anchor:\s*departure\b", re.M)
 STEPS = ["author", "review", "triage", "measure", "explore", "anneal", "end"]
 
 
@@ -194,16 +194,17 @@ def count_priorities(rows: list[dict]) -> dict:
     return {f"P{p}": sum(1 for r in rows if r.get("priority") == p) for p in (1, 2, 3)}
 
 
-def model_size() -> dict:
-    model = h.parse_model(h.MODEL)
+def model_size(path: Path = h.MODEL) -> dict:
+    model = h.parse_model(path)
     entities = model.entities
     links = sum(len(l.targets) for e in entities.values() for l in e.links.values())
     rules = len(model.rules)
     return {"entities": len(entities), "links": links, "rules": rules, "size": len(entities) + links + rules}
 
 
-def departures() -> int:
-    return len(DEPARTURE_RE.findall(h.MODEL.read_text()))
+def departures(path: Path = h.MODEL) -> int:
+    """Elements whose Anchor line declares a departure from their source model."""
+    return len(DEPARTURE_RE.findall(path.read_text()))
 
 
 def harness_errors(examples: list[str]) -> int:
