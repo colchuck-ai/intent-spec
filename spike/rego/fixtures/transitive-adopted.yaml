@@ -1,0 +1,14 @@
+# Valid: the same product adopts mfa, naming it through its own import of acme-corp
+# (a diamond: acme-corp is reached directly and through acme-line).
+intentSpec: "0.1"
+id: transitive-adopted
+version: 0.1.0
+stage: proposed
+imports:
+  line: {source: lib/acme-line.yaml, version: ^1.0.0}
+  corp: {source: lib/acme-corp.yaml, version: ^1.0.0}
+
+products:
+  p: {selects: [line:line-baseline]}
+adoptions:
+  a: {mode: system, adopts: corp:mfa, governs: p, owner: Ops lead}

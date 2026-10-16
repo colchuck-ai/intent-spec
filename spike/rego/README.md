@@ -2,10 +2,12 @@
 
 Throwaway port of five hard rules from `harness/rules/*.cypher` to Rego, to decide go/no-go on ADR-001 before the full port. Not the spec layout: phase 2a sets that up.
 
+There are two variants of the same rules. `rules/` (**scoped**) is the first port, over ADR-001's `{document, imports: {alias: doc}}`: each rule resolves references itself. `resolved/` (**resolve-then-check**) resolves once, into a graph, and the rules read only the graph. See [Resolve-then-check](#resolve-then-check) for the comparison.
+
 ```bash
 brew install opa                                                   # 1.21.2
-uv run --no-project --python 3.12 --with ruamel.yaml python spike/rego/run.py
-opa test spike/rego/rules spike/rego/model.json -v
+uv run --no-project --python 3.12 --with ruamel.yaml python spike/rego/run.py resolved   # or: scoped
+opa test spike/rego/resolved spike/rego/model.json -v              # or: spike/rego/rules
 cd harness && uv run python ../spike/rego/gen_model.py             # regenerate model.json from erd.md
 ```
 
@@ -16,7 +18,10 @@ cd harness && uv run python ../spike/rego/gen_model.py             # regenerate 
 | `rules/{grc,dfd,risk,ref}.rego` | One package per area; each rule is one `violation` body with OPA METADATA (title = ID, description, custom.severity, custom.hint) |
 | `rules/spike_test.rego` | `opa test` cases for GRC-31 on its own and for waivers |
 | `model.json` | Item types and link fields, generated from erd.md (stand-in for the JSON Schema) |
-| `run.py` | Builds `{document, imports}` per example, runs `opa eval`, compares with `# breaks:`/`# also:` |
+| `resolved/lib/graph.rego` | Resolve: every fetched document into `items[<doc>:<id>]` with resolved `links` and `stage`; reports REF-1 |
+| `resolved/{grc,dfd,risk,ref}.rego`, `resolved/lib/report.rego`, `resolved/spike_test.rego` | The same rules, report and tests, over the graph |
+| `fixtures/` | `GRC-10-transitive` (a baseline two imports away) and `transitive-adopted` (the same, adopted, through a diamond), with their governance documents in `fixtures/lib/` |
+| `run.py` | Builds the variant's input per document, runs `opa eval`, compares with `# breaks:`/`# also:` |
 
 ## Results (2026-10-15)
 
@@ -61,3 +66,74 @@ The caller resolves imports. `run.py` builds `{document, imports: {alias: doc}}`
 ## Recommendation
 
 **Go.** All five rules ported, and every example matches. The hardest parts (closure over profile imports, cross-document resolution, containment chains, waivers) each fit in a few lines over a small shared library. Before the full port (phase 2c), decide gap 1 and settle gap 3 in the schema work (2b).
+
+## Resolve-then-check
+
+The first port showed most of the gaps above coming from one design choice: rules ran on the authoring format, where references are strings, aliases are local to their document and links are ordinary fields. In the harness, those ~110 lines of loading were done by `harness.py` before any Cypher ran. The second variant moves that work into one Rego package that every rule reads.
+
+**Input.** `{document: <id>, documents: {<id>: doc}, aliases: {<id>: {<alias>: <id>}}}`. The caller fetches the whole import closure, one version per document id (`run.py` stops with an error on two versions of one document), and records which fetched document each alias names. That is the same walk it already did to fetch the imports.
+
+**Resolve** (`resolved/lib/graph.rego`, 58 lines of code). Every item of every fetched document becomes `items["<doc>:<id>"] = {doc, type, id, stage, item, links: [{verb, to, ref}]}`. Stage is resolved (DOC-2) and absent on external references. Every link's `to` is the global id of an item, because a reference that names nothing is not a link: it is a REF-1 finding. Only this package reads aliases, raw link fields or `data.model`. **Check:** if REF-1 found anything, the report holds only those findings, as a compiler stops after name resolution. Otherwise it holds every rule's findings.
+
+### Results
+
+| | scoped | resolved |
+|---|---|---|
+| 104 examples (8 valid, 96 invalid) | pass | pass |
+| `fixtures/GRC-10-transitive` | **FAIL** (misses GRC-10: silent false negative) | pass |
+| `fixtures/transitive-adopted` (diamond) | pass | pass |
+| REF-1 (3 invalid examples) | not ported | ported in the resolve step, pass |
+| `opa test` (GRC-31, waivers) | 6/6 | 6/6 |
+| openemr, findings / time | 0 / 0.02 s | 0 / 0.02 s |
+
+### What the rules look like
+
+Lines of code (no comments or blanks): GRC 41 → 31, DFD 23 → 18, RISK 27 → 26, REF 12 → 12. The resolve step (58) is bigger than the scoped helper library (33) because it now does everything, REF-1 included. Mentions of scope, `split`, `contains` or `refs` in the rules: 19 → 0.
+
+DFD-8, scoped:
+
+```rego
+some rid in ref.refs(flow, "represents")
+relationship := input.document.relationships[rid]
+some eid in ref.refs(flow, "connects")
+e := local(eid).item
+
+# REF-2/REF-5: skip ends and relationship ends that are imported or unresolved
+every x in ref.refs(e, "represents") { local(x) }
+every z in ends(relationship) { local(z) }
+
+not represents_end(e, relationship)
+```
+
+DFD-8, resolved:
+
+```rego
+some relationship in g.out(flow, "represents")
+some e in g.out(flow, "connects")
+not represents_end(e, relationship)
+```
+
+REF-3, resolved: a ratified local item, one of its links, a proposed target. The import case needs no code of its own.
+
+```rego
+some s, item in g.items
+g.local(s)
+item.stage == "ratified"
+some l in item.links
+g.items[l.to].stage == "proposed"
+```
+
+### Behaviour changes (decisions)
+
+1. **Rules stop at resolution errors.** Without this, one bad reference cascades: pointing openemr's `p-clinical` at a missing system gave 1 REF-1 plus 5 DFD-8 findings, because the broken link is missing from the graph. With it, only REF-1 is reported. The cost: a document with a typo shows nothing else until the typo is fixed. The alternative, every rule skipping items with broken links, is the scoped variant's guards again.
+2. **DFD-8 now follows imported elements.** The scoped port, like the Cypher, skipped a flow end or relationship end that was imported. With a graph, containment chains into imported documents are just edges, so the check simply runs. REF-5 confines *coverage* rules to the checked document, and they still do (`g.local_of`), but DFD-8 is not a coverage rule. No example tells the two behaviours apart.
+3. **An import the caller could not fetch** still resolves nothing and is not reported, as in the harness. Since the caller must now provide the closure, an unfetched import could instead be a resolution error of its own.
+4. **One version per document in a closure.** Two imports that reach different versions of one document are a caller error. Today's examples never do this; the imports must already share a major version.
+
+### What it does not fix
+
+GRC-31 is still reachability rather than recursion (gap 2): that comes from profile excludes, not imports. Loader behaviour (gap 4) still belongs to the core. The link table (gap 3) is still needed, but only by the resolve step, so it has one consumer to design for in phase 2b.
+
+### Recommendation
+
+Adopt resolve-then-check for phase 2: amend ADR-001's input contract to the shape above, make the graph package the only reader of aliases and link fields, and port the other 83 rules against `g.items` / `g.out` / `g.local_of`. Decide changes 1–3 above first.

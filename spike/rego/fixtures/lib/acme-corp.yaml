@@ -1,0 +1,22 @@
+# Company governance: the corporate baseline includes MFA on admin access.
+intentSpec: "0.1"
+id: acme-corp
+version: 1.0.0
+stage: ratified
+
+influencers:
+  inf: {kinds: [internal], scopeRationale: The board requires it}
+policies:
+  pol: {statement: Protect administrative access, approver: Board, satisfies: [inf]}
+controlObjectives:
+  co: {statement: Only authorised staff administer systems, supports: [pol]}
+standards:
+  std: {statement: Admin access uses a second factor, addresses: [co]}
+controls:
+  mfa: {statement: MFA on admin access, owner: CISO, safeguard: technical, enforces: [std], achieves: [co]}
+assessmentObjectives:
+  ao: {assesses: mfa, verifies: [std], methods: [examine], evidence: IdP configuration}
+profiles:
+  baseline: {owner: CISO}
+selections:
+  sel-mfa: {in: baseline, choice: include, names: mfa}

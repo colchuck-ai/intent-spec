@@ -1,0 +1,11 @@
+# breaks: GRC-10 /products/p
+# p selects the line baseline, which imports acme-corp's baseline (two imports away); p does not adopt corp's mfa.
+intentSpec: "0.1"
+id: grc-10-transitive
+version: 0.1.0
+stage: proposed
+imports:
+  line: {source: lib/acme-line.yaml, version: ^1.0.0}
+
+products:
+  p: {selects: [line:line-baseline]}
