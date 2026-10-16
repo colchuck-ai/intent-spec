@@ -1,0 +1,321 @@
+{
+ "model": {
+  "external": {
+   "adoptions": [
+    "inherits"
+   ],
+   "assessmentObjectives": [],
+   "components": [],
+   "containerInstances": [],
+   "containers": [],
+   "controlObjectives": [],
+   "controls": [],
+   "dataElements": [],
+   "dataFlowDiagrams": [],
+   "dataFlows": [],
+   "dataStores": [],
+   "deploymentDiagrams": [],
+   "deploymentNodes": [],
+   "dynamicDiagrams": [],
+   "dynamicSteps": [],
+   "environments": [],
+   "externalEntities": [],
+   "externalReferences": [],
+   "guidelines": [],
+   "influencers": [
+    "binds",
+    "cites"
+   ],
+   "infrastructureNodes": [],
+   "jobExecutors": [],
+   "jobs": [
+    "cites"
+   ],
+   "metrics": [],
+   "outcomes": [
+    "cites"
+   ],
+   "people": [],
+   "policies": [],
+   "procedures": [],
+   "processes": [],
+   "products": [],
+   "profiles": [],
+   "relationships": [],
+   "requirements": [],
+   "risks": [],
+   "secureBaselines": [
+    "derives"
+   ],
+   "selections": [],
+   "standards": [],
+   "systemInstances": [],
+   "systems": [],
+   "threatReviews": [],
+   "threats": [],
+   "treatments": [],
+   "trustBoundaries": []
+  },
+  "links": {
+   "adoptions": [
+    "adopts",
+    "follows",
+    "governs",
+    "inherits",
+    "invokes",
+    "replacedBy"
+   ],
+   "assessmentObjectives": [
+    "assesses",
+    "examines",
+    "replacedBy",
+    "verifies"
+   ],
+   "components": [
+    "in",
+    "replacedBy",
+    "satisfies"
+   ],
+   "containerInstances": [
+    "in",
+    "instantiates",
+    "replacedBy"
+   ],
+   "containers": [
+    "in",
+    "replacedBy",
+    "satisfies"
+   ],
+   "controlObjectives": [
+    "cites",
+    "replacedBy",
+    "supports"
+   ],
+   "controls": [
+    "achieves",
+    "enforces",
+    "executes",
+    "replacedBy"
+   ],
+   "dataElements": [
+    "replacedBy",
+    "triggers"
+   ],
+   "dataFlowDiagrams": [
+    "depicts",
+    "includes",
+    "replacedBy"
+   ],
+   "dataFlows": [
+    "carries",
+    "connects",
+    "leaves",
+    "replacedBy",
+    "represents"
+   ],
+   "dataStores": [
+    "replacedBy",
+    "represents",
+    "stores"
+   ],
+   "deploymentDiagrams": [
+    "covers",
+    "depicts",
+    "replacedBy"
+   ],
+   "deploymentNodes": [
+    "belongs",
+    "in",
+    "replacedBy",
+    "satisfies"
+   ],
+   "dynamicDiagrams": [
+    "depicts",
+    "illustrates",
+    "replacedBy"
+   ],
+   "dynamicSteps": [
+    "follows",
+    "in",
+    "replacedBy"
+   ],
+   "environments": [
+    "replacedBy",
+    "serves"
+   ],
+   "externalEntities": [
+    "replacedBy",
+    "represents"
+   ],
+   "externalReferences": [
+    "replacedBy"
+   ],
+   "guidelines": [
+    "augments",
+    "replacedBy"
+   ],
+   "influencers": [
+    "binds",
+    "cites",
+    "replacedBy"
+   ],
+   "infrastructureNodes": [
+    "in",
+    "replacedBy"
+   ],
+   "jobExecutors": [
+    "replacedBy"
+   ],
+   "jobs": [
+    "cites",
+    "motivates",
+    "replacedBy"
+   ],
+   "metrics": [
+    "measures",
+    "replacedBy"
+   ],
+   "outcomes": [
+    "cites",
+    "in",
+    "replacedBy",
+    "scopes"
+   ],
+   "people": [
+    "plays",
+    "replacedBy"
+   ],
+   "policies": [
+    "replacedBy",
+    "satisfies"
+   ],
+   "procedures": [
+    "operationalizes",
+    "replacedBy"
+   ],
+   "processes": [
+    "replacedBy",
+    "represents"
+   ],
+   "products": [
+    "answers",
+    "replacedBy",
+    "selects",
+    "targets"
+   ],
+   "profiles": [
+    "imports",
+    "replacedBy"
+   ],
+   "relationships": [
+    "enters",
+    "leaves",
+    "replacedBy"
+   ],
+   "requirements": [
+    "executes",
+    "implements",
+    "replacedBy",
+    "scopes",
+    "serves"
+   ],
+   "risks": [
+    "endangers",
+    "replacedBy"
+   ],
+   "secureBaselines": [
+    "derives",
+    "encodes",
+    "hardens",
+    "replacedBy"
+   ],
+   "selections": [
+    "in",
+    "names",
+    "replacedBy"
+   ],
+   "standards": [
+    "addresses",
+    "replacedBy"
+   ],
+   "systemInstances": [
+    "in",
+    "instantiates",
+    "replacedBy"
+   ],
+   "systems": [
+    "realizes",
+    "replacedBy",
+    "satisfies"
+   ],
+   "threatReviews": [
+    "cites",
+    "inspects",
+    "raises",
+    "replacedBy",
+    "reviews"
+   ],
+   "threats": [
+    "replacedBy",
+    "threatens"
+   ],
+   "treatments": [
+    "replacedBy",
+    "scopes",
+    "treats",
+    "waives"
+   ],
+   "trustBoundaries": [
+    "encloses",
+    "in",
+    "relies",
+    "replacedBy"
+   ]
+  },
+  "types": {
+   "adoptions": "ADOPTION",
+   "assessmentObjectives": "ASSESSMENT_OBJECTIVE",
+   "components": "COMPONENT",
+   "containerInstances": "CONTAINER_INSTANCE",
+   "containers": "CONTAINER",
+   "controlObjectives": "CONTROL_OBJECTIVE",
+   "controls": "CONTROL",
+   "dataElements": "DATA_ELEMENT",
+   "dataFlowDiagrams": "DATA_FLOW_DIAGRAM",
+   "dataFlows": "DATA_FLOW",
+   "dataStores": "DATA_STORE",
+   "deploymentDiagrams": "DEPLOYMENT_DIAGRAM",
+   "deploymentNodes": "DEPLOYMENT_NODE",
+   "dynamicDiagrams": "DYNAMIC_DIAGRAM",
+   "dynamicSteps": "DYNAMIC_STEP",
+   "environments": "ENVIRONMENT",
+   "externalEntities": "EXTERNAL_ENTITY",
+   "externalReferences": "EXTERNAL_REFERENCE",
+   "guidelines": "GUIDELINE",
+   "influencers": "INFLUENCER",
+   "infrastructureNodes": "INFRASTRUCTURE_NODE",
+   "jobExecutors": "JOB_EXECUTOR",
+   "jobs": "JOB",
+   "metrics": "METRIC",
+   "outcomes": "OUTCOME",
+   "people": "PERSON",
+   "policies": "POLICY",
+   "procedures": "PROCEDURE",
+   "processes": "PROCESS",
+   "products": "PRODUCT",
+   "profiles": "PROFILE",
+   "relationships": "RELATIONSHIP",
+   "requirements": "REQUIREMENT",
+   "risks": "RISK",
+   "secureBaselines": "SECURE_BASELINE",
+   "selections": "SELECTION",
+   "standards": "STANDARD",
+   "systemInstances": "SYSTEM_INSTANCE",
+   "systems": "SYSTEM",
+   "threatReviews": "THREAT_REVIEW",
+   "threats": "THREAT",
+   "treatments": "TREATMENT",
+   "trustBoundaries": "TRUST_BOUNDARY"
+  }
+ }
+}
