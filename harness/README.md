@@ -15,11 +15,9 @@ Requires Docker and [uv](https://docs.astral.sh/uv/).
 ```bash
 cd harness
 docker compose up -d           # Neo4j 5 Community; Browser at http://localhost:7474 (neo4j / intentspec)
-uv run harness.py load         # load every example in review/examples, plus the model meta-graph
+uv run harness.py load         # load every example in review/examples, plus the ERD meta-graph
 uv run harness.py check        # run the rules in rules/*.cypher
 uv run harness.py export       # write loaded documents back to their YAML files
-uv run harness.py lint         # check model.md keeps its shape (no Neo4j needed)
-uv run harness.py render       # regenerate model.md's overview diagram from its Links tables
 uv run harness.py test         # run the invalid examples in review/examples/invalid as rule regression tests
 ```
 
@@ -29,7 +27,7 @@ Each command also takes document names, for example `uv run harness.py load open
 
 ## How a document becomes a graph
 
-The mapping is read from `../model.md`, so it follows the model without code changes.
+The mapping is read from `../erd.md`, so it follows the model without code changes.
 
 | YAML | Graph |
 |---|---|
@@ -41,7 +39,7 @@ The mapping is read from `../model.md`, so it follows the model without code cha
 | Import whose `source` names a loaded document by file stem (`source: shiftly-governance.yaml` names `shiftly-governance`) | `(:Import)-[:LOADED_AS]->(:Document)` |
 | `alias:id` target of such an import | the stub, then `-[:RESOLVES_TO]->(:Item {doc: <that document>, id})` |
 | Target that resolves to nothing | `(:Ref:Unresolved {ref})` stub, reported by REF-1 |
-| Model elements and links | `(:EntityType {name, key, label})-[:LINK {verb, many, required}]->(:EntityType)` |
+| ERD entity types and links | `(:EntityType {name, key, label})-[:LINK {verb, many, required}]->(:EntityType)` |
 
 All the examples share one database (Community edition allows one), so every node carries `doc`, the name of the file it came from (e.g. `plausible-mvp`). Filter on it in queries.
 
@@ -82,13 +80,13 @@ Each rule is a file in `rules/` holding one Cypher query. Its header names the r
 // hint: what to do about it
 ```
 
-The query receives `$doc` and returns one row per problem, with `pointer` (the JSON pointer `/<key>/<id>` from model.md's reference serialization) and optionally `detail`. `check` exits non-zero when an error-severity rule finds anything.
+The query receives `$doc` and returns one row per problem, with `pointer` (the JSON pointer `/<key>/<id>` from erd.md's reference serialization) and optionally `detail`. `check` exits non-zero when an error-severity rule finds anything.
 
 ## Rule regression tests
 
 Each file in `../review/examples/invalid` is a small document that breaks one rule. Its first line names the rule and where it fires, `# breaks: <RULE-ID> <pointer>`; further `# also: <RULE-ID> <pointer>` lines name any other finding it expects. `test` loads each file with the documents it imports, checks it, and passes only when its unwaived findings (errors and warnings) are exactly those. It then deletes the file's nodes, prints one line per file and a summary, and exits non-zero when any file fails. Pass names (e.g. `uv run harness.py test GRC-10`) to run some. The invalid examples are kept out of `load` and `check`, which read only the top level of `review/examples`.
 
-An item's `ruleWaivers` map (rule ID to rationale) waives a warning-severity rule on that item: `check` prints it as `waived` with the rationale instead of as a warning. Waivers never silence an error-severity rule; DOC-3 reports any waiver of one, or of an unknown rule ID. Rule IDs and severities are loaded from `../model.md` as `(:Rule {id, severity})` nodes.
+An item's `ruleWaivers` map (rule ID to rationale) waives a warning-severity rule on that item: `check` prints it as `waived` with the rationale instead of as a warning. Waivers never silence an error-severity rule; DOC-3 reports any waiver of one, or of an unknown rule ID. Rule IDs and severities are loaded from `../erd.md` as `(:Rule {id, severity})` nodes.
 
 ## Agents
 
@@ -112,5 +110,5 @@ uv run anneal.py reset-to-best     # copy ../anneal/best/ over the model (human 
 uv run pytest tests                # unit tests for energy, thresholds, schedule and draws
 ```
 
-Every draw uses `random.Random(f"{seed}:{round}:{purpose}")` with the seed in `state.json`, so the same state always draws the same probe and panel. Size is entities plus links (one per source and target pair) plus rule IDs, all parsed from `../model.md`. Errors are error-severity rule findings that aren't waived, after reloading every example.
+Every draw uses `random.Random(f"{seed}:{round}:{purpose}")` with the seed in `state.json`, so the same state always draws the same probe and panel. Size is entities plus links (one per source and target pair) plus rule IDs, all parsed from `../erd.md`. Errors are error-severity rule findings that aren't waived, after reloading every example.
 

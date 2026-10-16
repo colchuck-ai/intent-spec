@@ -1,6 +1,6 @@
 # Review prompt
 
-You are reviewing intent-spec, a unified data model for describing a software product across product management, engineering, security, and governance, risk and compliance: its entities, the links between them and the rules they obey. Read `README.md` for its goals and invariants and `model.md` for the model. Then read your persona and the examples you were given.
+You are reviewing intent-spec, a unified data model for describing a software product across product management, engineering, security, and governance, risk and compliance: its entities, the links between them and the rules they obey. Read `README.md` for its goals and invariants and `erd.md` for the model. Then read your persona and the examples you were given.
 
 The examples are YAML documents, but YAML is only a test fixture: the model is the deliverable, not the file format. Findings about the serialization (key names, pluralization, pointers, file layout) are out of scope; report what the model can or can't say.
 

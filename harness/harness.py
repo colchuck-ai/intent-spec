@@ -5,12 +5,12 @@ rebuild: load a document, look at it or change it in Neo4j Browser, then export 
 back into the YAML file (comments and order are kept, so the change shows as a
 normal git diff).
 
-The mapping comes from ../model.md, so it follows the model without code changes:
+The mapping comes from ../erd.md, so it follows the model without code changes:
 - every item becomes a node labelled :Item and its entity type (e.g. :Container),
   with properties id, doc (the document id) and type (e.g. CONTAINER)
 - every link field becomes a relationship named after its verb (in -> :IN), with
   the original verb in r.verb and list position in r.idx
-- the model itself is loaded as :EntityType nodes joined by :LINK relationships
+- the ERD itself is loaded as :EntityType nodes joined by :LINK relationships
 - an alias:id reference becomes a :Ref:Imported stub; when the import's source names another
   loaded document (by file stem), the stub -[:RESOLVES_TO]-> that document's item
 """
@@ -30,6 +30,7 @@ from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
 ROOT = Path(__file__).resolve().parent.parent
+ERD = ROOT / "erd.md"
 MODEL = ROOT / "model.md"
 EXAMPLES = ROOT / "review" / "examples"
 INVALID = EXAMPLES / "invalid"
@@ -39,11 +40,11 @@ URI = os.environ.get("NEO4J_URI", "bolt://localhost:7687")
 AUTH = (os.environ.get("NEO4J_USER", "neo4j"), os.environ.get("NEO4J_PASSWORD", "intentspec"))
 
 HEADER = ["intentSpec", "id", "version", "stage"]
-# Base fields every item may have that hold a reference (see model.md Conventions, "Items").
+# Base fields every item may have that hold a reference (see erd.md "References").
 BASE_LINKS = {"replacedBy": False}
-# Base field mapping a warning rule ID to the rationale for waiving it on the item (model.md DOC-3).
+# Base field mapping a (should) rule ID to the rationale for waiving it on the item (erd.md DOC-3).
 WAIVERS = "ruleWaivers"
-# Plural exceptions listed in model.md "Reference serialization".
+# Plural exceptions listed in erd.md "Serialization".
 PLURALS = {
     "PERSON": "people",
     "POLICY": "policies",
@@ -53,7 +54,7 @@ PLURALS = {
 }
 
 
-# ---------------------------------------------------------------- model
+# ---------------------------------------------------------------- ERD model
 
 
 @dataclass
@@ -70,6 +71,7 @@ class Link:
 class Entity:
     name: str
     attrs: dict[str, str] = field(default_factory=dict)  # name -> type (e.g. string, enum[], map)
+    notes: dict[str, str] = field(default_factory=dict)  # name -> quoted description
     links: dict[str, Link] = field(default_factory=dict)  # verb -> link
     required: dict[str, bool] = field(default_factory=dict)  # attribute name -> required
     values: dict[str, list[str]] = field(default_factory=dict)  # enum attribute name -> allowed values
@@ -86,6 +88,51 @@ class Entity:
     @property
     def label(self) -> str:
         return "".join(w.capitalize() for w in self.name.split("_"))
+
+
+LINK_RE = re.compile(r"^\s*([A-Z_]+)\s+(\S{2})--(\S{2})\s+([A-Z_]+)\s*:\s*(\w+)")
+ENTITY_RE = re.compile(r"^\s*([A-Z_]+)\s*(\{)?\s*$")
+ATTR_RE = re.compile(r"^\s*(\w+(?:\[\])?)\s+(\w+)(?:\s+\"(.*)\")?\s*$")
+
+
+def parse_erd(path: Path = ERD) -> dict[str, Entity]:
+    entities: dict[str, Entity] = {}
+    current: Entity | None = None
+    for line in path.read_text().splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("%%") or stripped.startswith("```") or stripped == "erDiagram":
+            continue
+        if current is not None:
+            if stripped == "}":
+                current = None
+            elif m := ATTR_RE.match(line):
+                current.attrs[m.group(2)] = m.group(1)
+                current.notes[m.group(2)] = m.group(3) or ""
+            continue
+        if m := LINK_RE.match(line):
+            src, _, right, tgt, verb = m.groups()
+            ent = entities.setdefault(src, Entity(src))
+            entities.setdefault(tgt, Entity(tgt))
+            link = ent.links.get(verb)
+            if link is None:
+                ent.links[verb] = Link(src, verb, [tgt], "{" in right, right.startswith("|"))
+            else:
+                link.targets.append(tgt)
+            continue
+        if m := ENTITY_RE.match(line):
+            current = entities.setdefault(m.group(1), Entity(m.group(1)))
+            if not m.group(2):
+                current = None
+    return entities
+
+
+RULE_RE = re.compile(r"^\s*%%\s*rule\s+([A-Z0-9]+-\d+)(\s*\(should\))?\s*:")
+
+
+def parse_rule_ids(path: Path = ERD) -> dict[str, str]:
+    """Rule IDs declared in the ERD, each with its severity: warning for (should), else error."""
+    return {m.group(1): "warning" if m.group(2) else "error"
+            for line in path.read_text().splitlines() if (m := RULE_RE.match(line))}
 
 
 # ---------------------------------------------------------------- model.md
@@ -435,13 +482,20 @@ def to_property(v):
 
 
 def attr_rows(e: Entity) -> list[dict]:
-    """Attribute metadata from the model: type, required, and enum values."""
-    return [{"name": name, "type": typ, "list": typ.endswith("[]"), "required": e.required.get(name, False),
-             "values": e.values.get(name)} for name, typ in e.attrs.items()]
+    """Attribute metadata from the ERD: type, required, and enum values (the part before the first ';')."""
+    rows = []
+    for name, typ in e.attrs.items():
+        parts = [p.strip() for p in e.notes.get(name, "").split(";")]
+        values = None
+        if typ.startswith("enum") and parts and "|" in parts[0]:
+            values = [v.strip() for v in parts[0].split("|")]
+        required = "required" in parts or "one or more" in parts
+        rows.append({"name": name, "type": typ, "list": typ.endswith("[]"), "required": required, "values": values})
+    return rows
 
 
 def load_meta(session, entities: dict[str, Entity]) -> None:
-    """Load the model as :EntityType nodes. MERGE keeps it readable while another process loads."""
+    """Load the ERD as :EntityType nodes. MERGE keeps it readable while another process loads."""
     session.run(
         "UNWIND $rows AS r MERGE (e:EntityType {name: r.name}) SET e.key = r.key, e.label = r.label, e.attrs = r.attrs",
         rows=[{"name": e.name, "key": e.key, "label": e.label, "attrs": list(e.attrs)} for e in entities.values()],
@@ -472,7 +526,7 @@ def load_meta(session, entities: dict[str, Entity]) -> None:
         "MATCH (a:Attr) WHERE NOT {entity: a.entity, name: a.name} IN $keys DETACH DELETE a",
         keys=[{"entity": r["entity"], "name": r["name"]} for r in attrs],
     )
-    rules = {k: r.severity for k, r in parse_model(MODEL).rules.items()}
+    rules = parse_rule_ids()
     session.run(
         "UNWIND $rows AS r MERGE (x:Rule {id: r.id}) SET x.severity = r.severity",
         rows=[{"id": k, "severity": v} for k, v in rules.items()],
@@ -494,7 +548,7 @@ def load_doc(session, path: Path, entities: dict[str, Entity]) -> str:
         doc=doc, props=header, file=str(path), order=list(data),
     )
     if extra_top:
-        print(f"  warning: {doc}: top-level keys not in the model kept as-is: {extra_top}", file=sys.stderr)
+        print(f"  warning: {doc}: top-level keys not in the ERD kept as-is: {extra_top}", file=sys.stderr)
         session.run("MATCH (d:Document {doc: $doc}) SET d.extra = $extra", doc=doc,
                     extra=json.dumps({k: data[k] for k in extra_top}))
     for alias, imp in (data.get("imports") or {}).items():
@@ -897,7 +951,7 @@ def main() -> None:
         sp.add_argument("docs", nargs="*", help="example names (e.g. openemr) or YAML paths")
         if name == "check":
             sp.add_argument("--rules", help="comma-separated rule ids to run (default: all)")
-    sub.add_parser("meta", help="load only the model meta-graph")
+    sub.add_parser("meta", help="load only the ERD meta-graph")
     lp = sub.add_parser("lint", help="check model.md keeps its shape")
     lp.add_argument("model", nargs="?", default=str(MODEL))
     lp.add_argument("--rules", default=str(RULES), help="directory of rule queries")
@@ -915,7 +969,7 @@ def main() -> None:
             print(line)
         sys.exit(1 if problems else 0)
 
-    entities = parse_model(MODEL).entities
+    entities = parse_erd()
     with GraphDatabase.driver(URI, auth=AUTH, notifications_min_severity="OFF") as driver, driver.session() as s:
         if args.cmd == "meta":
             load_meta(s, entities)

@@ -31,13 +31,13 @@ Never compute energy, pick a product or reviewer, or decide keep or revert by ha
 ```
 E(S) = 10·P1 + 3·P2 + 1·P3     open findings with triage:accept on examples in S, deferred included
      + 10·errors               harness errors on examples in S
-     + 0.5·size                elements + links + rules in ../model.md
-     + 50·departures           `Anchor: departure` lines in ../model.md
+     + 0.5·size                entities + links + rules in ../erd.md
+     + 50·departures           `%% departure` lines in ../erd.md
 ```
 
 S is a set of examples. Comparisons between rounds always use the same S, the benchmark as it stood at the earlier round, so that adding a probe never looks like progress or regress. The best copy is always compared on the example set it was first measured on. Energy *per example* counts only the findings and errors terms, divided by the number of examples; reheating and the stop check compare it between the probe and the benchmark. Rejected and duplicate findings count for nothing, so triage rejects anything out of scope instead of deferring it.
 
-A departure is any place the model leaves JTBD, C4, DFD3 or HCGF. Each one is declared on its element in `../model.md` as `Anchor: departure — <source model>: <what changed> because <evidence> (decision: <bead id>)`, added by the move that makes it. An undeclared departure is a P1 finding.
+A departure is any place the model leaves JTBD, C4, DFD3 or HCGF. Each one is declared in `../erd.md` as `%% departure DEP-n: <model>: <what changed> because <evidence>`, added by the move that makes it. An undeclared departure is a P1 finding.
 
 ### Temperature
 
@@ -104,7 +104,7 @@ Open human gates don't stop the loop. Gated moves wait, and the move runner skip
 
 You write the probe example that `begin` drew. The step's description names the product and its tag.
 
-1. Claim the step. Read `../README.md`, `../model.md`, `examples/README.md` and two existing examples for style.
+1. Claim the step. Read `../README.md`, `../erd.md`, `examples/README.md` and two existing examples for style.
 2. Research the product from its own public material: website, docs, source repository, security and privacy pages. Cite sources in the example's comments. Model what the product intends, not what you guess.
 3. Write `examples/<id>.yaml` at the stage that fits the product. End it with a "Couldn't express" section, as the other examples do. Add it to `examples/README.md`.
 4. Run `uv run harness.py load <id>` and `uv run harness.py check <id>` from `../harness`. Fix the example, not the model, until there are no errors. Leave warnings: they are evidence for reviewers.
@@ -115,7 +115,7 @@ You write the probe example that `begin` drew. The step's description names the 
 You are given one review step. Its description names your persona and examples.
 
 1. Claim the step. If it already has child findings from an interrupted run, close each with the reason "superseded by rerun".
-2. Read `../README.md`, `../model.md`, `prompt.md`, your persona, `examples/README.md` and your examples. Run `uv run harness.py check <your examples>` and query the graph as evidence. Don't file what the checker already reports.
+2. Read `../README.md`, `../erd.md`, `prompt.md`, your persona, `examples/README.md` and your examples. Run `uv run harness.py check <your examples>` and query the graph as evidence. Don't file what the checker already reports.
 3. Review as `prompt.md` describes, then file each finding as a child of the step:
    ```bash
    bd create --parent <step> --type task --priority P<1-3> \
@@ -151,7 +151,7 @@ You are given one review step. Its description names your persona and examples.
 
 You propose moves that no finding asked for. The search only runs you while hot or warm.
 
-1. Claim the step. Read `../README.md`, `../model.md`, the round's findings and `uv run anneal.py status`.
+1. Claim the step. Read `../README.md`, `../erd.md`, the round's findings and `uv run anneal.py status`.
 2. Propose up to three moves the temperature allows, favouring moves that could take the model somewhere the findings never would:
    - Remove an entity or link and see whether the examples can still say everything.
    - Merge two entities that mean the same thing across disciplines (INV-12).
@@ -177,7 +177,7 @@ You run the round's moves one at a time so the orchestrator doesn't have to.
 You are given one move.
 
 1. Claim it. Read it, its comments, any resolved gate, and every bead it depends on or relates to (`bd dep list <id>` and `bd dep list <id> --direction=up`), including the commits that resolved them. A human's decision is recorded as a comment, and it overrides the proposal. Build on earlier moves and never undo a kept one.
-2. Make the change the move's size describes, and no larger, across `../model.md`, `../harness/rules/` and `examples/`. Keep the examples consistent with the model. If the move departs from JTBD, C4, DFD3 or HCGF, it needs a resolved gate, and you declare the departure on its element in `../model.md`. If it changes a rule's meaning, update its `.cypher` file and its invalid example in `examples/invalid/`.
+2. Make the change the move's size describes, and no larger, across `../erd.md`, `../harness/rules/` and `examples/`. Keep the examples consistent with the ERD. If the move departs from JTBD, C4, DFD3 or HCGF, it needs a resolved gate, and you declare the departure in `../erd.md`. If it changes a rule's meaning, update its `.cypher` file and its invalid example in `examples/invalid/`.
 3. If the change turns out to need a larger size, an invariant change or an undeclared departure, open a gate as Triage step 3 describes and reply "escalated". Leave any edits uncommitted; the orchestrator will see the dirty tree and bring in the human.
 4. Verify from `../harness`: run `uv run harness.py load`, `uv run harness.py check` and `uv run harness.py test`. Nothing new may fail, and `uv run harness.py export` must leave no unintended diff.
 5. Commit on main with the message `<id>: <summary>`. Don't close the move: `move judge` does. Reply "done" or "escalated".

@@ -195,20 +195,19 @@ def count_priorities(rows: list[dict]) -> dict:
 
 
 def model_size() -> dict:
-    model = h.parse_model(h.MODEL)
-    entities = model.entities
+    entities = h.parse_erd()
     links = sum(len(l.targets) for e in entities.values() for l in e.links.values())
-    rules = len(model.rules)
+    rules = len(h.parse_rule_ids())
     return {"entities": len(entities), "links": links, "rules": rules, "size": len(entities) + links + rules}
 
 
 def departures() -> int:
-    return len(DEPARTURE_RE.findall(h.MODEL.read_text()))
+    return len(DEPARTURE_RE.findall(h.ERD.read_text()))
 
 
 def harness_errors(examples: list[str]) -> int:
     """Reload every example into Neo4j and count error-severity problems on the given ones."""
-    entities = h.parse_model(h.MODEL).entities
+    entities = h.parse_erd()
     rules = h.load_rules()
     errors = 0
     with h.GraphDatabase.driver(h.URI, auth=h.AUTH, notifications_min_severity="OFF") as driver, \
@@ -427,15 +426,15 @@ def copy_model(dest: Path) -> None:
         shutil.rmtree(dest)
     (dest / "harness").mkdir(parents=True)
     (dest / "review").mkdir()
-    shutil.copy2(h.MODEL, dest / "model.md")
+    shutil.copy2(h.ERD, dest / "erd.md")
     shutil.copytree(h.RULES, dest / "harness" / "rules")
     shutil.copytree(h.EXAMPLES, dest / "review" / "examples")
 
 
 def cmd_reset(_: dict) -> None:
-    if not (BEST / "model.md").exists():
+    if not (BEST / "erd.md").exists():
         raise SystemExit("no best copy")
-    shutil.copy2(BEST / "model.md", h.MODEL)
+    shutil.copy2(BEST / "erd.md", h.ERD)
     shutil.rmtree(h.RULES)
     shutil.copytree(BEST / "harness" / "rules", h.RULES)
     shutil.rmtree(h.EXAMPLES)
