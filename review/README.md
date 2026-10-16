@@ -6,5 +6,4 @@ The model is improved by simulated annealing (see the [main README](../README.md
 - `prompt.md`: the shared review prompt
 - `personas/`: the 13 reviewer profiles: six core, seven sampled specialists
 - `examples/`: the benchmark examples and the probes; `examples/invalid/` holds one rule-breaking document per rule
-- `evals/`: fixed rubrics for judging the meaning of changed elements in `../model.md`
 - `.beads/formulas/anneal-round.formula.toml`: the round template, poured by `anneal.py begin`
