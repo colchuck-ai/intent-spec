@@ -226,33 +226,6 @@ def parse_model(path: Path) -> Model:
     return m
 
 
-# ---------------------------------------------------------------- render
-
-OVERVIEW_RE = re.compile(r"(<!-- overview:[^\n]*-->\n)(.*?)(<!-- /overview -->)", re.S)
-
-
-def overview(m: Model) -> str:
-    """The overview ERD: every link, plus any element no link touches."""
-    lines = []
-    for e in m.entities.values():
-        for l in e.links.values():
-            right = ("|" if l.required else "o") + ("{" if l.many else "|")
-            lines += [f"  {e.name} {l.left}--{right} {t}: {l.verb}" for t in l.targets]
-    linked = {e.name for e in m.entities.values() if e.links} | \
-             {t for e in m.entities.values() for l in e.links.values() for t in l.targets}
-    lines += [f"  {n}" for n in m.entities if n not in linked]
-    return "```mermaid\nerDiagram\n" + "\n".join(lines) + "\n```\n"
-
-
-def render(path: Path) -> bool:
-    """Rewrite the overview block in place; True if it changed."""
-    text = path.read_text()
-    new = OVERVIEW_RE.sub(lambda mt: mt.group(1) + overview(parse_model(path)) + mt.group(3), text, count=1)
-    if new != text:
-        path.write_text(new)
-    return new != text
-
-
 # ---------------------------------------------------------------- lint
 
 
@@ -291,11 +264,6 @@ def lint(path: Path, rules_dir: Path, invalid_dir: Path) -> list[str]:
                             out.append(f"MD-TARGET {name}.{verb}: no element {t.strip()}")
     out += lint_rules(lines)
     out += lint_queries(lines, rules_dir, invalid_dir)
-    block = OVERVIEW_RE.search(path.read_text())
-    if not block:
-        out.append("MD-OVERVIEW Overview: no generated block between <!-- overview: ... --> and <!-- /overview -->")
-    elif not any(o.startswith("MD-TABLE") for o in out) and block.group(2) != overview(parse_model(path)):
-        out.append("MD-OVERVIEW Overview: differs from the link tables; run harness.py render")
     for name, body in sections_:
         prose = [l for l in body if l.strip() and not l.startswith(("|", "- ", "**", "Anchor:", "Attributes: none", "Links: none"))]
         if not prose:
@@ -956,13 +924,8 @@ def main() -> None:
     lp.add_argument("model", nargs="?", default=str(MODEL))
     lp.add_argument("--rules", default=str(RULES), help="directory of rule queries")
     lp.add_argument("--invalid", default=str(INVALID), help="directory of invalid examples")
-    rp = sub.add_parser("render", help="rewrite model.md's overview diagram from its link tables")
-    rp.add_argument("model", nargs="?", default=str(MODEL))
     args = p.parse_args()
 
-    if args.cmd == "render":
-        print("rendered overview" if render(Path(args.model)) else "overview unchanged")
-        return
     if args.cmd == "lint":
         problems = lint(Path(args.model), Path(args.rules), Path(args.invalid))
         for line in problems:

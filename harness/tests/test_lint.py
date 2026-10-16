@@ -147,13 +147,3 @@ def test_departure_needs_decision(tmp_path):
 def test_declared_departure_passes(tmp_path):
     text = plant("Anchor: exact — JTBD job.", "Anchor: departure — JTBD job, but stored per product (decision: review-abc).")
     assert lint(text, tmp_path) == (0, [])
-
-
-def test_stale_overview(tmp_path):
-    code, out = lint(plant("  PROFILE }o--o{ PROFILE: imports\n", ""), tmp_path)
-    assert code == 1 and out == ["MD-OVERVIEW Overview: differs from the link tables; run harness.py render"]
-
-
-def test_overview_markers_missing(tmp_path):
-    code, out = lint(plant("<!-- /overview -->\n", ""), tmp_path)
-    assert code == 1 and out == ["MD-OVERVIEW Overview: no generated block between <!-- overview: ... --> and <!-- /overview -->"]
