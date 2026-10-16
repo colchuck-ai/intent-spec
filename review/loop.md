@@ -21,7 +21,6 @@ Never compute energy, pick a product or reviewer, or decide keep or revert by ha
 | `move start <bead>` | Before a fixer starts: records the size, departures and harness errors at the current commit. |
 | `move judge <bead>` | After the fixer and critic: computes ΔE, compares it with the threshold, and keeps or reverts the move's commits. Prints `kept`, `kept uphill` or `reverted`, with the arithmetic. |
 | `end` | Closes the round: the probe joins the benchmark, the round's numbers go into `state.json`, and the summary goes onto the molecule. |
-| `eval` | Lists the elements of `../model.md` added or changed since the best copy (`--old`, `--new` to compare others). Read-only. |
 | `reset-to-best` | Copies `../anneal/best/` over the current model, rules and examples. Run it only on a human's decision. |
 | `energy` | Prints the current model's energy on the benchmark, with its parts. |
 
@@ -94,7 +93,7 @@ Then check these in order:
    - **Author ready:** dispatch one subagent with the Author section.
    - **Review steps ready:** dispatch one subagent per review step, in parallel, with the Review section.
    - **Triage ready:** dispatch one subagent with the Triage section.
-   - **Measure ready:** first run `uv run anneal.py eval`; if it lists elements, dispatch one subagent with the Eval section and wait. Then run `uv run anneal.py measure`. If it says the search is frozen, report the best model's energy and stop. If it says to compare with best, stop and show the human both energies.
+   - **Measure ready:** run `uv run anneal.py measure`. If it says the search is frozen, report the best model's energy and stop. If it says to compare with best, stop and show the human both energies.
    - **Explore ready** (hot or warm only; `measure` skips it otherwise): dispatch one subagent with the Explorer section.
    - **Anneal ready:** dispatch one subagent with the Move runner section.
    - **End ready:** run `uv run anneal.py end`, append the round to the journal, and start again from the top.
@@ -147,15 +146,6 @@ You are given one review step. Its description names your persona and examples.
 
    Don't create cycles, and skip dependencies that already exist.
 5. Close the step and reply with counts for each decision and the number of dependencies added.
-
-## Eval
-
-You apply the fixed rubrics in `evals/` to the elements `uv run anneal.py eval` lists.
-
-1. Read `evals/README.md` and every rubric. Read `../model.md` for the listed elements, and for rule-query, their files in `../harness/rules/` and their invalid examples.
-2. For each listed element, answer every rubric in the format `evals/README.md` gives. Quote the evidence.
-3. File each failure as a finding with labels `finding,source:eval,eval:<rubric>,round:<n>,goal:<goal>,example:none` and the rubric's priority, titled `<ELEMENT>: <rubric> fails: <one line>`. Triage handles them like any other finding. They don't count towards energy yet: `anneal.py` counts only findings labelled with an example in the set, so counting model-level findings needs a change to `anneal.py` first.
-4. Reply with the number of findings filed.
 
 ## Explorer
 
