@@ -63,7 +63,6 @@ class Link:
     targets: list[str]
     many: bool
     required: bool
-    left: str = "}o"  # Mermaid source-side marker: how many sources each target has
 
 
 @dataclass
@@ -72,10 +71,6 @@ class Entity:
     attrs: dict[str, str] = field(default_factory=dict)  # name -> type (e.g. string, enum[], map)
     notes: dict[str, str] = field(default_factory=dict)  # name -> quoted description
     links: dict[str, Link] = field(default_factory=dict)  # verb -> link
-    required: dict[str, bool] = field(default_factory=dict)  # attribute name -> required
-    values: dict[str, list[str]] = field(default_factory=dict)  # enum attribute name -> allowed values
-    area: str = ""
-    anchor: str = ""
 
     @property
     def key(self) -> str:
@@ -132,96 +127,6 @@ def parse_rule_ids(path: Path = ERD) -> dict[str, str]:
     """Rule IDs declared in the ERD, each with its severity: warning for (should), else error."""
     return {m.group(1): "warning" if m.group(2) else "error"
             for line in path.read_text().splitlines() if (m := RULE_RE.match(line))}
-
-
-# ---------------------------------------------------------------- model.md
-
-NON_AREAS = {"Overview", "Conventions", "Reference serialization"}
-ANCHOR_RE = re.compile(r"^Anchor:\s*(\w+)")
-ENUM_TYPE_RE = re.compile(r"^enum(\[\])?\s*\((.*)\)$")
-# Cardinality words to Mermaid markers: target side, then source side ("each target has ...").
-RIGHT = {"exactly one": "||", "zero or one": "o|", "zero or more": "o{", "one or more": "|{"}
-LEFT = {"exactly one": "||", "zero or one": "|o", "zero or more": "}o", "one or more": "}|"}
-
-
-RULE_ITEM_RE = re.compile(r"^- \*\*([A-Z0-9]+-\d+)\*\*(?: \((error|warning)\))?:\s*(.*)$")
-ID_LIST_RE = re.compile(r"^(Retired|Not checked by a query|Generated checks):\s*(.*?)\.?$")
-
-
-@dataclass
-class RuleDef:
-    id: str
-    severity: str  # error | warning; empty for a derivation
-    statement: str
-    element: str  # the element it sits under; empty at area or Conventions level
-    area: str
-
-
-@dataclass
-class Model:
-    entities: dict[str, Entity] = field(default_factory=dict)
-    rules: dict[str, RuleDef] = field(default_factory=dict)
-    derivations: dict[str, RuleDef] = field(default_factory=dict)
-    retired: list[str] = field(default_factory=list)
-    unchecked: list[str] = field(default_factory=list)
-    generated: list[str] = field(default_factory=list)
-
-
-def table_rows(lines: list[str], i: int) -> tuple[list[list[str]], int]:
-    """The rows of the Markdown table starting at lines[i] (header and separator skipped)."""
-    rows = []
-    j = i + 2
-    while j < len(lines) and lines[j].startswith("|"):
-        rows.append([c.strip() for c in re.split(r"(?<!\\)\|", lines[j].strip())[1:-1]])
-        j += 1
-    return rows, j
-
-
-def parse_model(path: Path) -> Model:
-    m = Model()
-    lines = path.read_text().splitlines()
-    area, current, listing = "", None, ""
-    i = 0
-    while i < len(lines):
-        line = lines[i]
-        if line.startswith("## "):
-            area, current, listing = line[3:].strip(), None, ""
-        elif line in ("**Rules**", "**Derived**", "**Guidance**"):
-            listing = line.strip("*")
-        elif listing in ("Rules", "Derived") and (rm := RULE_ITEM_RE.match(line)):
-            rid, sev, text = rm.groups()
-            target = m.rules if listing == "Rules" else m.derivations
-            target[rid] = RuleDef(rid, sev or "", text, current.name if current else "", area)
-        elif lm := ID_LIST_RE.match(line):
-            ids = [x.strip() for x in lm.group(2).split(",") if x.strip()]
-            {"Retired": m.retired, "Not checked by a query": m.unchecked, "Generated checks": m.generated}[lm.group(1)].extend(ids)
-        elif line.startswith("### ") and area not in NON_AREAS:
-            listing = ""
-            current = m.entities.setdefault(line[4:].strip(), Entity(line[4:].strip()))
-            current.area = area
-        elif current is not None and (am := ANCHOR_RE.match(line)):
-            current.anchor = am.group(1)
-        elif current is not None and line.startswith("| Attribute |"):
-            rows, i = table_rows(lines, i)
-            for name, typ, req, _meaning in rows:
-                if em := ENUM_TYPE_RE.match(typ):
-                    current.attrs[name] = "enum" + (em.group(1) or "")
-                    current.values[name] = [v.strip() for v in em.group(2).split(",")]
-                else:
-                    current.attrs[name] = typ
-                current.required[name] = req in ("yes", "one or more")
-            continue
-        elif current is not None and line.startswith("| Link |"):
-            rows, i = table_rows(lines, i)
-            for verb, targets, card, _meaning in rows:
-                right, _, left = card.partition("; each target has ")
-                marker = RIGHT[right.strip()]
-                link = current.links.setdefault(
-                    verb, Link(current.name, verb, [], "{" in marker, marker.startswith("|"), LEFT[left.strip() or "zero or more"]))
-                link.targets += [t.strip() for t in targets.split(" or ")]
-            continue
-        i += 1
-    return m
 
 
 def rel_type(verb: str) -> str:
