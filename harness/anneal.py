@@ -2,7 +2,7 @@
 
 Commands: status, begin, measure, move start|judge|next, end, reset-to-best.
 State lives in ../anneal/state.json, the best model so far in ../anneal/best/,
-findings and moves in beads (review/.beads). Every draw uses
+findings and moves in beads (.beads at the repo root). Every draw uses
 random.Random(f"{seed}:{round}:{purpose}"), so it replays exactly.
 """
 
