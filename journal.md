@@ -83,3 +83,7 @@ Asked to be intentional about what the annealed "solution" contains, three agent
 ## 2026-10-15: model.md reverted; the product is a schema plus programmatic rules
 
 The model.md restructure (one Markdown file, an element per section, lint and evals to hold its shape) was built test-first and then reverted the same week. A single prose-and-tables document needed its own lint, renderer and LLM evals just to stay well-formed. The human chose a technological constraint instead: the solution is a schema for syntactic checks and a set of programmatic semantic rules, on the bet that a hard, executable target will make the model converge better than a document that only describes itself. Evidence: reverts of d2e5981..8850080.
+
+## 2026-10-15: a spec with teeth: JSON Schema, Rego, and cores per language
+
+The product of this repository changed. It is now a language-agnostic spec: a JSON Schema for syntax, semantic rules in Rego, and a conformance suite whose invalid documents each name what they break. Language cores, starting with Python, run the spec and live in their own repositories, following the human's earlier ai-resource-spec and its Go core. Code is authoritative over prose. Versions live in directories, and the spec stays draft until annealing freezes, so the end of the search and v1 are the same event. INV-2 and INV-3, retired a week earlier as "storage concerns", came back; INV-11, storage independence, went. The plan is a beads epic, starting with a five-rule Rego spike. Evidence: ADRs/001-schema-and-rego-rules.md, review-ezo.

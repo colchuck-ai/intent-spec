@@ -2,6 +2,8 @@
 
 A unified data model for describing a product across product management, engineering, security, and governance, risk and compliance. It defines the entities, the relationships between them, and the rules those entities and relationships must obey. It starts from established models instead of inventing new ones: Jobs to be Done for product intent, C4 for architecture, DFD3 and STRIDE for threat modeling, and HCGF for governance.
 
+The model is published as a versioned, language-agnostic **spec**: a JSON Schema that checks a document's shape, and semantic rules, written in Rego, that check what the shape can't. Products describe themselves in documents that conform to the spec, and AIs use those documents as context to build and run the product.
+
 **Status:** a public scratchpad. The model is being worked out in the open, and parts of it are wrong. That's the point: being ambitious and finding out where it's wrong beats thinking small and never learning anything.
 
 ## Goal
@@ -14,7 +16,26 @@ The model should be:
 - **Composable:** governance is defined once and adopted by many products, and one product's intent can be implemented across many repos.
 - **Agent-friendly:** easy for agents to read, query and edit, with stable IDs and rules that say what's wrong and how to fix it.
 
-The model is the deliverable. How it is stored, whether as YAML files, SQL tables or a graph database, is not.
+
+## What ships
+
+The spec is the deliverable. It has three parts, versioned together and free of any one programming language:
+
+| Part | Format | Checks |
+|---|---|---|
+| Schema | JSON Schema 2020-12 | Syntax: which items exist, their attributes, enums, required fields and the shape of every link. Definitions live in its descriptions. |
+| Rules | Rego ([Open Policy Agent](https://www.openpolicyagent.org/)), one package per area | Semantics: what the schema can't express, such as coverage, cross-layer consistency and lifecycle. Each rule carries an ID, a severity, a description and a hint. |
+| Conformance suite | Documents with expected results | Valid documents that must pass, and invalid ones that each declare the rule ID or schema path they break and where. |
+
+The code is authoritative: when a rule's description and its Rego disagree, the Rego defines the rule and the description is fixed. Descriptions explain the general case.
+
+**Language cores** parse and validate documents by running the spec's schema and rules, and pass its conformance suite. They live in their own repositories, starting with `intent-core-python`, and pull in the spec as a git submodule. The split follows [ai-resource-spec](https://github.com/colchuck-ai/ai-resource-spec) and its Go core. See [ADR-001](ADRs/001-schema-and-rego-rules.md).
+
+## Versioning
+
+Everything that ships is versioned by directory: `schema/draft/`, `rules/draft/`, `tests/draft/`, `spec/draft/`. A document declares the version it conforms to (`intentSpec: draft`). The spec stays `draft` while the model is being annealed, and breaking changes are allowed. **v1 is cut when annealing freezes**: the end of the search and the first stable release are the same event. After v1, a breaking change needs a new major version directory, and backward-compatible changes may land within one. An imported document must share the importer's major version.
+
+> **Transition (October 2026):** the model still lives in `erd.md`, with rules as Cypher in `harness/`. The move to the layout above is tracked by the beads epic `review-ezo`.
 
 ## How we get there
 
@@ -34,12 +55,12 @@ The process is being rebuilt around this design. A harness (`anneal/`) makes eve
 
 ```
 E = 10·P1 + 3·P2 + 1·P3       open accepted findings against the model
-  + 10·errors                 harness errors on the benchmark
+  + 10·errors                 schema and rule errors on the benchmark
   + 0.5·size                  entities + links + rules
   + 50·departures             places the model leaves JTBD, C4, DFD3 or HCGF
 ```
 
-Departures are weighted far above a P1, so leaving an established model pays off only when it resolves several P1s' worth of findings (INV-9, INV-10). Each departure is declared in the ERD, so the count is mechanical.
+Departures are weighted far above a P1, so leaving an established model pays off only when it resolves several P1s' worth of findings (INV-9, INV-10). Each approved departure is one entry in `departures.yaml` (ID, model, what changed, why), so the count is mechanical.
 
 **Benchmark and probe.** Energy is measured on the **benchmark**, the examples the model has already been fitted to. Each round also adds one **probe**: a software product the fixers have never seen. Its energy is reported separately, because it shows whether the model generalizes or has only been fitted to what it has seen. After its round the probe joins the benchmark. Probes come from a pinned snapshot of [awesome-selfhosted-data](https://github.com/awesome-selfhosted/awesome-selfhosted-data): 1,353 open-source products across 95 tags such as CRM, health, money, e-commerce, IoT and generative AI ([anneal/products-2026-10-08.json](anneal), CC BY-SA 3.0). Open source matters, because the author of a probe models it from the product's own public docs, code and security pages. A mechanical rule decides eligibility: not archived, at least 1,000 stars, updated in the past year. That leaves 729 products in 82 tags. Each draw picks a tag first and then a product within it, from a seeded shuffle without replacement, so probes spread across domains rather than following popularity, and the order can be replayed.
 
@@ -98,21 +119,23 @@ Everything else is derived. All of it lives in git, so the orchestrating agent k
 
 ## Repository
 
-- [erd.md](erd.md): the model, which holds its entities, links and rules.
+- [erd.md](erd.md): the model's entities, links and rules, until they move into the schema and Rego rules.
 - [review](review): example companies, reviewer personas and the review loop.
-- [harness](harness): the Neo4j test harness and the rules written as Cypher.
+- [harness](harness): the Neo4j test harness and the rules written as Cypher, retired once the Rego rules pass the suite.
 - [anneal](anneal): the annealing state, the best model so far and the company snapshot.
 - [journal.md](journal.md): how the model was built, and why it changed.
+- [ADRs](ADRs): architecture decisions.
 
 ## Invariants
 
 These hold for every version of the model. Creating, changing or deleting an invariant needs a human decision, and so does any change that contradicts one. Cite them by ID. IDs are never reused, so a removed invariant leaves a gap.
 
 - **INV-1. Intent only.** The model describes what a product is meant to be, never what is observed at runtime. Detecting drift between intent and reality, and compiling intent into a running product, are out of scope.
+- **INV-2. Two layers of checks.** The schema checks syntax and the rules check semantics. Every rule has an ID, a severity, a description and a hint, and reports each problem at a JSON pointer. Every invalid example in the conformance suite names the rule ID or schema path it breaks.
+- **INV-3. Flat maps, stable pointers.** Each item type is one flat map keyed by item ID, and nothing nests: containment is a link like any other. An item's JSON pointer is always `/<type>/<id>`, so it stays stable when items move. Loaders reject duplicate keys.
 - **INV-7. One way to refer to anything.** An item can point to an item in its own document, to an item in a document it imports, or to an external reference: something that will never be described in intent-spec, such as a law or a provider's SOC 2 report. References work the same way in every layer, which is what lets governance be defined once and adopted by many products. Importing something never creates an obligation; only an explicit adoption does.
 - **INV-9. Established models are the anchors.** JTBD, C4, DFD3 and HCGF are the source the unified model draws from. When a design question turns on principle, the answer starts from what the source model says and why.
 - **INV-10. Every change earns its place.** Every addition is justified by an example that needs it. Adding, removing or changing an established model's elements or relationships, including making a stored link derived, goes through review and a human decision. It is accepted only when the benefit of unification outweighs the cost of leaving a model people already know. Simplicity alone is never reason enough.
-- **INV-11. The model does not depend on how it is stored.** Entities, links and rules are defined without reference to any file format or database. Any storage that keeps them, whether YAML, SQL or a graph, is a valid form of the model, and none is the model.
 - **INV-12. Each concept exists once.** Product, engineering, security and GRC share one model, and their items link to each other directly. When two disciplines mean the same thing, they use the same entity. When they mean different things, the model names the difference.
 - **INV-13. Every item has a stable identity.** An item's ID is unique and keeps its meaning across versions. Items are deprecated, pointing to a replacement, rather than deleted or renamed.
 
