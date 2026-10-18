@@ -2,7 +2,7 @@
 
 A unified data model for describing a product across product management, engineering, security, and governance, risk and compliance. It defines the entities, the relationships between them, and the rules those entities and relationships must obey. It starts from established models instead of inventing new ones: Jobs to be Done for product intent, C4 for architecture, DFD3 and STRIDE for threat modeling, and HCGF for governance.
 
-The model is published as a versioned, language-agnostic **spec**: a JSON Schema that checks a document's shape, and semantic rules, written in Rego, that check what the shape can't. Products describe themselves in documents that conform to the spec, and AIs use those documents as context to build and run the product.
+The model is published as a versioned, language-agnostic **spec**: a JSON Schema that checks a document's shape, semantic rules stated in a catalog that check what the shape can't, and a conformance suite that pins both down. Products describe themselves in documents that conform to the spec, and AIs use those documents as context to build and run the product.
 
 **Status:** a public scratchpad. The model is being worked out in the open, and parts of it are wrong. That's the point: being ambitious and finding out where it's wrong beats thinking small and never learning anything.
 
@@ -24,18 +24,20 @@ The spec is the deliverable. It has three parts, versioned together and free of 
 | Part | Format | Checks |
 |---|---|---|
 | Schema | JSON Schema 2020-12 | Syntax: which items exist, their attributes, enums, required fields and the shape of every link. Definitions live in its descriptions. |
-| Rules | Rego ([Open Policy Agent](https://www.openpolicyagent.org/)), one package per area | Semantics: what the schema can't express, such as coverage, cross-layer consistency and lifecycle. Each rule carries an ID, a severity, a description and a hint. |
-| Conformance suite | Documents with expected results | Valid documents that must pass, and invalid ones that each declare the rule ID or schema path they break and where. |
+| Rules | A catalog (`rules/draft/rules.yaml`) and prose chapters (`spec/draft/`) | Semantics: what the schema can't express, such as coverage, cross-layer consistency and lifecycle. Each rule carries an ID, a severity, a normative statement and a hint. Resolution (imports, references, cycles) is its own chapter and produces one resolved document; every other rule is stated against that document and never mentions imports. |
+| Conformance suite | Documents with expected results | Valid documents that must pass, invalid ones that each declare the rule ID or schema path they break and where, and resolution cases (sets of documents with the expected resolved document or findings). |
 
-The code is authoritative: when a rule's description and its Rego disagree, the Rego defines the rule and the description is fixed. Descriptions explain the general case.
+The suite is authoritative, not any implementation's code: when an implementation and a rule's statement disagree, the statement defines the rule, and a case is added to pin the disagreement down.
 
-**Language cores** parse and validate documents by running the spec's schema and rules, and pass its conformance suite. They live in their own repositories, starting with `intent-core-python`, and pull in the spec as a git submodule. The split follows [ai-resource-spec](https://github.com/colchuck-ai/ai-resource-spec) and its Go core. See [ADR-001](ADRs/001-schema-and-rego-rules.md).
+An unshipped **reference checker** (`reference/`, plain Python) runs the whole suite with `make test`, so annealing happens in this repository alone: a model change is one commit touching statement, schema, cases and reference code together. It is never released.
+
+**Language cores** are the products. They parse, validate, resolve and check documents, and pass the conformance suite, which they pull in as a git submodule pinned to a spec tag. They live in their own repositories, starting with `intent-core-python`. See [ADR-002](ADRs/002-prose-rules-and-resolution.md), which supersedes parts of [ADR-001](ADRs/001-schema-and-rego-rules.md).
 
 ## Versioning
 
 Everything that ships is versioned by directory: `schema/draft/`, `rules/draft/`, `tests/draft/`, `spec/draft/`. A document declares the version it conforms to (`intentSpec: draft`). The spec stays `draft` while the model is being annealed, and breaking changes are allowed. **v1 is cut when annealing freezes**: the end of the search and the first stable release are the same event. After v1, a breaking change needs a new major version directory, and backward-compatible changes may land within one. An imported document must share the importer's major version.
 
-> **Transition (October 2026):** the model still lives in `erd.md`, with rules as Cypher in `harness/`. The move to the layout above is tracked by the beads epic `review-ezo`.
+> **Transition (October 2026):** the model still lives in `erd.md`, with rules as Cypher in `harness/`. The move to the layout above is planned in [PLAN.md](PLAN.md) and tracked by the beads epic `review-ezo`.
 
 ## How we get there
 
@@ -119,9 +121,11 @@ Everything else is derived. All of it lives in git, so the orchestrating agent k
 
 ## Repository
 
-- [erd.md](erd.md): the model's entities, links and rules, until they move into the schema and Rego rules.
+- [erd.md](erd.md): the model's entities, links and rules, until they move into the schema and the rule catalog.
 - [review](review): example companies, reviewer personas and the review loop.
-- [harness](harness): the Neo4j test harness and the rules written as Cypher, retired once the Rego rules pass the suite.
+- [harness](harness): the Neo4j test harness and the rules written as Cypher, retired once the reference checker passes the suite.
+- [spike/rego](spike/rego): the Rego spike that led to ADR-002, deleted in phase 2a.
+- [PLAN.md](PLAN.md): the plan for the move to the spec layout.
 - [anneal](anneal): the annealing state, the best model so far and the company snapshot.
 - [journal.md](journal.md): how the model was built, and why it changed.
 - [ADRs](ADRs): architecture decisions.

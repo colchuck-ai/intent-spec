@@ -1,6 +1,6 @@
 # ADR-001: The spec is a JSON Schema plus Rego rules; language cores run it
 
-- **Status:** accepted
+- **Status:** accepted; decisions 1 (rules in Rego), 3 (cores run the spec's rules), 5 (rule input `{document, imports}`) and 8 (harness removed once Rego passes) superseded by [ADR-002](002-prose-rules-and-resolution.md) on 2026-10-17
 - **Date:** 2026-10-15
 - **Tracking:** beads epic `review-ezo`
 
